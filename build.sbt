@@ -5,11 +5,10 @@
  */
 
 import ScalaVersions._
-
-ThisBuild / organization := "com.github.takapi327"
-ThisBuild / startYear    := Some(2022)
+import BuildSettings._
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(
     scalaVersion := sys.props.get("scala.version").getOrElse(scala213),
+    commonSettings
   )
