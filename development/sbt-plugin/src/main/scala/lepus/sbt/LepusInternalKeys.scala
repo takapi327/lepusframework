@@ -6,6 +6,18 @@
 
 package lepus.sbt
 
+import sbt._
+import sbt.Keys._
+
 object LepusInternalKeys {
 
+  val externalizedResources = TaskKey[Seq[(File, String)]](
+    label       = "externalizedResources",
+    description = "The resources to externalize"
+  )
+
+  val lepusDependencyClasspath = TaskKey[Classpath](
+    label       = "lepusDependencyClasspath",
+    description = "The classpath containing all the jar dependencies of the project"
+  )
 }
