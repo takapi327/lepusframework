@@ -42,8 +42,17 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
     }.taskValue
   )
 
+lazy val userProjects = Seq[ProjectReference](
+  LepusProject
+)
+
+lazy val nonUserProjects = Seq[ProjectReference](
+  SbtPluginProject
+)
+
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(
     scalaVersion := sys.props.get("scala.version").getOrElse(scala213),
     commonSettings
   )
+  .aggregate((userProjects ++ nonUserProjects): _*)
