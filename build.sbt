@@ -6,6 +6,19 @@
 
 import ScalaVersions._
 import BuildSettings._
+import Dependencies._
+
+lazy val LepusProject = Project("Lepus", file("core/lepus"))
+  .settings(
+    scalaVersion       := sys.props.get("scala.version").getOrElse(ScalaVersions.scala213),
+    crossScalaVersions := Seq(scalaVersion.value),
+    commonSettings,
+    scalacOptions += "-target:jvm-1.8",
+    libraryDependencies ++= Seq(
+      cats,
+      typesafeConfig,
+    ) ++ specs2Deps.map(_ % Test)
+  )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(
