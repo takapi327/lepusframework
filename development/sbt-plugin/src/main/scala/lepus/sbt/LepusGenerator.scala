@@ -53,7 +53,7 @@ object LepusGenerator {
      * See the Scaladoc for value scala.language.reflectiveCalls for a discussion why the feature should be explicitly enabled.
      */
     import scala.language.reflectiveCalls
-    val mainClass:  Class[_] = projectClassLoader.loadClass(mainClassName.value.get + "$")
+    val mainClass:  Class[_] = projectClassLoader.loadClass(mainClassName.value.getOrElse("lepus.server.LepusServer") + "$")
     val mainObject: Server   = mainClass.getField("MODULE$").get(null).asInstanceOf[Server]
 
     mainObject.generate(
