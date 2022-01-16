@@ -15,7 +15,8 @@ import sbt.Path._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 
 import lepus.core.LepusVersion
-import LepusImport.LepusKeys._
+import LepusImport._
+import LepusKeys._
 import LepusInternalKeys._
 
 object LepusSettings {
@@ -43,8 +44,10 @@ object LepusSettings {
            |""".stripMargin
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
+    libraryDependencies += lepusServer,
     defaultPort := 5555,
     defaultAddress := "0.0.0.0",
+    (Compile / sourceGenerators) += LepusGenerator.generateServer.taskValue,
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
     lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
     baseClassloader := LepusCommands.baseClassloaderTask.value,
