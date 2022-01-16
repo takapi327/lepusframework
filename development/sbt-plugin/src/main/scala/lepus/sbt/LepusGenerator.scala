@@ -38,7 +38,7 @@ object LepusGenerator {
         port:         Int,
         routePackage: String,
         generatedDir: File
-      ): Seq[File]
+      ): File
     }
 
     lazy val projectClassLoader = new ProjectClassLoader(
@@ -56,11 +56,11 @@ object LepusGenerator {
     val mainClass:  Class[_] = projectClassLoader.loadClass(mainClassName.value.getOrElse("lepus.server.LepusServer") + "$")
     val mainObject: Server   = mainClass.getField("MODULE$").get(null).asInstanceOf[Server]
 
-    mainObject.generate(
+    Seq(mainObject.generate(
       host         = host.value,
       port         = port.value,
       routePackage = routePackage.value,
       generatedDir = generatedDir.value
-    )
+    ))
   }
 }
