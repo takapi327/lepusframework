@@ -20,6 +20,14 @@ lazy val LepusProject = Project("Lepus", file("core/lepus"))
     ) ++ specs2Deps.map(_ % Test)
   )
 
+lazy val LepusRouterProject = Project("Lepus-Router", file("core/lepus-router"))
+  .settings(
+    scalaVersion       := (LepusProject / scalaVersion).value,
+    crossScalaVersions := Seq(scalaVersion.value),
+    commonSettings,
+    libraryDependencies ++= routerDependencies
+  )
+
 lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-server"))
   .settings(
     scalaVersion       := (LepusProject / scalaVersion).value,
@@ -60,7 +68,8 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   )
 
 lazy val userProjects = Seq[ProjectReference](
-  LepusProject
+  LepusProject,
+  LepusRouterProject
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
