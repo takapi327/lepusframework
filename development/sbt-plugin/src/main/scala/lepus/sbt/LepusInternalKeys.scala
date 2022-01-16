@@ -12,7 +12,7 @@ import sbt.Keys._
 object LepusInternalKeys {
 
   val baseClassloader = taskKey[ClassLoader](
-    "The base classloader"
+    description = "The base classloader"
   )
 
   val externalizedResources = TaskKey[Seq[(File, String)]](

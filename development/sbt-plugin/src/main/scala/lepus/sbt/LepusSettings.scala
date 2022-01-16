@@ -46,6 +46,7 @@ object LepusSettings {
     defaultPort := 5555,
     defaultAddress := "0.0.0.0",
     lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
+    baseClassloader := LepusCommands.baseClassloaderTask.value,
     externalizedResources := {
       val resourceDirectories = (Compile / unmanagedResourceDirectories).value
       ((Compile / unmanagedResources).value --- resourceDirectories)
