@@ -15,21 +15,21 @@ import LepusImport.LepusKeys._
 object LepusGenerator {
 
   val generateServer = lepusGenerateServer(
-    mainClassName = (Compile / run / mainClass).value.get,
-    host          = defaultAddress.value,
-    port          = defaultPort.value,
-    routePackage  = routePackage.value,
-    generatedDir  = (Compile / sourceManaged).value
-  ).taskValue
+    mainClassName = (Compile / run / mainClass),
+    host          = defaultAddress,
+    port          = defaultPort,
+    routePackage  = routePackage,
+    generatedDir  = (Compile / sourceManaged)
+  )
 
   def convertToUrls(files: Seq[File]): Array[URL] = files.map(_.toURI.toURL).toArray
 
   def lepusGenerateServer(
-    mainClassName: String,
-    host:          String,
-    port:          Int,
-    routePackage:  String,
-    generatedDir:  File
+    mainClassName: TaskKey[Option[String]],
+    host:          SettingKey[String],
+    port:          SettingKey[Int],
+    routePackage:  TaskKey[String],
+    generatedDir:  SettingKey[File]
   ): Def.Initialize[Task[Seq[File]]] = Def.task {
 
     type Server = {
@@ -53,14 +53,14 @@ object LepusGenerator {
      * See the Scaladoc for value scala.language.reflectiveCalls for a discussion why the feature should be explicitly enabled.
      */
     import scala.language.reflectiveCalls
-    val mainClass:  Class[_] = projectClassLoader.loadClass(mainClassName + "$")
+    val mainClass:  Class[_] = projectClassLoader.loadClass(mainClassName.value.get + "$")
     val mainObject: Server   = mainClass.getField("MODULE$").get(null).asInstanceOf[Server]
 
     mainObject.generate(
-      host         = host,
-      port         = port,
-      routePackage = routePackage,
-      generatedDir = generatedDir
+      host         = host.value,
+      port         = port.value,
+      routePackage = routePackage.value,
+      generatedDir = generatedDir.value
     )
   }
 }
