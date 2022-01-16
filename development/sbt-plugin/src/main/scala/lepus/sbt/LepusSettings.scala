@@ -45,6 +45,7 @@ object LepusSettings {
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     defaultPort := 5555,
     defaultAddress := "0.0.0.0",
+    Compile / run / mainClass := Some("lepus.server.LepusServer"),
     lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
     baseClassloader := LepusCommands.baseClassloaderTask.value,
     externalizedResources := {
