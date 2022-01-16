@@ -42,4 +42,8 @@ object Dependencies {
   val serverDependencies = specs2Deps.map(_ % Test) ++ Seq(
     logback % Test
   )
+
+  val routerDependencies = specs2Deps.map(_ % Test) ++ Seq(
+    tapir
+  ) ++ http4s
 }
