@@ -24,6 +24,7 @@ lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-se
   .settings(
     scalaVersion       := (LepusProject / scalaVersion).value,
     crossScalaVersions := Seq(scalaVersion.value),
+    commonSettings,
     libraryDependencies ++= serverDependencies,
     (Compile / unmanagedSourceDirectories) += {
       val suffix = CrossVersion.partialVersion(scalaVersion.value) match {
@@ -40,6 +41,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .settings(
     scalaVersion       := scala212,
     crossScalaVersions := Seq(scala212),
+    commonSettings,
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
