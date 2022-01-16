@@ -14,6 +14,8 @@ object LepusImport {
 
   val lepusCore = component("lepus")
 
+  val lepusServer = component("lepus-server")
+
   object LepusKeys {
 
     val routePackage = TaskKey[String](

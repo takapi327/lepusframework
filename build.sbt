@@ -20,11 +20,28 @@ lazy val LepusProject = Project("Lepus", file("core/lepus"))
     ) ++ specs2Deps.map(_ % Test)
   )
 
+lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-server"))
+  .settings(
+    scalaVersion       := (LepusProject / scalaVersion).value,
+    crossScalaVersions := Seq(scalaVersion.value),
+    commonSettings,
+    libraryDependencies ++= serverDependencies,
+    (Compile / unmanagedSourceDirectories) += {
+      val suffix = CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((x, y)) => s"$x.$y"
+        case None         => scalaBinaryVersion.value
+      }
+      (Compile / sourceDirectory).value / s"scala-$suffix"
+    }
+  )
+  .dependsOn(LepusProject)
+
 lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .settings(
     scalaVersion       := scala212,
     crossScalaVersions := Seq(scala212),
+    commonSettings,
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
@@ -47,7 +64,8 @@ lazy val userProjects = Seq[ProjectReference](
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
-  SbtPluginProject
+  SbtPluginProject,
+  LepusServerProject
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
