@@ -22,7 +22,11 @@ object Dependencies {
     "http4s-blaze-server"
   ).map("org.http4s" %% _ % http4sVersion)
 
-  val tapir = "com.softwaremill.sttp.tapir" %% "tapir-core" % "0.20.0-M3"
+  val tapirVersion = "0.20.0-M5"
+  val tapir = Seq(
+    "tapir-core",
+    "tapir-http4s-server"
+  ).map("com.softwaremill.sttp.tapir" %% _ % tapirVersion)
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
 
@@ -43,7 +47,5 @@ object Dependencies {
     logback % Test
   )
 
-  val routerDependencies = specs2Deps.map(_ % Test) ++ Seq(
-    tapir
-  ) ++ http4s
+  val routerDependencies = specs2Deps.map(_ % Test) ++ tapir ++ http4s
 }
