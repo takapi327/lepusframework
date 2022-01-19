@@ -25,8 +25,16 @@ object Dependencies {
   val tapirVersion = "0.20.0-M5"
   val tapir = Seq(
     "tapir-core",
-    "tapir-http4s-server"
+    "tapir-http4s-server",
+    "tapir-json-circe"
   ).map("com.softwaremill.sttp.tapir" %% _ % tapirVersion)
+
+  val circeVersion = "0.14.1"
+  val circe = Seq(
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-parser"
+  ).map(_ % circeVersion)
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
 
