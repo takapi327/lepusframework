@@ -6,7 +6,10 @@
 
 package lepus.router.http
 
-case class RequestHeader(name: String, value: String) {
+class RequestHeader(
+  val name:  String,
+  val value: String
+) {
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
 }
@@ -14,7 +17,7 @@ case class RequestHeader(name: String, value: String) {
 object RequestHeader {
 
   def apply(name: String, value: String): RequestHeader = {
-    RequestHeader(name, value)
+    new RequestHeader(name, value)
   }
 
   /**
