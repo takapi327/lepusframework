@@ -11,6 +11,8 @@ sealed trait RequestEndpoint[T] {
   def and[T](other: RequestEndpoint[T]): RequestEndpoint[T] =
     RequestEndpoint.Pair(this, other)
   def /[T](other: RequestEndpoint[T]): RequestEndpoint[T] = and(other)
+
+  def :?[T](other: RequestEndpoint.QueryParam[T]): RequestEndpoint[T] = and(other)
 }
 
 object RequestEndpoint {
@@ -18,7 +20,7 @@ object RequestEndpoint {
   case class Method[T](method: RequestMethod, converter: EndpointConverter[Unit, T]) extends RequestEndpoint[T]
   case class FixedPath[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
   case class AnyPath[T](name: Option[String], converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
-  case class QueryParam[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
+  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
 
   case class Pair[L, R, LR](
     left:  RequestEndpoint[L],
