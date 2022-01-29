@@ -10,9 +10,10 @@ sealed trait RequestEndpoint[T] {
 
   def and[T](other: RequestEndpoint[T]): RequestEndpoint[T] =
     RequestEndpoint.Pair(this, other)
-  def /[T](other: RequestEndpoint[T]): RequestEndpoint[T] = and(other)
 
+  def /[T](other: RequestEndpoint[T]): RequestEndpoint[T] = and(other)
   def :?[T](other: RequestEndpoint.QueryParam[T]): RequestEndpoint[T] = and(other)
+  def +&[T](other: RequestEndpoint.QueryParam[T]): RequestEndpoint[T] = and(other)
 }
 
 object RequestEndpoint {
