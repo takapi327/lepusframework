@@ -7,23 +7,35 @@
 package lepus.router.http
 
 import scala.annotation._
+import scala.util.{ Try, Success, Failure }
 
 @implicitNotFound("")
 trait EndpointConverter[L, H] {
 
-  def decode(low:  L): H
-  def encode(high: H): L
+  def stringToResult(from: L): DecodeResult[H]
+
+  def decode(str: L): DecodeResult[H] = decode(str, stringToResult)
+
+  def decode(str: L, fromTo: L => DecodeResult[H]): DecodeResult[H] = {
+    Try { fromTo(str) } match {
+      case Success(s) => s
+      case Failure(e) => DecodeResult.InvalidValue(str.toString, e)
+    }
+  }
 }
 
 object EndpointConverter {
 
   implicit val string: EndpointConverter[String, String] = new EndpointConverter[String, String] {
-    def decode(low:  String): String = low
-    def encode(high: String): String = high
+    override def stringToResult(str: String): DecodeResult[String] = DecodeResult.Success(str)
+  }
+  implicit val long: EndpointConverter[String, Long] = new EndpointConverter[String, Long] {
+    override def stringToResult(str: String): DecodeResult[Long] = DecodeResult.Success(str.toLong)
+  }
+  implicit val int: EndpointConverter[String, Int] = new EndpointConverter[String, Int] {
+    override def stringToResult(str: String): DecodeResult[Int] = DecodeResult.Success(str.toInt)
   }
 
-  implicit val long: EndpointConverter[String, Long] = new EndpointConverter[String, Long] {
-    def decode(low:  String): Long   = low.toLong
-    def encode(high: Long):   String = high.toString
-  }
+  def stringTo[T](fromTo: String => T): String => DecodeResult[T] =
+    fromTo.andThen(DecodeResult.Success(_))
 }
