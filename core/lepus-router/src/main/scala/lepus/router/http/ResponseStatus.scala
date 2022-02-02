@@ -1,11 +1,22 @@
+/**
+ *  This file is part of the Lepus Framework.
+ *  For the full copyright and license information,
+ *  please view the LICENSE file that was distributed with this source code.
+ */
+
 package lepus.router.http
 
+import org.http4s.{ Status => Http4sStatus }
+
 class ResponseStatus(val code: Int) {
-  def isInformational: Boolean = code / 100 == 1
-  def isSuccess:       Boolean = code / 100 == 2
-  def isRedirect:      Boolean = code / 100 == 3
-  def isClientError:   Boolean = code / 100 == 4
-  def isServerError:   Boolean = code / 100 == 5
+  def isInformational(): Boolean = code / 100 == 1
+  def isSuccess():       Boolean = code / 100 == 2
+  def isRedirect():      Boolean = code / 100 == 3
+  def isClientError():   Boolean = code / 100 == 4
+  def isServerError():   Boolean = code / 100 == 5
+
+  def toHttp4sStatus(): Http4sStatus =
+    Http4sStatus.fromInt(code).getOrElse(throw new IllegalArgumentException(s"Invalid status code: $code"))
 }
 
 object ResponseStatus extends StatusCodes {
