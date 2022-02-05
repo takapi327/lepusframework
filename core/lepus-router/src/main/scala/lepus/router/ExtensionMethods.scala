@@ -27,4 +27,20 @@ trait ExtensionMethods {
       }
     }
   }
+
+  // see https://github.com/scala/bug/issues/12186
+  implicit class VectorOps[T](v: Vector[T]) {
+    def headAndTail: Option[(T, Vector[T])] = if (v.isEmpty) None else Some((v.head, v.tail))
+    def initAndLast: Option[(Vector[T], T)] = if (v.isEmpty) None else Some((v.init, v.last))
+    def toTuple: Any = {
+      if (v.size > 22) {
+        throw new IllegalArgumentException(s"Cannot convert $v to params!")
+      } else if (v.size == 1) {
+        v.head.asInstanceOf[Any]
+      } else  {
+        val clazz = Class.forName("scala.Tuple" + v.size)
+        clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
+      }
+    }
+  }
 }
