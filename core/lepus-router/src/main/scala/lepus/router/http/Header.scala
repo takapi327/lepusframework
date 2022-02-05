@@ -6,6 +6,10 @@
 
 package lepus.router.http
 
+import org.typelevel.ci.CIString
+
+import org.http4s.{ Header => Http4sHeader }
+
 trait Header {
 
   def name:  String
@@ -14,6 +18,44 @@ trait Header {
   override def toString: String = s"$name: $value"
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
+}
+
+object Header {
+  case class RequestHeader(name: String, value: String) extends Header
+  case class ResponseHeader(name: String, value: String) extends Header {
+    def toHttp4sHeader(): Http4sHeader.Raw =
+      Http4sHeader.Raw(CIString(ContentType), s"${name}/${value}")
+  }
+
+  object ResponseHeader {
+    val ApplicationGzip:               ResponseHeader = ResponseHeader("application", "gzip")
+    val ApplicationZip:                ResponseHeader = ResponseHeader("application", "zip")
+    val ApplicationJson:               ResponseHeader = ResponseHeader("application", "json")
+    val ApplicationOctetStream:        ResponseHeader = ResponseHeader("application", "octet-stream")
+    val ApplicationPdf:                ResponseHeader = ResponseHeader("application", "pdf")
+    val ApplicationRtf:                ResponseHeader = ResponseHeader("application", "rtf")
+    val ApplicationXhtml:              ResponseHeader = ResponseHeader("application", "xhtml+xml")
+    val ApplicationXml:                ResponseHeader = ResponseHeader("application", "xml")
+    val ApplicationXWwwFormUrlencoded: ResponseHeader = ResponseHeader("application", "x-www-form-urlencoded")
+
+    val ImageGif:  ResponseHeader = ResponseHeader("image", "gif")
+    val ImageJpeg: ResponseHeader = ResponseHeader("image", "jpeg")
+    val ImagePng:  ResponseHeader = ResponseHeader("image", "png")
+    val ImageTiff: ResponseHeader = ResponseHeader("image", "tiff")
+
+    val MultipartFormData:    ResponseHeader = ResponseHeader("multipart", "form-data")
+    val MultipartMixed:       ResponseHeader = ResponseHeader("multipart", "mixed")
+    val MultipartAlternative: ResponseHeader = ResponseHeader("multipart", "alternative")
+
+    val TextCacheManifest: ResponseHeader = ResponseHeader("text", "cache-manifest")
+    val TextCalendar:      ResponseHeader = ResponseHeader("text", "calendar")
+    val TextCss:           ResponseHeader = ResponseHeader("text", "css")
+    val TextCsv:           ResponseHeader = ResponseHeader("text", "csv")
+    val TextEventStream:   ResponseHeader = ResponseHeader("text", "event-stream")
+    val TextJavascript:    ResponseHeader = ResponseHeader("text", "javascript")
+    val TextHtml:          ResponseHeader = ResponseHeader("text", "html")
+    val TextPlain:         ResponseHeader = ResponseHeader("text", "plain")
+  }
 
   /**
    * The values listed in the following sites are defined as variables.
