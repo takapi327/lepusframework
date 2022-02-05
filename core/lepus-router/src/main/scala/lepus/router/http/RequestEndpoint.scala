@@ -19,7 +19,6 @@ sealed trait RequestEndpoint[T] {
 
 object RequestEndpoint {
 
-  case class Method[T](method: RequestMethod, converter: EndpointConverter[Unit, T]) extends RequestEndpoint[T]
   case class FixedPath[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
   case class AnyPath[T](name: Option[String], converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
   case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
