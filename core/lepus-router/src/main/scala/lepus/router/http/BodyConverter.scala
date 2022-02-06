@@ -1,0 +1,69 @@
+/**
+ *  This file is part of the Lepus Framework.
+ *  For the full copyright and license information,
+ *  please view the LICENSE file that was distributed with this source code.
+ */
+
+package lepus.router.http
+
+import cats.data.Validated
+
+import io.circe.{ Encoder, Decoder, ParsingFailure, DecodingFailure, CursorOp, Printer, Errors }
+import io.circe.syntax._
+import io.circe.parser.decodeAccumulating
+
+import ConvertResult._
+
+trait BodyConverter[T] {
+  def decode(s: String): ConvertResult
+  def encode(t: T):      String
+}
+
+object BodyConverter {
+
+  case class Json[T](
+    private val _decode: String => ConvertResult
+  )(_encode: T => String) extends BodyConverter[T] {
+    override def decode(s: String): ConvertResult = _decode(s)
+    override def encode(t: T):      String        = _encode(t)
+  }
+
+  object Json {
+    def toJson[T: Encoder: Decoder](s: String): ConvertResult = circeJson[T].decode(s)
+    def toJson[T: Encoder: Decoder](t: T):      String        = circeJson[T].encode(t)
+  }
+
+  implicit def circeJson[T: Encoder: Decoder]: Json[T] =
+    Json { s => decodeCirceJson(s) } { t => encodeCirceJson(t) }
+
+  implicit def decodeCirceJson[T: Encoder: Decoder](s: String): ConvertResult =
+    decodeAccumulating[T](s) match {
+      case Validated.Valid(value) => Success(value)
+      case Validated.Invalid(circeFailures) =>
+        val jsonFailures = circeFailures.map {
+          case ParsingFailure(message, _) => Error.JsonError(message, List.empty)
+          case failure: DecodingFailure =>
+            val path   = CursorOp.opsToPath(failure.history)
+            val fields = path.split("\\.").toList.filter(_.nonEmpty)
+            Error.JsonError(failure.message, fields)
+        }
+        Error(s, Error.JsonDecodeException(jsonFailures.toList, Errors(circeFailures)))
+    }
+
+  implicit def encodeCirceJson[T: Encoder: Decoder](t: T): String =
+    Printer.noSpaces.print(t.asJson)
+}
+
+trait ConvertResult
+
+object ConvertResult {
+  case class Success[T](value: T) extends ConvertResult
+  sealed trait Failure extends ConvertResult
+
+  case class Error(message: String, throwable: Throwable) extends Failure
+  object Error {
+    case class JsonDecodeException(errors: List[JsonError], underlying: Throwable)
+      extends Exception(underlying.getMessage, underlying, true, false)
+    case class JsonError(message: String, path: List[String])
+  }
+}
