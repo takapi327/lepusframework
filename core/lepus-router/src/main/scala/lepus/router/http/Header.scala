@@ -18,6 +18,17 @@ trait Header {
   override def toString: String = s"$name: $value"
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
+
+  def isApplication: Boolean = is("application")
+  def isAudio:       Boolean = is("audio")
+  def isImage:       Boolean = is("image")
+  def isMessage:     Boolean = is("message")
+  def isMultipart:   Boolean = is("multipart")
+  def isText:        Boolean = is("text")
+  def isVideo:       Boolean = is("video")
+  def isFont:        Boolean = is("font")
+  def isExample:     Boolean = is("example")
+  def isModel:       Boolean = is("model")
 }
 
 object Header {
@@ -25,6 +36,8 @@ object Header {
   case class ResponseHeader(name: String, value: String) extends Header {
     def toHttp4sHeader(): Http4sHeader.Raw =
       Http4sHeader.Raw(CIString(ContentType), s"${name}/${value}")
+    def toHttp4sHeader(contentType: CIString): Http4sHeader.Raw =
+      Http4sHeader.Raw(contentType, s"${name}/${value}")
   }
 
   object ResponseHeader {
