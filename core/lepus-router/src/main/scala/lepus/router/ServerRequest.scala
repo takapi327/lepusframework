@@ -6,11 +6,15 @@
 
 package lepus.router
 
-import org.http4s._
+import org.http4s.{ Request, Uri }
 
 import http._
 
-class ServerRequest[F[_]](request: Request[F]) {
+trait HttpServerRequest {
+  def pathSegments: List[String]
+}
+
+class ServerRequest[F[_]](request: Request[F]) extends HttpServerRequest {
   lazy val protocol: String = request.httpVersion.toString()
   lazy val pathSegments: List[String] = {
     request.pathInfo.renderString
@@ -18,12 +22,12 @@ class ServerRequest[F[_]](request: Request[F]) {
       .toList.map(Uri.decode(_))
   }
   lazy val method: String = request.method.name.toUpperCase
-  lazy val headers: Seq[RequestHeader] = request.headers.headers.map(
-    header => RequestHeader(header.name.toString, header.value)
+  lazy val headers: Seq[Header.RequestHeader] = request.headers.headers.map(
+    header => Header.RequestHeader(header.name.toString, header.value)
   )
 
-  lazy val contentType:   Option[String] = findHeaderValue(RequestHeader.ContentType)
-  lazy val contentLength: Option[Long]   = findHeaderValue(RequestHeader.ContentLength).flatMap(_.toLongOption)
+  lazy val contentType:   Option[String] = findHeaderValue(Header.CONTENT_TYPE)
+  lazy val contentLength: Option[Long]   = findHeaderValue(Header.CONTENT_LENGTH).flatMap(_.toLongOption)
 
   /**
    * Based on the name of the header, get the value associated with it.
