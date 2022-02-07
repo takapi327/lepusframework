@@ -4,7 +4,7 @@
  *  please view the LICENSE file that was distributed with this source code.
  */
 
-package lepus.router.http
+package lepus.router.model
 
 sealed trait DecodeResult[+T]
 object DecodeResult {

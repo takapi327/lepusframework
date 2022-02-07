@@ -13,6 +13,7 @@ import cats.effect.{ Async, Sync }
 import org.http4s.HttpRoutes
 
 import lepus.router.http._
+import lepus.router.model.ServerResponse
 
 abstract class LepusEndpoint[F[_], M <: RequestMethod, T](
   val endpoint: RequestEndpoint[_]

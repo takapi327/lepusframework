@@ -4,11 +4,11 @@
  *  please view the LICENSE file that was distributed with this source code.
  */
 
-package lepus.router
+package lepus.router.model
 
 import org.http4s.{ Request, Uri }
 
-import http._
+import lepus.router.http.Header
 
 trait HttpServerRequest {
   def pathSegments: List[String]

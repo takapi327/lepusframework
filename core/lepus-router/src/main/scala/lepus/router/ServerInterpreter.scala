@@ -8,17 +8,18 @@ package lepus.router
 
 import cats.data.{ Kleisli, OptionT }
 import cats.implicits._
-
 import cats.effect.{ Async, Sync }
 
 import org.http4s._
+
+import lepus.router.model.{ ServerRequest, ServerResponse, DecodeRequestResult }
 
 trait ServerInterpreter[F[_]] {
 
   implicit def syncF:  Sync[F]
   implicit def asyncF: Async[F]
 
-  def bindRequest[T](endpoint: LepusEndpoint[F, _, T], logic: T => F[http.ServerResponse]): HttpRoutes[F] = {
+  def bindRequest[T](endpoint: LepusEndpoint[F, _, T], logic: T => F[ServerResponse]): HttpRoutes[F] = {
     Kleisli { (request: Request[F]) =>
       val serverRequest = new ServerRequest[F](request)
 

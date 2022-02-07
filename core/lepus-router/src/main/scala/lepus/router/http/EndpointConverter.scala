@@ -7,7 +7,9 @@
 package lepus.router.http
 
 import scala.annotation._
-import scala.util.{ Try, Success, Failure }
+import scala.util.{ Failure, Success, Try }
+
+import lepus.router.model.DecodeResult
 
 @implicitNotFound("")
 trait EndpointConverter[L, H] {

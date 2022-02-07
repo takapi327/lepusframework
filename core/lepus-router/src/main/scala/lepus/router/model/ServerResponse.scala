@@ -4,13 +4,14 @@
  *  please view the LICENSE file that was distributed with this source code.
  */
 
-package lepus.router.http
+package lepus.router.model
 
 import fs2._
 
 import org.http4s.{ Response, Headers => Http4sHeaders }
 
-import Header._
+import lepus.router.http.Header.ResponseHeader
+import lepus.router.http.{ ConvertResult, ResponseStatus }
 
 case class ServerResponse(
   status:  ResponseStatus,

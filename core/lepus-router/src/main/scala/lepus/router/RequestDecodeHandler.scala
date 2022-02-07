@@ -6,6 +6,8 @@
 
 package lepus.router
 
+import lepus.router.model.{ DecodeRequestResult, ServerRequest }
+
 object RequestDecodeHandler {
 
   def handleRequest[F[_], T](

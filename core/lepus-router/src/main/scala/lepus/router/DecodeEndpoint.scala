@@ -9,6 +9,7 @@ package lepus.router
 import scala.annotation.tailrec
 
 import http._
+import lepus.router.model.{ DecodeResult, HttpServerRequest }
 
 object DecodeEndpoint {
 
