@@ -6,15 +6,16 @@
 
 package lepus.router
 
+import http.RequestEndpoint
 import lepus.router.model.{ DecodeRequestResult, ServerRequest }
 
 object RequestDecodeHandler {
 
   def handleRequest[F[_], T](
     serverRequest: ServerRequest[F],
-    endpoint:      LepusEndpoint[F, _, T]
+    endpoint:      RequestEndpoint[_]
   ): DecodeRequestResult = {
-    val (decodeEndpointResult, _) = DecodeEndpoint(serverRequest, endpoint.endpoint)
+    val (decodeEndpointResult, _) = DecodeEndpoint(serverRequest, endpoint)
     decodeEndpointResult match {
       case _: DecodeEndpointResult.Failure      => DecodeRequestResult.Failure()
       case DecodeEndpointResult.Success(values) => DecodeRequestResult.Success(values)

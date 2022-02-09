@@ -16,16 +16,20 @@ import lepus.router.http._
 import lepus.router.model.ServerResponse
 
 abstract class LepusEndpoint[F[_], M <: RequestMethod, T](
-  val endpoint: RequestEndpoint[_]
+  endpoint: RequestEndpoint[_]
 )(implicit
   classTag: ClassTag[M],
   asyncF:   Async[F],
   syncF:    Sync[F]
 ) {
-  val method = classTag.runtimeClass.newInstance().asInstanceOf[M]
+  private val method = classTag.runtimeClass.newInstance().asInstanceOf[M]
+
+  private val pf: PartialFunction[String, RequestEndpoint[_]] = {
+    case str: String if method.is(str) => endpoint
+  }
 
   def toRoutes(logic: T => F[ServerResponse]): HttpRoutes[F] =
-    ServerInterpreter[F]().bindRequest(this, logic)
+    ServerInterpreter[F]().bindRequest(pf, logic)
 
   def ->(logic: T => F[ServerResponse]): HttpRoutes[F] = toRoutes(logic)
 }
