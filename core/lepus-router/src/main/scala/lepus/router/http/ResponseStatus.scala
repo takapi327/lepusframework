@@ -9,11 +9,17 @@ package lepus.router.http
 import org.http4s.{ Status => Http4sStatus }
 
 class ResponseStatus(val code: Int) {
-  def isInformational(): Boolean = code / 100 == 1
-  def isSuccess():       Boolean = code / 100 == 2
-  def isRedirect():      Boolean = code / 100 == 3
-  def isClientError():   Boolean = code / 100 == 4
-  def isServerError():   Boolean = code / 100 == 5
+  private val INFORMATIONAL_CODE = 1
+  private val SUCCESS_CODE       = 2
+  private val REDIRECT_CODE      = 3
+  private val CLIENT_ERROR_CODE  = 4
+  private val SERVER_ERROR_CODE  = 5
+
+  def isInformational(): Boolean = code / 100 == INFORMATIONAL_CODE
+  def isSuccess():       Boolean = code / 100 == SUCCESS_CODE
+  def isRedirect():      Boolean = code / 100 == REDIRECT_CODE
+  def isClientError():   Boolean = code / 100 == CLIENT_ERROR_CODE
+  def isServerError():   Boolean = code / 100 == SERVER_ERROR_CODE
 
   def toHttp4sStatus(): Http4sStatus =
     Http4sStatus.fromInt(code).getOrElse(throw new IllegalArgumentException(s"Invalid status code: $code"))
