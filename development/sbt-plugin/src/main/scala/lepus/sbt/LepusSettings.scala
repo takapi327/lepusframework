@@ -44,7 +44,7 @@ object LepusSettings {
            |""".stripMargin
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
-    libraryDependencies += lepusServer,
+    libraryDependencies ++= Seq(lepusServer, lepusRouter),
     defaultPort := 5555,
     defaultAddress := "0.0.0.0",
     (Compile / sourceGenerators) += LepusGenerator.generateServer.taskValue,
