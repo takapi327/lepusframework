@@ -72,7 +72,6 @@ object ConvertResult {
       Stream.chunk(Chunk.array(bytes))
     }
   }
-  object JsValue
 
   case class Error(message: String, throwable: Throwable) extends Failure {
     override def toStream(): Stream[Pure, Byte] = {
