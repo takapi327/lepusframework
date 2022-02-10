@@ -4,19 +4,19 @@
  *  please view the LICENSE file that was distributed with this source code.
  */
 
-package lepus.router.http
+package lepus.router.mvc
 
 import java.nio.charset.StandardCharsets._
 
 import cats.data.Validated
 
-import io.circe.{ Encoder, Decoder, ParsingFailure, DecodingFailure, CursorOp, Printer, Errors }
-import io.circe.syntax._
 import io.circe.parser.decodeAccumulating
+import io.circe.syntax._
+import io.circe.{CursorOp, Decoder, DecodingFailure, Encoder, Errors, ParsingFailure, Printer}
 
 import fs2._
 
-import ConvertResult._
+import lepus.router.mvc.ConvertResult._
 
 trait BodyConverter[T] {
   def decode(s: String): ConvertResult
