@@ -7,6 +7,7 @@
 package lepus.router
 
 import lepus.router.http._
+import lepus.router.mvc.EndpointConverter
 
 trait LepusRouter {
   implicit def stringToPath(str: String): RequestEndpoint.FixedPath[String] =

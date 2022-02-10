@@ -4,12 +4,12 @@
  *  please view the LICENSE file that was distributed with this source code.
  */
 
-package lepus.router.http
-
-import scala.annotation._
-import scala.util.{ Failure, Success, Try }
+package lepus.router.mvc
 
 import lepus.router.model.DecodeResult
+
+import scala.annotation._
+import scala.util.{Failure, Success, Try}
 
 @implicitNotFound("")
 trait EndpointConverter[L, H] {

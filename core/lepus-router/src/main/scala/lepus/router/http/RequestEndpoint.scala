@@ -6,6 +6,8 @@
 
 package lepus.router.http
 
+import lepus.router.mvc.EndpointConverter
+
 sealed trait RequestEndpoint[T] {
 
   def and[T](other: RequestEndpoint[T]): RequestEndpoint[T] =
