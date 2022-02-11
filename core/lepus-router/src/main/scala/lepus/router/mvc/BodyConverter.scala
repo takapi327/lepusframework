@@ -67,6 +67,7 @@ object ConvertResult {
   sealed trait Failure extends ConvertResult
 
   case class JsValue[T](value: T) extends Success {
+    override def toString(): String = value.toString
     override def toStream(): Stream[Pure, Byte] = {
       val bytes = value.toString.getBytes(UTF_8)
       Stream.chunk(Chunk.array(bytes))
