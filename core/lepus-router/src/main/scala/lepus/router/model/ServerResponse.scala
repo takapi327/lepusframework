@@ -8,7 +8,7 @@ package lepus.router.model
 
 import fs2._
 
-import org.http4s.{Response, Headers => Http4sHeaders}
+import org.http4s.{ Response, Headers => Http4sHeaders }
 
 import lepus.router.http.ResponseStatus
 import lepus.router.http.Header.ResponseHeader
