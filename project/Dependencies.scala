@@ -22,7 +22,12 @@ object Dependencies {
     "http4s-blaze-server"
   ).map("org.http4s" %% _ % http4sVersion)
 
-  val tapir = "com.softwaremill.sttp.tapir" %% "tapir-core" % "0.20.0-M3"
+  val circeVersion = "0.14.1"
+  val circe = Seq(
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-parser"
+  ).map(_ % circeVersion)
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
 
@@ -39,7 +44,15 @@ object Dependencies {
     "specs2-mock"
   ).map("org.specs2" %% _ % specs2Version)
 
+  val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.11"   % Test
+  val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.15.4"   % Test
+  val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
+
+  val testDependencies = specs2Deps.map(_ % Test) ++ Seq(scalaTest, scalaCheck, scalaPlus)
+
   val serverDependencies = specs2Deps.map(_ % Test) ++ Seq(
     logback % Test
   )
+
+  val routerDependencies = http4s ++ circe ++ testDependencies ++ tapir
 }
