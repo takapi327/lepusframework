@@ -54,5 +54,5 @@ object Dependencies {
     logback % Test
   )
 
-  val routerDependencies = http4s ++ circe ++ testDependencies ++ tapir
+  val routerDependencies = http4s ++ circe ++ testDependencies
 }
