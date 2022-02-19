@@ -13,16 +13,18 @@ import cats.effect.{ Async, Sync }
 import org.http4s.HttpRoutes
 
 import lepus.router.http._
-import lepus.router.model.ServerResponse
+import lepus.router.model.{ Endpoint, ServerResponse }
 
 abstract class LepusEndpoint[F[_], M <: RequestMethod, T](
-  endpoint: RequestEndpoint[_]
+  val endpoint:    RequestEndpoint[_],
+  val summary:     Option[String]     = None,
+  val description: Option[String]     = None
 )(implicit
   classTag: ClassTag[M],
   asyncF:   Async[F],
   syncF:    Sync[F]
-) {
-  private val method = classTag.runtimeClass.newInstance().asInstanceOf[M]
+) extends Endpoint {
+  val method = classTag.runtimeClass.newInstance().asInstanceOf[M]
 
   private val pf: PartialFunction[String, RequestEndpoint[_]] = {
     case str: String if method.is(str) => endpoint

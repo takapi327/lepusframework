@@ -6,9 +6,11 @@
 
 package lepus.router.model
 
-import lepus.router.http.RequestMethod
+import lepus.router.http.{ RequestMethod, RequestEndpoint }
 
 trait Endpoint {
   def method:      RequestMethod
+  def endpoint:    RequestEndpoint[_]
+  def summary:     Option[String]
   def description: Option[String]
 }
