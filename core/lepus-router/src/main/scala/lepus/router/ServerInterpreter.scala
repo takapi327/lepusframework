@@ -34,6 +34,17 @@ trait ServerInterpreter[F[_]] {
       } yield response
     }
   }
+
+  def bindRequest[T](pf: PartialFunction[String, RequestEndpoint[_]], logic: F[ServerResponse]): HttpRoutes[F] = {
+    Kleisli { (request: Request[F]) =>
+      val serverRequest = new ServerRequest[F](request)
+
+      for {
+        _        <- OptionT.fromOption[F] { pf.lift(serverRequest.method) }
+        response <- OptionT { logic.map(_.toHttp4sResponse[F]()).map(_.some) }
+      } yield response
+    }
+  }
 }
 
 object ServerInterpreter {
