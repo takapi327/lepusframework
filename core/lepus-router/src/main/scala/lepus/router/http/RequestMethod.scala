@@ -32,4 +32,6 @@ object RequestMethod {
   object Patch   extends RequestMethod("PATCH")
   object Connect extends RequestMethod("CONNECT")
   object Trace   extends RequestMethod("TRACE")
+
+  val all = List(Get, Head, Post, Put, Delete, Options, Patch, Connect, Trace)
 }
