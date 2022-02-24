@@ -22,7 +22,7 @@ sealed trait RequestEndpoint[T] {
 object RequestEndpoint {
 
   case class FixedPath[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
-  case class AnyPath[T](name: Option[String], converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
+  case class PathParam[T](name: Option[String], converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
   case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
 
   case class Pair[L, R, LR](

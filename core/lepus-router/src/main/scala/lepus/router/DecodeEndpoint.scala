@@ -46,7 +46,7 @@ object DecodeEndpoint {
               }
             }
           }
-          case RequestEndpoint.AnyPath(_, converter) => {
+          case RequestEndpoint.PathParam(_, converter) => {
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
               case Some(segment) => {
