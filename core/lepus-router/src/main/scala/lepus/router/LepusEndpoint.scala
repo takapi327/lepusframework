@@ -13,25 +13,25 @@ import cats.effect.{ Async, Sync }
 import org.http4s.HttpRoutes
 
 import lepus.router.http._
-import lepus.router.model.{ Endpoint, ServerResponse }
+import lepus.router.model.Endpoint
 
-abstract class LepusEndpoint[F[_], M <: RequestMethod, T](
+abstract class LepusEndpoint[F[_], T](
   val endpoint:    RequestEndpoint[_],
   val summary:     Option[String]     = None,
   val description: Option[String]     = None
-)(implicit
-  classTag: ClassTag[M],
-  asyncF:   Async[F],
-  syncF:    Sync[F]
-) extends Endpoint {
-  val method = classTag.runtimeClass.newInstance().asInstanceOf[M]
+)(implicit asyncF: Async[F], syncF: Sync[F]) extends Endpoint {
 
-  private val pf: PartialFunction[String, RequestEndpoint[_]] = {
-    case str: String if method.is(str) => endpoint
-  }
+  def toRoutes(routes: Routes[F, T]): ServerRoute[F, T] =
+    ServerRoute(this, routes)
+}
 
-  def toRoutes(logic: T => F[ServerResponse]): HttpRoutes[F] =
-    ServerInterpreter[F]().bindRequest(pf, logic)
+final case class ServerRoute[F[_], T](
+  endpoint: Endpoint,
+  pf:       Routes[F, T]
+)(implicit asyncF: Async[F], syncF: Sync[F]) {
 
-  def ->(logic: T => F[ServerResponse]): HttpRoutes[F] = toRoutes(logic)
+  val methods: List[RequestMethod] = RequestMethod.all.filter(pf.lift(_).nonEmpty)
+
+  def toHttpRoutes[T](): HttpRoutes[F] =
+    ServerInterpreter[F]().bindFromRequest(pf, endpoint.endpoint)
 }
