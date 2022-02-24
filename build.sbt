@@ -49,6 +49,7 @@ lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-
     scalaVersion       := (LepusProject / scalaVersion).value,
     crossScalaVersions := Seq(scalaVersion.value),
     commonSettings,
+    libraryDependencies ++= swaggerDependencies
   )
   .dependsOn(LepusRouterProject)
 
