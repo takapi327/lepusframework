@@ -22,10 +22,8 @@ trait LepusRouter {
   implicit def shortToPath(short: Short): RequestEndpoint.FixedPath[String] =
     RequestEndpoint.FixedPath(short.toString, EndpointConverter.string)
 
-  def bindPath[T](implicit converter: EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
-    RequestEndpoint.PathParam(None, implicitly)
   def bindPath[T](name: String)(implicit converter: EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
-    RequestEndpoint.PathParam(Some(name), implicitly)
+    RequestEndpoint.PathParam(name, implicitly)
 
   def bindQuery[T](key: String)(implicit converter: EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
     RequestEndpoint.QueryParam(key, implicitly)
