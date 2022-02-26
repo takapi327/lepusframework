@@ -1,0 +1,41 @@
+/**
+ *  This file is part of the Lepus Framework.
+ *  For the full copyright and license information,
+ *  please view the LICENSE file that was distributed with this source code.
+ */
+
+package lepus.swagger
+
+import java.io.File
+import java.nio.file.Files
+
+import scala.io.Codec
+
+import cats.effect.IO
+
+object Generator extends ExtensionMethods {
+
+  import lepus.router._
+
+  def generateSwagger(
+    title:        String,
+    version:      String,
+    serverRoutes: List[ServerRoute[IO, (String, Long)]],
+    generatedDir: File
+  ): File = {
+    val file = new File(generatedDir, "LepusSwagger.yaml")
+
+    val groupEndpoint = serverRoutes.groupBy(_.endpoint.toPath)
+    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
+    val swaggerUI     = SwaggerUI.build(Info(title, version), endpoints)
+
+    if (!file.exists()) {
+      file.getParentFile.mkdirs()
+      file.createNewFile()
+    }
+
+    Files.write(file.toPath, swaggerUI.toYaml.getBytes(implicitly[Codec].name))
+
+    file
+  }
+}
