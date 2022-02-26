@@ -22,11 +22,6 @@ import LepusImport.LepusKeys._
 
 object LepusGenerator {
 
-  private lazy val projectClassLoader = new ProjectClassLoader(
-    urls   = convertToUrls(lepusDependencyClasspath.value.files),
-    parent = baseClassloader.value
-  )
-
   val generateServer = lepusGenerateServer(
     mainClassName = (Compile / run / mainClass),
     host          = defaultAddress,
@@ -62,7 +57,13 @@ object LepusGenerator {
       ): File
     }
 
-    val mainObject: Server = loadFromClassName(mainClassName, "lepus.server.LepusServer")
+    lazy val projectClassLoader = new ProjectClassLoader(
+      urls   = convertToUrls(lepusDependencyClasspath.value.files),
+      parent = baseClassloader.value
+    )
+
+    val mainClass: Class[_] = projectClassLoader.loadClass(mainClassName.value.getOrElse("lepus.server.LepusServer") + "$")
+    val mainObject: Server = mainClass.getField("MODULE$").get(null).asInstanceOf[Server]
 
     Seq(mainObject.generate(
       host         = host.value,
@@ -89,7 +90,13 @@ object LepusGenerator {
       ): File
     }
 
-    val mainObject: Swagger = loadFromClassName(mainClassName, "lepus.swagger.Generator")
+    lazy val projectClassLoader = new ProjectClassLoader(
+      urls   = convertToUrls(lepusDependencyClasspath.value.files),
+      parent = baseClassloader.value
+    )
+
+    val mainClass: Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
+    val mainObject: Swagger = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
 
     Seq(mainObject.generateSwagger(
       title        = title.value,
@@ -97,13 +104,5 @@ object LepusGenerator {
       routePackage = routePackage.value,
       generatedDir = generatedDir.value
     ))
-  }
-
-  private def loadFromClassName[T](
-    mainClassName: TaskKey[Option[String]],
-    className:     String
-  ): T = {
-    val mainClass: Class[_] = projectClassLoader.loadClass(mainClassName.value.getOrElse(className) + "$")
-    mainClass.getField("MODULE$").get(null).asInstanceOf[T]
   }
 }
