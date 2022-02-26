@@ -30,13 +30,20 @@ object Generator extends ExtensionMethods {
           |
           |package lepus.swagger
           |
-          |object LepusSwagger {
+          |import java.io.File
+          |import java.nio.file.Files
+          |
+          |import scala.io.Codec
+          |
+          |object LepusSwagger extends ExtensionMethods {
+          |
+          |  def main(args: Array[String]): Unit = generate()
           |
           |  def generate(): Unit = {
           |    val file          = new File("/tmp/", "LepusSwagger.yaml")
-          |    val groupEndpoint = $routePackage.routes.groupBy(_.endpoint.toPath)
+          |    val groupEndpoint = $routePackage.routesTest.groupBy(_.endpoint.toPath)
           |    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
-          |    val swaggerUI     = SwaggerUI.build(Info($title, $version), endpoints)
+          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints)
           |
           |    if (!file.exists()) {
           |      file.getParentFile.mkdirs()
