@@ -19,6 +19,7 @@ import sbt.Keys._
 
 import LepusInternalKeys._
 import LepusImport.LepusKeys._
+import LepusSwaggerImport._
 
 object LepusGenerator {
 
