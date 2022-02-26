@@ -20,8 +20,8 @@ object LepusCommands {
     new java.net.URLClassLoader(classpath.map(_.data.toURI.toURL).toArray, parent)
   }
 
-  val swaggerCommand = Command.command("") { state =>
-
+  val swaggerCommand = Command.command("generate api") { state =>
+    LepusGenerator.generateSwagger.taskValue
     state
   }
 }
