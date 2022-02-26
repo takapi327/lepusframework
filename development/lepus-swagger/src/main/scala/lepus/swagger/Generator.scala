@@ -11,30 +11,50 @@ import java.nio.file.Files
 
 import scala.io.Codec
 
-import cats.effect.IO
-
 object Generator extends ExtensionMethods {
-
-  import lepus.router._
 
   def generateSwagger(
     title:        String,
     version:      String,
-    serverRoutes: List[ServerRoute[IO, (String, Long)]],
+    routePackage: String,
     generatedDir: File
   ): File = {
-    val file = new File(generatedDir, "LepusSwagger.yaml")
+    val file = new File(generatedDir, "LepusSwagger.scala")
 
-    val groupEndpoint = serverRoutes.groupBy(_.endpoint.toPath)
-    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
-    val swaggerUI     = SwaggerUI.build(Info(title, version), endpoints)
+    val scalaSource =
+      s"""|/**
+          | *  This file is part of the Lepus Framework.
+          | *  For the full copyright and license information,
+          | *  please view the LICENSE file that was distributed with this source code.
+          | */
+          |
+          |package lepus.swagger
+          |
+          |object LepusSwagger {
+          |
+          |  def generate(): Unit = {
+          |    val file          = new File("/tmp/", "LepusSwagger.yaml")
+          |    val groupEndpoint = $routePackage.routes.groupBy(_.endpoint.toPath)
+          |    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
+          |    val swaggerUI     = SwaggerUI.build(Info($title, $version), endpoints)
+          |
+          |    if (!file.exists()) {
+          |      file.getParentFile.mkdirs()
+          |      file.createNewFile()
+          |    }
+          |
+          |    Files.write(file.toPath, swaggerUI.toYaml.getBytes(implicitly[Codec].name))
+          |  }
+          |
+          |}
+          |""".stripMargin
 
     if (!file.exists()) {
       file.getParentFile.mkdirs()
       file.createNewFile()
     }
 
-    Files.write(file.toPath, swaggerUI.toYaml.getBytes(implicitly[Codec].name))
+    Files.write(file.toPath, scalaSource.getBytes(implicitly[Codec].name))
 
     file
   }
