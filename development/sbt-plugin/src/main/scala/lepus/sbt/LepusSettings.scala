@@ -47,7 +47,7 @@ object LepusSettings {
     libraryDependencies ++= Seq(lepusServer, lepusRouter),
     defaultPort := 5555,
     defaultAddress := "0.0.0.0",
-    (Compile / run / sourceGenerators) += LepusGenerator.generateServer.taskValue,
+    (Compile / sourceGenerators) += LepusGenerator.generateServer.taskValue,
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
     lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
     baseClassloader := LepusCommands.baseClassloaderTask.value,
@@ -65,7 +65,8 @@ object LepusSettings {
   )
 
   lazy val swaggerSettings = Def.settings(
+    libraryDependencies += lepusSwagger,
     commands += LepusCommands.swaggerCommand,
-    (Compile / run / sourceGenerators) += LepusGenerator.generateSwagger.taskValue
+    (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue
   )
 }
