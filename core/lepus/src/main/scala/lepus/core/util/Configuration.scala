@@ -6,29 +6,31 @@
 
 package lepus.core.util
 
+import scala.jdk.CollectionConverters._
+
 import com.typesafe.config._
 
-case class Configration(config: Config) {
+case class Configuration(config: Config) {
   def get[A](path: String)(implicit loader: ConfigLoader[A]): A =
     loader.load(config, path)
 }
 
-object Configration {
+object Configuration {
 
   def load(
     classLoader:    ClassLoader,
     directSettings: Map[String, String]
-  ): Configration = {
+  ): Configuration = {
     try {
-      val directConfig: Config = ConfigFactory.parseMap(directSettings)
+      val directConfig: Config = ConfigFactory.parseMap(directSettings.asJava)
       val config:       Config = ConfigFactory.load(classLoader, directConfig)
-      Configration(config)
+      Configuration(config)
     } catch {
-      case e: ConfigException => throw new ConfigException
+      case e: ConfigException => throw new Exception
     }
-
-    def load(): Configration = Configration(ConfigFactory.load())
   }
+
+  def load(): Configuration = Configuration(ConfigFactory.load())
 }
 
 trait ConfigLoader[A] {
