@@ -63,4 +63,10 @@ object LepusSettings {
       }
     }
   )
+
+  lazy val swaggerSettings = Def.settings(
+    libraryDependencies += lepusSwagger,
+    commands += LepusCommands.swaggerCommand,
+    (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue
+  )
 }

@@ -26,8 +26,8 @@ object BuildSettings {
     organization := "com.github.takapi327",
     startYear    := Some(2022),
     licenses     := Seq("MIT" -> url("https://img.shields.io/badge/license-MIT-green")),
-    scalacOptions ++= baseScalaSettings,
-    Test / fork := true,
-    run / fork  := true
+    Test / fork  := true,
+    run  / fork  := true,
+    scalacOptions ++= baseScalaSettings
   )
 }

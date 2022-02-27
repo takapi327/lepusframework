@@ -13,24 +13,24 @@ import cats.effect.{ Async, Sync }
 import org.http4s._
 
 import lepus.router.http._
-import lepus.router.model.{ ServerRequest, ServerResponse, DecodeRequestResult }
+import lepus.router.model.{ ServerRequest, DecodeRequestResult }
 
 trait ServerInterpreter[F[_]] {
 
   implicit def syncF:  Sync[F]
   implicit def asyncF: Async[F]
 
-  def bindRequest[T](pf: PartialFunction[String, RequestEndpoint[_]], logic: T => F[ServerResponse]): HttpRoutes[F] = {
+  def bindFromRequest[T](routes: Routes[F, T], endpoint: RequestEndpoint[_]): HttpRoutes[F] = {
     Kleisli { (request: Request[F]) =>
       val serverRequest = new ServerRequest[F](request)
 
       for {
-        endpoint      <- OptionT.fromOption[F] { pf.lift(serverRequest.method) }
-        decodeResult  <- OptionT.fromOption[F] { RequestDecodeHandler.handleRequest(serverRequest, endpoint) match {
-                           case _: DecodeRequestResult.Failure        => None
-                           case DecodeRequestResult.Success(response) => Some(response)
-                         }}
-        response      <- OptionT { logic(decodeResult.toTuple.asInstanceOf[T]).map(_.toHttp4sResponse[F]()).map(_.some) }
+        logic        <- OptionT.fromOption[F] { routes.lift(serverRequest.method) }
+        decodeResult <- OptionT.fromOption[F] { RequestDecodeHandler.handleRequest(serverRequest, endpoint) match {
+                          case _: DecodeRequestResult.Failure        => None
+                          case DecodeRequestResult.Success(response) => Some(response)
+                        }}
+        response     <- OptionT { logic(decodeResult.toTuple.asInstanceOf[T]).map(_.toHttp4sResponse[F]()).map(_.some) }
       } yield response
     }
   }

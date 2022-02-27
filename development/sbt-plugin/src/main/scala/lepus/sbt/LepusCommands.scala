@@ -19,4 +19,9 @@ object LepusCommands {
 
     new java.net.URLClassLoader(classpath.map(_.data.toURI.toURL).toArray, parent)
   }
+
+  val swaggerCommand = Command.command("generateApi") { state =>
+    println("Generate Swagger API document")
+    MainLoop.processCommand(Exec("runMain lepus.swagger.LepusSwagger", None), state)
+  }
 }

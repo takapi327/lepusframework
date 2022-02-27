@@ -10,6 +10,13 @@ import sbt._
 
 import com.typesafe.sbt.packager.archetypes.JavaServerAppPackaging
 
+object LepusSwagger extends AutoPlugin {
+  override def requires = Lepus
+  val autoImport = LepusSwaggerImport
+
+  override def projectSettings = LepusSettings.swaggerSettings
+}
+
 object LepusServer extends AutoPlugin {
   override def requires = JavaServerAppPackaging
   val autoImport = LepusImport

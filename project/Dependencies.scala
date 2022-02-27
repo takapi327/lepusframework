@@ -54,5 +54,7 @@ object Dependencies {
     logback % Test
   )
 
-  val routerDependencies = http4s ++ circe ++ testDependencies ++ tapir
+  val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
+
+  val routerDependencies = http4s ++ circe ++ testDependencies
 }
