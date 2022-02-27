@@ -46,18 +46,18 @@ object LepusServer extends IOApp {
   private def loadRouterProvider(): RouterProvider = {
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
-      try ClassLoader.getSystemClassLoader.loadClass(routesClassName)
+      try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
       catch {
         case ex: ClassNotFoundException =>
           throw ServerStartException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
       }
 
-    if (!classOf[String].isAssignableFrom(routeClass)) {
-      throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
-    }
+    //if (!classOf[RouterProvider].isAssignableFrom(routeClass)) {
+    //  throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
+    //}
 
     val constructor =
-      try routeClass.getConstructor()
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider]
       catch {
         case ex: NoSuchMethodException =>
           throw ServerStartException(
@@ -65,6 +65,7 @@ object LepusServer extends IOApp {
             Some(ex)
           )
       }
-    constructor.newInstance().asInstanceOf[RouterProvider]
+
+    constructor
   }
 }
