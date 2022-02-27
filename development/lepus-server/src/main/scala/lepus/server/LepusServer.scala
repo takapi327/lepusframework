@@ -6,17 +6,65 @@
 
 package lepus.server
 
-import java.io.File
+import scala.language.reflectiveCalls
 
-object LepusServer {
+import cats.effect._
 
-  def generate(
-    host:         String,
-    port:         Int,
-    routePackage: String,
-    generatedDir: File
-  ): File = {
+import org.http4s.HttpRoutes
+import org.http4s.blaze.server.BlazeServerBuilder
 
-    Generator.generateServer(host, port, routePackage, generatedDir)
+import lepus.core.util.Configuration
+import Exception._
+
+object LepusServer extends IOApp {
+
+  type RouterProvider = {
+    val routes: HttpRoutes[IO]
+  }
+
+  private val SERVER_PORT   = "lepus.server.port"
+  private val SERVER_HOST   = "lepus.server.host"
+  private val SERVER_ROUTES = "lepus.server.routes"
+
+  val config = Configuration.load()
+
+  def run(args: List[String]): IO[ExitCode] = {
+    val port: Int    = config.get[Int](SERVER_PORT)
+    val host: String = config.get[String](SERVER_HOST)
+
+    val routerProvider: RouterProvider = loadRouterProvider()
+
+    BlazeServerBuilder[IO]
+      .bindHttp(port, host)
+      .withHttpApp(routerProvider.routes.orNotFound)
+      .withoutBanner
+      .resource
+      .use(_ => IO.never)
+      .as(ExitCode.Success)
+  }
+
+  private def loadRouterProvider(): RouterProvider = {
+    val routesClassName: String = config.get[String](SERVER_ROUTES)
+    val routeClass: Class[_] =
+      try ClassLoader.getSystemClassLoader.loadClass(routesClassName)
+      catch {
+        case ex: ClassNotFoundException =>
+          throw ServerStartException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
+      }
+
+    if (!classOf[String].isAssignableFrom(routeClass)) {
+      throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
+    }
+
+    val constructor =
+      try routeClass.getConstructor()
+      catch {
+        case ex: NoSuchMethodException =>
+          throw ServerStartException(
+            s"RouterProvider class ${routeClass.getName} must have a public default constructor",
+            Some(ex)
+          )
+      }
+    constructor.newInstance().asInstanceOf[RouterProvider]
   }
 }
