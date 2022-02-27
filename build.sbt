@@ -44,6 +44,15 @@ lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-se
   )
   .dependsOn(LepusProject)
 
+lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-swagger"))
+  .settings(
+    scalaVersion       := (LepusProject / scalaVersion).value,
+    crossScalaVersions := Seq(scalaVersion.value),
+    commonSettings,
+    libraryDependencies ++= swaggerDependencies
+  )
+  .dependsOn(LepusRouterProject)
+
 lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .settings(
@@ -74,7 +83,8 @@ lazy val userProjects = Seq[ProjectReference](
 
 lazy val nonUserProjects = Seq[ProjectReference](
   SbtPluginProject,
-  LepusServerProject
+  LepusServerProject,
+  LepusSwaggerProject
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))

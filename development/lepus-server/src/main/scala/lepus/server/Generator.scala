@@ -21,7 +21,13 @@ object Generator {
   ): File = {
     val file = new File(generatedDir, "LepusServer.scala")
     val scalaSource =
-      s"""|package lepus.server
+      s"""|/**
+          | *  This file is part of the Lepus Framework.
+          | *  For the full copyright and license information,
+          | *  please view the LICENSE file that was distributed with this source code.
+          | */
+          |
+          |package lepus.server
           |
           |import cats.effect._
           |

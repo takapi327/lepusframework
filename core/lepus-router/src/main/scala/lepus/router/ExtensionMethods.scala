@@ -26,6 +26,15 @@ trait ExtensionMethods {
         case e: RequestEndpoint[_] => Vector(e)
       }
     }
+
+    def toPath(): String = {
+      endpoint match {
+        case RequestEndpoint.FixedPath(name, _) => name
+        case RequestEndpoint.PathParam(name, _) => name
+        case RequestEndpoint.QueryParam(key, _) => key
+        case _                                  => ""
+      }
+    }
   }
 
   // see https://github.com/scala/bug/issues/12186
