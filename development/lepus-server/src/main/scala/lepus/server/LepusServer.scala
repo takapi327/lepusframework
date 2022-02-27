@@ -10,17 +10,15 @@ import scala.language.reflectiveCalls
 
 import cats.effect._
 
-import org.http4s.HttpRoutes
 import org.http4s.blaze.server.BlazeServerBuilder
 
 import lepus.core.util.Configuration
+import lepus.router.{ RouterProvider => LepusRouterProvider, _ }
 import Exception._
 
 object LepusServer extends IOApp {
 
-  type RouterProvider = {
-    val routes: HttpRoutes[IO]
-  }
+  type RouterProvider = LepusRouterProvider
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"
@@ -34,9 +32,11 @@ object LepusServer extends IOApp {
 
     val routerProvider: RouterProvider = loadRouterProvider()
 
+    val httpApp = routerProvider.routes.map(_.toHttpRoutes()).reduce
+
     BlazeServerBuilder[IO]
       .bindHttp(port, host)
-      .withHttpApp(routerProvider.routes.orNotFound)
+      .withHttpApp(httpApp.orNotFound)
       .withoutBanner
       .resource
       .use(_ => IO.never)
@@ -52,9 +52,9 @@ object LepusServer extends IOApp {
           throw ServerStartException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
       }
 
-    //if (!classOf[RouterProvider].isAssignableFrom(routeClass)) {
-    //  throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
-    //}
+    if (!classOf[RouterProvider].isAssignableFrom(routeClass)) {
+      throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
+    }
 
     val constructor =
       try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider]
