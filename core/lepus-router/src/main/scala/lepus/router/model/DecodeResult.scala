@@ -11,7 +11,7 @@ object DecodeResult {
   case class Success[T](value: T) extends DecodeResult[T]
 
   sealed trait Failure extends DecodeResult[Nothing]
-  case class InvalidValue(value: String, throwable: Throwable) extends Failure
+  case class InvalidValue(value: String, throwable: Option[Throwable]) extends Failure
   case class Mismatch(request: String, endpoint: String) extends Failure
   case object Missing extends Failure
 }
