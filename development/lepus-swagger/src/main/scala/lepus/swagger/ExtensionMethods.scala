@@ -10,6 +10,7 @@ import io.circe.syntax._
 import io.circe.yaml.Printer
 
 import lepus.router.model.Endpoint
+import lepus.router.http._
 import lepus.swagger.model._
 
 trait ExtensionMethods {
@@ -19,7 +20,12 @@ trait ExtensionMethods {
   }
 
   implicit class LepusEndpointOps(endpoint: Endpoint) {
-    def toPath: String = "/" + endpoint.endpoint.asVector().map(_.toPath()).mkString("/")
+    def toPath: String = "/" + endpoint.endpoint.asVector().map {
+      case RequestEndpoint.FixedPath(name, _) => name
+      case RequestEndpoint.PathParam(name, _) => name
+      case RequestEndpoint.QueryParam(key, _) => key
+      case _                                  => ""
+    }.mkString("/")
   }
 
   implicit class ServerRouteOps[F[_]](serverRoutes: List[lepus.router.ServerRoute[F, _]]) {
