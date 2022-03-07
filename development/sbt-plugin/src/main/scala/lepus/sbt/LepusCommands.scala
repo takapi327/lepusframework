@@ -20,8 +20,9 @@ object LepusCommands {
     new java.net.URLClassLoader(classpath.map(_.data.toURI.toURL).toArray, parent)
   }
 
-  val swaggerCommand = Command.command("generateApi") { state =>
-    println("Generate Swagger API document")
-    MainLoop.processCommand(Exec("runMain lepus.swagger.LepusSwagger", None), state)
+  val swaggerCommand = Command.command("generateApi") { (state: State) =>
+    val extracted = Project.extract(state)
+    val settingUpdated: State = extracted.appendWithSession(Seq(Compile / run / mainClass := Some("lepus.sbt.LepusGenerator")), state)
+    MainLoop.processCommand(Exec(s"run", None), settingUpdated)
   }
 }
