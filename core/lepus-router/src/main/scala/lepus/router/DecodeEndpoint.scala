@@ -16,16 +16,15 @@ object DecodeEndpoint {
   def apply(
     request:  HttpServerRequest,
     endpoint: RequestEndpoint[_]
-  ): (DecodeEndpointResult, DecodeServerRequest) = {
+  ): (DecodeEndpointResult, DecodeServerRequest) =
     tailrecMatchPath(DecodeServerRequest(request), endpoint.asVector(), Vector.empty)
-  }
 
   @tailrec
   private def tailrecMatchPath(
     request:   DecodeServerRequest,
     endpoints: Vector[RequestEndpoint[_]],
     decoded:   Vector[(RequestEndpoint[_], DecodeResult[_])]
-  ): (DecodeEndpointResult, DecodeServerRequest) = {
+  ): (DecodeEndpointResult, DecodeServerRequest) =
     endpoints.headAndTail match {
       case Some((head, tail)) => {
         head match {
@@ -59,6 +58,27 @@ object DecodeEndpoint {
               }
             }
           }
+          case RequestEndpoint.ValidateParam(_, converter, validator) => {
+            val (nextSegment, decodeServerRequest) = request.nextPathSegment
+            nextSegment match {
+              case Some(segment) => {
+                validator(segment) match {
+                  case Some(decodeResult) => {
+                    val failure = DecodeEndpointResult.ValidationError(head, decodeResult)
+                    (failure, decodeServerRequest)
+                  }
+                  case None => {
+                    val newDecoded = decoded :+ ((head, converter.decode(segment)))
+                    tailrecMatchPath(decodeServerRequest, tail, newDecoded)
+                  }
+                }
+              }
+              case None => {
+                val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
+                (failure, decodeServerRequest)
+              }
+            }
+          }
           case RequestEndpoint.QueryParam(_, converter) => {
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
@@ -83,7 +103,6 @@ object DecodeEndpoint {
         }
       }
     }
-  }
 
   @tailrec
   private def tailrecDecode(
@@ -111,9 +130,10 @@ object DecodeEndpointResult {
 
   sealed trait Failure extends DecodeEndpointResult
 
-  case class Error(endpoint: RequestEndpoint[_], failure: DecodeResult[_]) extends Failure
-  case class MissMatch(endpoint: RequestEndpoint[_], failure: DecodeResult[_]) extends Failure
-  case class NoSuchElement(endpoint: RequestEndpoint[_], failure: DecodeResult[_]) extends Failure
+  case class Error(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
+  case class MissMatch(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
+  case class NoSuchElement(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
+  case class ValidationError(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
   case class PathMissPatch(path: String) extends Failure
 }
 
