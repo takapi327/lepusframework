@@ -62,6 +62,7 @@ object LepusSettings {
 
   lazy val swaggerSettings = Def.settings(
     libraryDependencies += lepusSwagger,
+    baseClassloader := LepusCommands.baseClassloaderTask.value,
     commands += LepusCommands.swaggerCommand,
   )
 }
