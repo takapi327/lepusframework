@@ -6,6 +6,8 @@
 
 package lepus.swagger
 
+import cats.data.NonEmptyList
+
 import io.circe.syntax._
 import io.circe.yaml.Printer
 
@@ -22,10 +24,10 @@ trait ExtensionMethods {
     def toPath: String = "/" + endpoint.endpoint.asVector().map(_.toPath()).mkString("/")
   }
 
-  implicit class ServerRouteOps[F[_]](serverRoutes: List[lepus.router.ServerRoute[F, _]]) {
+  implicit class ServerRouteOps[F[_]](serverRoutes: NonEmptyList[lepus.router.ServerRoute[F, _]]) {
     def toPathMap: Map[String, Path] = {
       (for {
-        serverRoute <- serverRoutes
+        serverRoute <- serverRoutes.toList
         method      <- serverRoute.methods
       } yield {
         (method.toString().toLowerCase -> Path.fromEndpoint(serverRoute.endpoint))
