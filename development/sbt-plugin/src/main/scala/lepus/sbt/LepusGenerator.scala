@@ -6,63 +6,52 @@
 
 package lepus.sbt
 
-/**
- * reflective access of structural type member method run should be enabled by making the implicit value scala.language.
- * reflectiveCalls visible.
- * This can be achieved by adding the import clause 'import scala.language.reflectiveCalls' or by setting the compiler option -language:reflectiveCalls.
- * See the Scaladoc for value scala.language.reflectiveCalls for a discussion why the feature should be explicitly enabled.
- */
 import scala.language.reflectiveCalls
 
 import sbt._
 import sbt.Keys._
 
 import LepusInternalKeys._
-import LepusImport.LepusKeys._
 import LepusSwaggerImport._
 
 object LepusGenerator {
 
-  val generateSwagger = lepusGenerateSwagger(
-    mainClassName = (Compile / run / mainClass),
-    title         = swaggerTitle,
-    version       = swaggerVersion,
-    routePackage  = routePackage,
-    generatedDir  = (Compile / sourceManaged)
-  )
+  def main(args: Array[String]): Unit = lepusGenerateSwagger(swaggerTitle, swaggerVersion, baseClassloader, baseDirectory, routePackage)
 
-  def convertToUrls(files: Seq[File]): Array[URL] = files.map(_.toURI.toURL).toArray
+  private def convertToUrls(files: Seq[File]): Array[URL] = files.map(_.toURI.toURL).toArray
 
   def lepusGenerateSwagger(
-    mainClassName: TaskKey[Option[String]],
-    title:         SettingKey[String],
-    version:       SettingKey[String],
-    routePackage:  TaskKey[String],
-    generatedDir:  SettingKey[File]
-  ): Def.Initialize[Task[Seq[File]]] = Def.task {
+    title:           SettingKey[String],
+    version:         SettingKey[String],
+    baseClassloader: TaskKey[ClassLoader],
+    baseDirectory:   SettingKey[File],
+    routePackage:    TaskKey[String]
+  ): Def.Initialize[Task[Unit]] = Def.task {
 
     type Swagger = {
       def generateSwagger(
-        title:        String,
-        version:      String,
-        routePackage: String,
-        generatedDir: File
-      ): File
+        title:           String,
+        version:         String,
+        baseClassloader: ClassLoader,
+        baseDirectory:   File,
+        routePackage:    String
+      ): Unit
     }
 
-    lazy val projectClassLoader = new ProjectClassLoader(
+    val projectClassLoader = new ProjectClassLoader(
       urls   = convertToUrls(lepusDependencyClasspath.value.files),
       parent = baseClassloader.value
     )
 
-    val mainClass: Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
-    val mainObject: Swagger = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
+    val mainClass:  Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
+    val mainObject: Swagger  = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
 
-    Seq(mainObject.generateSwagger(
-      title        = title.value,
-      version      = version.value,
-      routePackage = routePackage.value,
-      generatedDir = generatedDir.value
-    ))
+    mainObject.generateSwagger(
+      title           = title.value,
+      version         = version.value,
+      baseClassloader = baseClassloader.value,
+      baseDirectory   = baseDirectory.value,
+      routePackage    = routePackage.value
+    )
   }
 }
