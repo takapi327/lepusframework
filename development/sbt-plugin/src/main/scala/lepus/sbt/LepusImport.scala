@@ -19,26 +19,7 @@ object LepusImport {
   val lepusServer = component("lepus-server")
 
   val lepusSwagger = component("lepus-swagger")
-
-  object LepusKeys {
-
-    val routePackage = TaskKey[String](
-      label       = "routePackage",
-      description = "Package of server routing information"
-    )
-
-    val defaultPort = SettingKey[Int](
-      label       = "defaultPort",
-      description = "The default port that Server runs on"
-    )
-
-    val defaultAddress = SettingKey[String](
-      label       = "defaultAddress",
-      description = "The default address that Server runs on"
-    )
-  }
 }
-
 
 object LepusSwaggerImport {
   val swaggerTitle = SettingKey[String](

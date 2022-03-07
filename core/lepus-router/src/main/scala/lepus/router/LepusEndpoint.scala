@@ -6,8 +6,6 @@
 
 package lepus.router
 
-import scala.reflect._
-
 import cats.effect.{ Async, Sync }
 
 import org.http4s.HttpRoutes

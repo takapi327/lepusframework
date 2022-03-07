@@ -42,7 +42,7 @@ lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-se
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusProject)
+  .dependsOn(LepusProject, LepusRouterProject)
 
 lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-swagger"))
   .settings(

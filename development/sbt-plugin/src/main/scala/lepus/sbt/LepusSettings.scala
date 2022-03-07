@@ -16,7 +16,6 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 
 import lepus.core.LepusVersion
 import LepusImport._
-import LepusKeys._
 import LepusInternalKeys._
 
 object LepusSettings {
@@ -45,12 +44,9 @@ object LepusSettings {
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     libraryDependencies ++= Seq(lepusServer, lepusRouter),
-    defaultPort := 5555,
-    defaultAddress := "0.0.0.0",
-    (Compile / sourceGenerators) += LepusGenerator.generateServer.taskValue,
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
     lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
-    baseClassloader := LepusCommands.baseClassloaderTask.value,
+    Compile / resourceDirectory := baseDirectory(_ / "conf").value,
     externalizedResources := {
       val resourceDirectories = (Compile / unmanagedResourceDirectories).value
       ((Compile / unmanagedResources).value --- resourceDirectories)
@@ -67,6 +63,5 @@ object LepusSettings {
   lazy val swaggerSettings = Def.settings(
     libraryDependencies += lepusSwagger,
     commands += LepusCommands.swaggerCommand,
-    (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue
   )
 }
