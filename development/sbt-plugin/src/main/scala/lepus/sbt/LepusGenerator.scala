@@ -16,26 +16,26 @@ import LepusSwaggerImport._
 
 object LepusGenerator {
 
-  def main(args: Array[String]): Unit = lepusGenerateSwagger(swaggerTitle, swaggerVersion, baseClassloader, baseDirectory, routePackage)
+  val generateSwagger = lepusGenerateSwagger(
+    title         = swaggerTitle,
+    version       = swaggerVersion,
+    baseDirectory = (Compile / sourceManaged)
+  )
 
   private def convertToUrls(files: Seq[File]): Array[URL] = files.map(_.toURI.toURL).toArray
 
   def lepusGenerateSwagger(
-    title:           SettingKey[String],
-    version:         SettingKey[String],
-    baseClassloader: TaskKey[ClassLoader],
-    baseDirectory:   SettingKey[File],
-    routePackage:    TaskKey[String]
-  ): Def.Initialize[Task[Unit]] = Def.task {
+    title:         SettingKey[String],
+    version:       SettingKey[String],
+    baseDirectory: SettingKey[File],
+  ): Def.Initialize[Task[Seq[File]]] = Def.task {
 
     type Swagger = {
       def generateSwagger(
-        title:           String,
-        version:         String,
-        baseClassloader: ClassLoader,
-        baseDirectory:   File,
-        routePackage:    String
-      ): Unit
+        title:         String,
+        version:       String,
+        baseDirectory: File
+      ): File
     }
 
     val projectClassLoader = new ProjectClassLoader(
@@ -46,12 +46,10 @@ object LepusGenerator {
     val mainClass:  Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
     val mainObject: Swagger  = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
 
-    mainObject.generateSwagger(
-      title           = title.value,
-      version         = version.value,
-      baseClassloader = baseClassloader.value,
-      baseDirectory   = baseDirectory.value,
-      routePackage    = routePackage.value
-    )
+    Seq(mainObject.generateSwagger(
+      title         = title.value,
+      version       = version.value,
+      baseDirectory = baseDirectory.value,
+    ))
   }
 }
