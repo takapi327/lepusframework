@@ -21,8 +21,6 @@ object LepusCommands {
   }
 
   val swaggerCommand = Command.command("generateApi") { (state: State) =>
-    val extracted = Project.extract(state)
-    val settingUpdated: State = extracted.appendWithSession(Seq(Compile / run / mainClass := Some("lepus.sbt.LepusGenerator")), state)
-    MainLoop.processCommand(Exec(s"run", None), settingUpdated)
+    MainLoop.processCommand(Exec("runMain lepus.swagger.LepusSwagger", None), state)
   }
 }
