@@ -22,6 +22,26 @@ object ValidatorTest extends Specification {
       validator("hogehoge").nonEmpty
     }
 
+    "Passing an uppercase alphabetical character to a validation that specifies uppercase alphabetical characters will result in None." in {
+      val validator = Validator.Pattern("^[A-Z]+$")
+      validator("HOGEHOGE").isEmpty
+    }
+
+    "Passing any other value to a validation that specifies uppercase alphabetic letters will result in Some." in {
+      val validator = Validator.Pattern("^[A-Z]+$")
+      validator("hogehoge").nonEmpty
+    }
+
+    "Passing any other value to a validation that specifies lower case alphabetical characters will result in Some." in {
+      val validator = Validator.Pattern("^[a-z]+$")
+      validator("HOGEHOGE").nonEmpty
+    }
+
+    "Passing a lower case alphabetical character to a validation that specifies lower case alphabetical characters will result in None." in {
+      val validator = Validator.Pattern("^[a-z]+$")
+      validator("hogehoge").isEmpty
+    }
+
     "Passing a number greater than the minimum value to a validation with a minimum value will result in None." in {
       val validator = Validator.Min(0)
       validator("2").isEmpty
