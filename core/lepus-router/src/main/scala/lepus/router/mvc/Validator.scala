@@ -60,8 +60,9 @@ object Validator {
    * @param max Maximum threshold value
    */
   case class Range(min: Int, max: Int) extends Validator {
+    require(min < max, "The max argument must be greater than the min argument to be passed to the Range model.")
     def apply(t: String): Option[DecodeResult.Failure] = {
-      try if (min < t.toInt && t.toInt < max) None else Some(DecodeResult.InvalidValue(s"$t is not in the $min and $max range", None))
+      try if (min <= t.toInt && t.toInt <= max) None else Some(DecodeResult.InvalidValue(s"$t is not in the $min and $max range", None))
       catch {
         case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
       }
