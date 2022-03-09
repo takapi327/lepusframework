@@ -51,7 +51,7 @@ lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-
     commonSettings,
     libraryDependencies ++= swaggerDependencies
   )
-  .dependsOn(LepusRouterProject)
+  .dependsOn(LepusProject, LepusRouterProject)
 
 lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin"))
   .enablePlugins(SbtPlugin)
