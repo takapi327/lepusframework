@@ -7,19 +7,19 @@
 package lepus.router.mvc
 
 import java.time._
-import java.util._
+import java.util.UUID
 import scala.annotation._
 import scala.util.{Failure, Success, Try}
 import lepus.router.model.{DecodeResult, Schema}
 
 import scala.reflect.ClassTag
 
-@implicitNotFound("Could not find an implicit EndpointConverter[${L}, ${H}]")
-trait EndpointConverter[L, H] {
+@implicitNotFound("Could not find an implicit EndpointConverter[${S}, ${T}]")
+trait EndpointConverter[S, T] {
 
-  def stringTo(from: L): H
+  def stringTo(from: S): T
 
-  def decode(str: L): DecodeResult[H] = {
+  def decode(str: S): DecodeResult[T] = {
     Try { stringTo(str) } match {
       case Success(s) => DecodeResult.Success(s)
       case Failure(e) => DecodeResult.InvalidValue(str.toString, Some(e))
@@ -31,10 +31,11 @@ trait EndpointConverter[L, H] {
 
 object EndpointConverter {
 
-  /**
-   * Variable for converting path and query parameter values to any type.
-   */
-  implicit val string:         EndpointConverter[String, String]         = convertT[String, String](_.toString)
+  /** Variable for converting path and query parameter values to any type. */
+  implicit val string: EndpointConverter[String, String] = new EndpointConverter[String, String] {
+    override def stringTo(str: String): String = str
+    override def schema: Schema = Schema.string
+  }
   implicit val byte:           EndpointConverter[String, Byte]           = convertT[String, Byte](_.toByte)(Schema.byteString)
   implicit val short:          EndpointConverter[String, Short]          = convertT[String, Short](_.toShort)(Schema.int32Integer)
   implicit val int:            EndpointConverter[String, Int]            = convertT[String, Int](_.toInt)(Schema.int32Integer)
@@ -50,10 +51,17 @@ object EndpointConverter {
   implicit val offsetDateTime: EndpointConverter[String, OffsetDateTime] = convertT[String, OffsetDateTime](OffsetDateTime.parse(_))(Schema.dateTimeString)
   implicit val zonedDateTime:  EndpointConverter[String, ZonedDateTime]  = convertT[String, ZonedDateTime](ZonedDateTime.parse(_))(Schema.dateTimeString)
   implicit val instant:        EndpointConverter[String, Instant]        = convertT[String, Instant](Instant.parse(_))(Schema.dateTimeString)
-  implicit val uuid:           EndpointConverter[String, UUID]           = convertT[String, UUID](UUID.fromString(_))(Schema.uuidString)
+  implicit val uuid:           EndpointConverter[String, UUID]           = convertT[String, UUID](UUID.fromString)(Schema.uuidString)
 
+  /** Variables for converting path and query parameter values to arrays of any type. */
   implicit def array[T](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): EndpointConverter[String, Array[T]] =
-    convertT(_.split(",").map(converter.stringTo(_)))
+    convertT(_.split(",").map(converter.stringTo))
+  implicit def list[T](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): EndpointConverter[String, List[T]] =
+    convertT(array[T].stringTo(_).toList)
+  implicit def seq[T](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): EndpointConverter[String, Seq[T]] =
+    convertT(array[T].stringTo(_).toSeq)
+  implicit def set[T](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): EndpointConverter[String, Set[T]] =
+    convertT(array[T].stringTo(_).toSet)
 
   /**
    * Converted from String to any type and finally to DecodeResult
@@ -68,11 +76,11 @@ object EndpointConverter {
   /**
    * Generate an EndpointConverter that performs the conversion of type S to type T.
    *
-   * @param st     Process to convert type S to type T
-   * @param schema Character code form of the value converted from S to T. Mainly used when generating Swagger (Open API) documents.
-   * @tparam S     Http request path and query parameter values. This is mainly a String.
-   * @tparam T     Type to convert Http request path and query parameter values.
-   * @return       EndpointConverter to perform the conversion process from type S to type T
+   * @param st Process to convert type S to type T
+   * @param s  Character code form of the value converted from S to T. Mainly used when generating Swagger (Open API) documents.
+   * @tparam S Http request path and query parameter values. This is mainly a String.
+   * @tparam T Type to convert Http request path and query parameter values.
+   * @return   EndpointConverter to perform the conversion process from type S to type T
    */
   def convertT[S, T](st: S => T)(implicit s: Schema = Schema.string): EndpointConverter[S, T] =
     new EndpointConverter[S, T] {
