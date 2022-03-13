@@ -10,6 +10,7 @@ import java.time._
 import java.util.UUID
 
 import scala.reflect.ClassTag
+import scala.collection.immutable.HashSet
 
 import org.scalacheck.{ Arbitrary, Gen }
 import org.scalacheck.Prop._
@@ -79,6 +80,24 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     checkDecodeFromArray[Seq, ZonedDateTime]()
     checkDecodeFromArray[Seq, Instant]()
     checkDecodeFromArray[Seq, UUID]()
+
+    checkDecodeFromSet[String]()
+    checkDecodeFromSet[Byte]()
+    checkDecodeFromSet[Short]()
+    checkDecodeFromSet[Int]()
+    checkDecodeFromSet[Long]()
+    checkDecodeFromSet[Float]()
+    checkDecodeFromSet[Double]()
+    checkDecodeFromSet[Boolean]()
+    checkDecodeFromSet[BigDecimal]()
+    checkDecodeFromSet[LocalTime]()
+    checkDecodeFromSet[LocalDate]()
+    checkDecodeFromSet[LocalDateTime]()
+    checkDecodeFromSet[OffsetTime]()
+    checkDecodeFromSet[OffsetDateTime]()
+    checkDecodeFromSet[ZonedDateTime]()
+    checkDecodeFromSet[Instant]()
+    checkDecodeFromSet[UUID]()
   }
 
   def checkDecodeFromString[T: Arbitrary](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): Assertion =
@@ -97,11 +116,29 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     val list = gen.sample.getOrElse(Iterable.empty[T])
     converter.decode(list.iterator.mkString(",")) match {
       case Success(value)         =>
-        val decoded = value.asInstanceOf[IterableOnce[T]]
+        val decoded = value.asInstanceOf[Iterable[T]]
         assert(
           classTag.runtimeClass.isInstance(decoded) &&
           classTag.runtimeClass.isInstance(list)    &&
-          decoded === list                          &&
+          decoded.size === list.size                &&
+          decoded      === list                     &&
+          decoded.iterator.mkString(",") === list.iterator.mkString(",")
+        )
+      case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
+      case unexpected             => fail(s"Value ${list.iterator.mkString(",")} got decoded to unexpected $unexpected")
+    }
+  }
+
+  def checkDecodeFromSet[T: Arbitrary]()(implicit converter: EndpointConverter[String, Set[T]], classTag: ClassTag[Set[T]]): Assertion = {
+    val gen  = Gen.containerOf[Set, T](Arbitrary.arbitrary[T])
+    val list = gen.sample.getOrElse(Set.empty[T])
+    converter.decode(list.mkString(",")) match {
+      case Success(decoded) =>
+        assert(
+          classTag.runtimeClass.isInstance(decoded) &&
+          classTag.runtimeClass.isInstance(list)    &&
+          decoded.size === list.size                &&
+          decoded      === list                     &&
           decoded.iterator.mkString(",") === list.iterator.mkString(",")
         )
       case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
