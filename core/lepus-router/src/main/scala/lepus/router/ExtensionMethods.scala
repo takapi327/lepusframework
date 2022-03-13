@@ -26,6 +26,22 @@ trait ExtensionMethods {
         case e: RequestEndpoint[_] => Vector(e)
       }
     }
+
+    def isPath(): Boolean =
+      endpoint match {
+        case _: RequestEndpoint.FixedPath[_]  => true
+        case _: RequestEndpoint.PathParam[_]  => true
+        case _: RequestEndpoint.QueryParam[_] => false
+        case _                                => false
+      }
+
+    def isQueryParam(): Boolean =
+      endpoint match {
+        case _: RequestEndpoint.FixedPath[_]  => false
+        case _: RequestEndpoint.PathParam[_]  => false
+        case _: RequestEndpoint.QueryParam[_] => true
+        case _                                => false
+      }
   }
 
   // see https://github.com/scala/bug/issues/12186
