@@ -9,7 +9,7 @@ package lepus.router
 import scala.annotation.tailrec
 
 import http._
-import lepus.router.model.{ DecodeResult, HttpServerRequest }
+import lepus.router.model._
 
 object DecodeEndpoint {
 
@@ -190,31 +190,4 @@ object DecodeEndpointResult {
   case class NoSuchElement(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
   case class ValidationError(endpoint: RequestEndpoint[_], failure: DecodeResult.Failure) extends Failure
   case class PathMissPatch(path: String) extends Failure
-}
-
-trait DecodeServerRequest
-
-case class DecodePathRequest(request: HttpServerRequest, pathSegments: List[String]) extends DecodeServerRequest {
-  def nextPathSegment: (Option[String], DecodePathRequest) =
-    pathSegments match {
-      case Nil          => (None, this)
-      case head :: tail => (Some(head), DecodePathRequest(request, tail))
-    }
-}
-
-object DecodePathRequest {
-  def apply(request: HttpServerRequest): DecodePathRequest = DecodePathRequest(request, request.pathSegments)
-}
-
-case class DecodeQueryRequest(request: HttpServerRequest, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest {
-  def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) = {
-    querySegments.get(key) match {
-      case Some(value) => (Some(value), DecodeQueryRequest(request, querySegments - key))
-      case None        => (None, this)
-    }
-  }
-}
-
-object DecodeQueryRequest {
-  def apply(request: HttpServerRequest): DecodeQueryRequest = DecodeQueryRequest(request, request.queryParameters)
 }
