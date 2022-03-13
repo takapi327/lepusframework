@@ -56,7 +56,11 @@ trait ServerInterpreter[F[_]] {
     val (decodeEndpointResult, _) = DecodeEndpoint(serverRequest, endpoint)
     decodeEndpointResult match {
       case _: DecodeEndpointResult.Failure      => None
-      case DecodeEndpointResult.Success(values) => Some(values.toTuple.asInstanceOf[T])
+      case DecodeEndpointResult.Success(values) =>
+        Some((values.nonEmpty match {
+          case true  => values.toTuple
+          case false => // TODO: If there is no value to pass to the logic, Unit is returned, but Nothing can be returned.
+        }).asInstanceOf[T])
     }
   }
 }
