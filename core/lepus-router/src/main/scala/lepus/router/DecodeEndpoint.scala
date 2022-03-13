@@ -13,11 +13,27 @@ import lepus.router.model.{ DecodeResult, HttpServerRequest }
 
 object DecodeEndpoint {
 
+  type DecodedResult = Vector[(RequestEndpoint[_], DecodeResult[_])]
+  type Result = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
+
   def apply(
     request:  HttpServerRequest,
     endpoint: RequestEndpoint[_]
-  ): (DecodeEndpointResult, DecodeServerRequest) =
-    tailrecMatchPath(DecodeServerRequest(request), endpoint.asVector(), Vector.empty)
+  ): (DecodeEndpointResult, DecodedResult) = {
+
+    val endpoints = endpoint.asVector()
+
+    val endpointPaths       = endpoints.filter(_.isPath())
+    val endpointQueryParams = endpoints.filter(_.isQueryParam())
+
+    decodingConvolution(
+      tailrecMatchPath(DecodePathRequest(request), endpointPaths, _, _),
+      tailrecMatchQuery(DecodeQueryRequest(request), endpointQueryParams, _, _)
+    )(DecodeEndpointResult.Success(Vector.empty), Vector.empty) match {
+      case (result: DecodeEndpointResult.Success, decoded) => (tailrecDecode(decoded, result), decoded)
+      case (result, decoded)                               => (result, decoded)
+    }
+  }
 
   /**
    * Compares and verifies the path of the Http request with the path of the endpoint,
@@ -25,14 +41,16 @@ object DecodeEndpoint {
    *
    * @param request   Request to pass Http request to wrapped Server
    * @param endpoints Array of Vectors with endpoints divided by path parameters
+   * @param result    The result of decoding the endpoint is stored.
    * @param decoded   Parameter to store the decoded value of the endpoint
    * @return Decode all endpoints and return the Http request corresponding to the endpoint
    */
   @tailrec private def tailrecMatchPath(
-    request:   DecodeServerRequest,
+    request:   DecodePathRequest,
     endpoints: Vector[RequestEndpoint[_]],
-    decoded:   Vector[(RequestEndpoint[_], DecodeResult[_])]
-  ): (DecodeEndpointResult, DecodeServerRequest) =
+    result:    DecodeEndpointResult.Success,
+    decoded:   DecodedResult
+  ): (DecodeEndpointResult, DecodedResult) =
     endpoints.headAndTail match {
       case Some((head, tail)) =>
         head match {
@@ -41,24 +59,24 @@ object DecodeEndpoint {
             nextSegment match {
               case Some(segment) =>
                 if (segment == name) {
-                  tailrecMatchPath(decodeServerRequest, tail, decoded)
+                  tailrecMatchPath(decodeServerRequest, tail, result, decoded)
                 } else {
                   val failure = DecodeEndpointResult.MissMatch(head, DecodeResult.Mismatch(segment, name))
-                  (failure, decodeServerRequest)
+                  (failure, decoded)
                 }
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
-                (failure, decodeServerRequest)
+                (failure, decoded)
             }
           case RequestEndpoint.PathParam(_, converter) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
               case Some(segment) =>
                 val newDecoded = decoded :+ ((head, converter.decode(segment)))
-                tailrecMatchPath(decodeServerRequest, tail, newDecoded)
+                tailrecMatchPath(decodeServerRequest, tail, result, newDecoded)
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
-                (failure, decodeServerRequest)
+                (failure, decoded)
             }
           case RequestEndpoint.ValidateParam(_, converter, validator) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
@@ -67,37 +85,59 @@ object DecodeEndpoint {
                 validator(segment) match {
                   case Some(decodeResult) =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResult)
-                    (failure, decodeServerRequest)
+                    (failure, decoded)
                   case None =>
                     val newDecoded = decoded :+ ((head, converter.decode(segment)))
-                    tailrecMatchPath(decodeServerRequest, tail, newDecoded)
+                    tailrecMatchPath(decodeServerRequest, tail, result, newDecoded)
                 }
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
-                (failure, decodeServerRequest)
-            }
-          case RequestEndpoint.QueryParam(_, converter) =>
-            val (nextSegment, decodeServerRequest) = request.nextPathSegment
-            nextSegment match {
-              case Some(segment) =>
-                val newDecoded = decoded :+ ((head, converter.decode(segment)))
-                tailrecMatchPath(decodeServerRequest, tail, newDecoded)
-              case None =>
-                val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
-                (failure, decodeServerRequest)
+                (failure, decoded)
             }
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
         }
       case None =>
-        val (nextSegment, decodeServerRequest) = request.nextPathSegment
+        val (nextSegment, _) = request.nextPathSegment
         nextSegment match {
-          case Some(v) => (DecodeEndpointResult.PathMissPatch(v), decodeServerRequest)
-          case None    => (tailrecDecode(decoded, DecodeEndpointResult.Success(Vector.empty)), decodeServerRequest)
+          case Some(v) => (DecodeEndpointResult.PathMissPatch(v), decoded)
+          case None    => (result, decoded)
         }
     }
 
-  //@tailrec private def tailrecMatchQuery(): (DecodeEndpointResult, DecodeServerRequest) =
-  //  tailrecMatchQuery()
+  /**
+   * Compares and verifies the path of the Http request with the query param of the endpoint,
+   * and performs all tail recursion of decoding.
+   *
+   * @param request   Request to pass Http request to wrapped Server
+   * @param endpoints Array of Vectors with endpoints divided by path parameters
+   * @param result    The result of decoding the endpoint is stored.
+   * @param decoded   Parameter to store the decoded value of the endpoint
+   * @return Decode all endpoints and return the Http request corresponding to the endpoint
+   */
+  @tailrec private def tailrecMatchQuery(
+    request:   DecodeQueryRequest,
+    endpoints: Vector[RequestEndpoint[_]],
+    result:    DecodeEndpointResult.Success,
+    decoded:   DecodedResult
+  ): (DecodeEndpointResult, DecodedResult) =
+    endpoints.headAndTail match {
+      case Some((head, tail)) => head match {
+        case RequestEndpoint.QueryParam(key, converter) =>
+          request.nextQuerySegment(key) match {
+            case (valueOpt, decodeServerRequest) =>
+              valueOpt match {
+                case Some(value) =>
+                  val newDecoded = decoded :+ ((head, converter.decode(value.mkString(","))))
+                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
+                case None =>
+                  val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
+                  (failure, decoded)
+              }
+          }
+        case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
+      }
+      case None => (result, decoded)
+    }
 
   /**
    * Process with tail recursion so that only Success decoded endpoints are processed.
@@ -119,6 +159,21 @@ object DecodeEndpoint {
         }
     }
   }
+
+  /**
+   * Receive and in turn process decoding endpoints.
+   * The path and query parameter decoding processes can be combined by having each decoded result take over and be processed.
+   *
+   * @param results The process of decoding path and query parameter endpoints.
+   * @return Result of decoding the path, query parameter endpoints.
+   */
+  private def decodingConvolution(results: Result*): Result = (result, decoded) => results match {
+    case head +: tail => head(result, decoded) match {
+      case (result: DecodeEndpointResult.Success, decoded) => decodingConvolution(tail: _*)(result, decoded)
+      case decodedResult                                   => decodedResult
+    }
+    case _ => (result, decoded)
+  }
 }
 
 sealed trait DecodeEndpointResult
@@ -137,15 +192,29 @@ object DecodeEndpointResult {
   case class PathMissPatch(path: String) extends Failure
 }
 
+trait DecodeServerRequest
 
-case class DecodeServerRequest(request: HttpServerRequest, pathSegments: List[String]) {
-  def nextPathSegment: (Option[String], DecodeServerRequest) =
+case class DecodePathRequest(request: HttpServerRequest, pathSegments: List[String]) extends DecodeServerRequest {
+  def nextPathSegment: (Option[String], DecodePathRequest) =
     pathSegments match {
-      case Nil    => (None, this)
-      case h :: t => (Some(h), DecodeServerRequest(request, t))
+      case Nil          => (None, this)
+      case head :: tail => (Some(head), DecodePathRequest(request, tail))
     }
 }
 
-object DecodeServerRequest {
-  def apply(request: HttpServerRequest): DecodeServerRequest = DecodeServerRequest(request, request.pathSegments)
+object DecodePathRequest {
+  def apply(request: HttpServerRequest): DecodePathRequest = DecodePathRequest(request, request.pathSegments)
+}
+
+case class DecodeQueryRequest(request: HttpServerRequest, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest {
+  def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) = {
+    querySegments.get(key) match {
+      case Some(value) => (Some(value), DecodeQueryRequest(request, querySegments - key))
+      case None        => (None, this)
+    }
+  }
+}
+
+object DecodeQueryRequest {
+  def apply(request: HttpServerRequest): DecodeQueryRequest = DecodeQueryRequest(request, request.queryParameters)
 }
