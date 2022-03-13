@@ -19,104 +19,104 @@ object DecodeEndpoint {
   ): (DecodeEndpointResult, DecodeServerRequest) =
     tailrecMatchPath(DecodeServerRequest(request), endpoint.asVector(), Vector.empty)
 
-  @tailrec
-  private def tailrecMatchPath(
+  /**
+   * Compares and verifies the path of the Http request with the path of the endpoint,
+   * and performs all tail recursion of decoding.
+   *
+   * @param request   Request to pass Http request to wrapped Server
+   * @param endpoints Array of Vectors with endpoints divided by path parameters
+   * @param decoded   Parameter to store the decoded value of the endpoint
+   * @return Decode all endpoints and return the Http request corresponding to the endpoint
+   */
+  @tailrec private def tailrecMatchPath(
     request:   DecodeServerRequest,
     endpoints: Vector[RequestEndpoint[_]],
     decoded:   Vector[(RequestEndpoint[_], DecodeResult[_])]
   ): (DecodeEndpointResult, DecodeServerRequest) =
     endpoints.headAndTail match {
-      case Some((head, tail)) => {
+      case Some((head, tail)) =>
         head match {
-          case RequestEndpoint.FixedPath(name, _) => {
+          case RequestEndpoint.FixedPath(name, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
-              case Some(segment) => {
+              case Some(segment) =>
                 if (segment == name) {
                   tailrecMatchPath(decodeServerRequest, tail, decoded)
                 } else {
                   val failure = DecodeEndpointResult.MissMatch(head, DecodeResult.Mismatch(segment, name))
                   (failure, decodeServerRequest)
                 }
-              }
-              case None => {
+              case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decodeServerRequest)
-              }
             }
-          }
-          case RequestEndpoint.PathParam(_, converter) => {
+          case RequestEndpoint.PathParam(_, converter) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
-              case Some(segment) => {
+              case Some(segment) =>
                 val newDecoded = decoded :+ ((head, converter.decode(segment)))
                 tailrecMatchPath(decodeServerRequest, tail, newDecoded)
-              }
-              case None => {
+              case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decodeServerRequest)
-              }
             }
-          }
-          case RequestEndpoint.ValidateParam(_, converter, validator) => {
+          case RequestEndpoint.ValidateParam(_, converter, validator) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
-              case Some(segment) => {
+              case Some(segment) =>
                 validator(segment) match {
-                  case Some(decodeResult) => {
+                  case Some(decodeResult) =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResult)
                     (failure, decodeServerRequest)
-                  }
-                  case None => {
+                  case None =>
                     val newDecoded = decoded :+ ((head, converter.decode(segment)))
                     tailrecMatchPath(decodeServerRequest, tail, newDecoded)
-                  }
                 }
-              }
-              case None => {
+              case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decodeServerRequest)
-              }
             }
-          }
-          case RequestEndpoint.QueryParam(_, converter) => {
+          case RequestEndpoint.QueryParam(_, converter) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
-              case Some(segment) => {
+              case Some(segment) =>
                 val newDecoded = decoded :+ ((head, converter.decode(segment)))
                 tailrecMatchPath(decodeServerRequest, tail, newDecoded)
-              }
-              case None => {
+              case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decodeServerRequest)
-              }
             }
-          }
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
         }
-      }
-      case None => {
+      case None =>
         val (nextSegment, decodeServerRequest) = request.nextPathSegment
         nextSegment match {
           case Some(v) => (DecodeEndpointResult.PathMissPatch(v), decodeServerRequest)
           case None    => (tailrecDecode(decoded, DecodeEndpointResult.Success(Vector.empty)), decodeServerRequest)
         }
-      }
     }
 
-  @tailrec
-  private def tailrecDecode(
+  //@tailrec private def tailrecMatchQuery(): (DecodeEndpointResult, DecodeServerRequest) =
+  //  tailrecMatchQuery()
+
+  /**
+   * Process with tail recursion so that only Success decoded endpoints are processed.
+   *
+   * @param decodedEndpoints Array of decoded endpoints and Http request tuples
+   * @param decodeResult     Initial value of the result of decoding the endpoint
+   * @return Value resulting from decoding the endpoint
+   */
+  @tailrec private def tailrecDecode(
     decodedEndpoints: Vector[(RequestEndpoint[_], DecodeResult[_])],
     decodeResult:     DecodeEndpointResult.Success
   ): DecodeEndpointResult = {
     decodedEndpoints.headAndTail match {
       case None               => decodeResult
-      case Some((head, tail)) => {
+      case Some((head, tail)) =>
         head match {
           case (endpoint, failure: DecodeResult.Failure) => DecodeEndpointResult.Error(endpoint, failure)
           case (_, DecodeResult.Success(value))          => tailrecDecode(tail, decodeResult.update(value))
         }
-      }
     }
   }
 }
