@@ -38,7 +38,7 @@ object RequestEndpoint {
    * @tparam T        Parameters of the type you want to convert String to
    */
   case class PathParam[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] {
-    def validate(validator: Validator): ValidateParam[T] = ValidateParam(name, converter, validator)
+    def validate(validator: Validator): ValidatePathParam[T] = ValidatePathParam(name, converter, validator)
   }
 
   /**
@@ -58,7 +58,7 @@ object RequestEndpoint {
    * @param validator Validation settings to validate path parameters
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class ValidateParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
+  case class ValidatePathParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
 
   /**
    * Model to store RequestEndpoint pairs

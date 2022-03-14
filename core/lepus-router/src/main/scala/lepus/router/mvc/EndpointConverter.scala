@@ -8,9 +8,11 @@ package lepus.router.mvc
 
 import java.time._
 import java.util.UUID
+
 import scala.annotation._
-import scala.util.{Failure, Success, Try}
-import lepus.router.model.{DecodeResult, Schema}
+import scala.util._
+
+import lepus.router.model._
 
 import scala.reflect.ClassTag
 

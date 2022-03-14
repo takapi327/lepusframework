@@ -78,7 +78,7 @@ object DecodeEndpoint {
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
             }
-          case RequestEndpoint.ValidateParam(_, converter, validator) =>
+          case RequestEndpoint.ValidatePathParam(_, converter, validator) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match {
               case Some(segment) =>
