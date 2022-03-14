@@ -48,7 +48,9 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
+  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] {
+    def validate(validator: Validator): ValidateQueryParam[T] = ValidateQueryParam(key, converter, validator)
+  }
 
   /**
    * Validation defined value for dynamically changing path parameters
@@ -59,6 +61,16 @@ object RequestEndpoint {
    * @tparam T        Parameters of the type you want to convert String to
    */
   case class ValidatePathParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
+
+  /**
+   * Validation defined value for dynamically changing query parameters
+   *
+   * @param key      The key name of the query parameter, which is also used to generate Swagger (Open Api) documentation
+   * @param converter For converting String paths to any T type
+   * @param validator Validation settings to validate path parameters
+   * @tparam T        Parameters of the type you want to convert String to
+   */
+  case class ValidateQueryParam[T](key: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
 
   /**
    * Model to store RequestEndpoint pairs
