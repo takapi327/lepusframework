@@ -29,18 +29,17 @@ trait ExtensionMethods {
 
     def isPath(): Boolean =
       endpoint match {
-        case _: RequestEndpoint.FixedPath[_]  => true
-        case _: RequestEndpoint.PathParam[_]  => true
-        case _: RequestEndpoint.QueryParam[_] => false
-        case _                                => false
+        case _: RequestEndpoint.FixedPath[_]         => true
+        case _: RequestEndpoint.PathParam[_]         => true
+        case _: RequestEndpoint.ValidatePathParam[_] => true
+        case _                                       => false
       }
 
     def isQueryParam(): Boolean =
       endpoint match {
-        case _: RequestEndpoint.FixedPath[_]  => false
-        case _: RequestEndpoint.PathParam[_]  => false
-        case _: RequestEndpoint.QueryParam[_] => true
-        case _                                => false
+        case _: RequestEndpoint.QueryParam[_]         => true
+        case _: RequestEndpoint.ValidateQueryParam[_] => true
+        case _                                        => false
       }
   }
 
