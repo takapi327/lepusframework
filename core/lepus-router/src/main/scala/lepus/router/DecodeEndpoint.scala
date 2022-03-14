@@ -124,15 +124,22 @@ object DecodeEndpoint {
       case Some((head, tail)) => head match {
         case RequestEndpoint.QueryParam(key, converter) =>
           request.nextQuerySegment(key) match {
-            case (valueOpt, decodeServerRequest) =>
-              valueOpt match {
-                case Some(value) =>
-                  val newDecoded = decoded :+ ((head, converter.decode(value.mkString(","))))
-                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
-                case None =>
-                  val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
-                  (failure, decoded)
-              }
+            case (Some(values), decodeServerRequest) =>
+              val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
+              tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
+            case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+          }
+        case RequestEndpoint.ValidateQueryParam(key, converter, validator) =>
+          request.nextQuerySegment(key) match {
+            case (Some(values), decodeServerRequest) => values.flatMap(validator(_)) match {
+              case Nil =>
+                val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
+                tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
+              case decodeResults =>
+                val failure = DecodeEndpointResult.ValidationError(head, decodeResults.head)
+                (failure, decoded)
+            }
+            case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
           }
         case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
       }
