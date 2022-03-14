@@ -35,7 +35,7 @@ object DecodePathRequest {
 case class DecodeQueryRequest(request: HttpServerRequest, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest {
   def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) = {
     querySegments.get(key) match {
-      case Some(value) => (Some(value), DecodeQueryRequest(request, querySegments - key))
+      case Some(value) => (Some(value.flatMap(_.split(","))), DecodeQueryRequest(request, querySegments - key))
       case None        => (None, this)
     }
   }
