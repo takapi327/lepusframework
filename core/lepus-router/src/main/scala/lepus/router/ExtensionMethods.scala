@@ -27,14 +27,20 @@ trait ExtensionMethods {
       }
     }
 
-    def toPath(): String = {
+    def isPath(): Boolean =
       endpoint match {
-        case RequestEndpoint.FixedPath(name, _) => name
-        case RequestEndpoint.PathParam(name, _) => name
-        case RequestEndpoint.QueryParam(key, _) => key
-        case _                                  => ""
+        case _: RequestEndpoint.FixedPath[_]         => true
+        case _: RequestEndpoint.PathParam[_]         => true
+        case _: RequestEndpoint.ValidatePathParam[_] => true
+        case _                                       => false
       }
-    }
+
+    def isQueryParam(): Boolean =
+      endpoint match {
+        case _: RequestEndpoint.QueryParam[_]         => true
+        case _: RequestEndpoint.ValidateQueryParam[_] => true
+        case _                                        => false
+      }
   }
 
   // see https://github.com/scala/bug/issues/12186

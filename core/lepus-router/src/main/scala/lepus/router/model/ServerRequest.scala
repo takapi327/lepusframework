@@ -11,16 +11,13 @@ import org.http4s.{ Request, Uri }
 import lepus.router.http.{ RequestMethod, Header}
 
 trait HttpServerRequest {
+  def method: RequestMethod
   def pathSegments: List[String]
+  def queryParameters: Map[String, Seq[String]]
 }
 
 class ServerRequest[F[_]](request: Request[F]) extends HttpServerRequest {
   lazy val protocol: String = request.httpVersion.toString()
-  lazy val pathSegments: List[String] = {
-    request.pathInfo.renderString
-      .dropWhile(_ == '/').split("/")
-      .toList.map(Uri.decode(_))
-  }
   lazy val method: RequestMethod = request.method.name.toUpperCase match {
     case "GET"     => RequestMethod.Get
     case "HEAD"    => RequestMethod.Head
@@ -33,6 +30,15 @@ class ServerRequest[F[_]](request: Request[F]) extends HttpServerRequest {
     case "TRACE"   => RequestMethod.Trace
     case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
   }
+
+  lazy val pathSegments: List[String] = {
+    request.pathInfo.renderString
+      .dropWhile(_ == '/').split("/")
+      .toList.map(Uri.decode(_))
+  }
+
+  lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
+
   lazy val headers: Seq[Header.RequestHeader] = request.headers.headers.map(
     header => Header.RequestHeader(header.name.toString, header.value)
   )
