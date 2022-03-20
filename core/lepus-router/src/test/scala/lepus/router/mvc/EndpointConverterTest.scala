@@ -10,7 +10,6 @@ import java.time._
 import java.util.UUID
 
 import scala.reflect.ClassTag
-import scala.collection.immutable.HashSet
 
 import org.scalacheck.{ Arbitrary, Gen }
 import org.scalacheck.Prop._
