@@ -28,7 +28,7 @@ final case class ServerRoute[F[_], T](
   routes:   Routes[F, T]
 )(implicit asyncF: Async[F], syncF: Sync[F]) {
 
-  val methods: List[RequestMethod] = RequestMethod.all.filter(routes.lift(_).nonEmpty)
+  val methods: List[RequestMethod] = RequestMethod.all.filter(routes.isDefinedAt)
 
   def toHttpRoutes[T](): HttpRoutes[F] =
     ServerInterpreter[F]().bindFromRequest(routes, endpoint.endpoint)
