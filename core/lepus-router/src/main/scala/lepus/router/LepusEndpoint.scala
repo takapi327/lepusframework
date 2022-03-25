@@ -21,7 +21,7 @@ import lepus.router.model.Endpoint
  *   // http:localhost:5555/hello/world/lepus
  *   object helloEndpoint extends LepusEndpoint[IO, (String, String)](
  *     endpoint = "hello" / bindPath[String]("world") / bindPath[String]("name"),
- *     summary  = Some("Hello World!"),
+ *     summary  = Some("Hello World!")
  *   )
  * }}}
  *
@@ -37,6 +37,18 @@ abstract class LepusEndpoint[F[_], T](
   val description: Option[String]     = None
 )(implicit asyncF: Async[F], syncF: Sync[F]) extends Endpoint {
 
+  /**
+   * For example:
+   * {{{
+   *   helloEndpoint toRoutes {
+   *     case GET  => param => IO(...)
+   *     case POST => param => IO(...)
+   *   }
+   * }}}
+   *
+   * @param routes
+   * @return
+   */
   def toRoutes(routes: Routes[F, T]): ServerRoute[F, T] =
     ServerRoute(this, routes)
 }

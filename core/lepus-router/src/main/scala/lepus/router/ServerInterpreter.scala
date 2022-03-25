@@ -15,6 +15,11 @@ import org.http4s._
 import lepus.router.http._
 import lepus.router.model.ServerRequest
 
+/**
+ * Compare and verify Http requests and endpoints, and combine them with logic.
+ *
+ * @tparam F F type value for asynchronous processing.
+ */
 trait ServerInterpreter[F[_]] {
 
   implicit def syncF:  Sync[F]
