@@ -18,7 +18,7 @@ import lepus.router.model.ServerRequest
 /**
  * Compare and verify Http requests and endpoints, and combine them with logic.
  *
- * @tparam F F type value for asynchronous processing.
+ * @tparam F the effect type.
  */
 trait ServerInterpreter[F[_]] {
 

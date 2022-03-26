@@ -28,7 +28,7 @@ import lepus.router.model.Endpoint
  * @param endpoint    The value that will be the path of the Http request.
  * @param summary     Endpoint Summary Used in Swagger (Open API) documentation.
  * @param description Endpoint Description Used in Swagger (Open API) documentation.
- * @tparam F          F type value for asynchronous processing.
+ * @tparam F          the effect type.
  * @tparam T          Type of variable used as a path parameter. It is displayed as a tuple.
  */
 abstract class LepusEndpoint[F[_], T](
@@ -58,7 +58,7 @@ abstract class LepusEndpoint[F[_], T](
  *
  * @param endpoint The value that will be the path of the Http request.
  * @param routes   Logic part according to endpoints.
- * @tparam F       F type value for asynchronous processing.
+ * @tparam F       the effect type.
  * @tparam T       Type of variable used as a path parameter. It is displayed as a tuple.
  */
 private[lepus] final case class ServerRoute[F[_], T](
