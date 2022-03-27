@@ -46,4 +46,6 @@ object ServerResponse {
 
   val Ok        = new Result(ResponseStatus.Ok)
   val NoContent = ServerResponse(ResponseStatus.NoContent, Seq.empty, None)
+
+  val NotFound = ServerResponse(ResponseStatus.NotFound, Seq.empty, None)
 }
