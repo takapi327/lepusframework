@@ -15,13 +15,13 @@ trait RouterProvider {
 
   val GET     = RequestMethod.Get
   val HEAD    = RequestMethod.Head
-  val Post    = RequestMethod.Post
-  val Put     = RequestMethod.Put
-  val Delete  = RequestMethod.Delete
-  val Options = RequestMethod.Options
-  val Patch   = RequestMethod.Patch
-  val Connect = RequestMethod.Connect
-  val Trace   = RequestMethod.Trace
+  val POST    = RequestMethod.Post
+  val PUT     = RequestMethod.Put
+  val DELETE  = RequestMethod.Delete
+  val OPTIONS = RequestMethod.Options
+  val PATCH   = RequestMethod.Patch
+  val CONNECT = RequestMethod.Connect
+  val TRACE   = RequestMethod.Trace
 
   val routes: NonEmptyList[ServerRoute[IO, _]]
 }
