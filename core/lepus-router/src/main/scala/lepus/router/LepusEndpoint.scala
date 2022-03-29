@@ -41,8 +41,8 @@ abstract class LepusEndpoint[F[_], T](
    * For example:
    * {{{
    *   helloEndpoint toRoutes {
-   *     case GET  => param => IO(...)
-   *     case POST => param => IO(...)
+   *     case GET  => req => IO(...)
+   *     case POST => req => IO(...)
    *   }
    * }}}
    *

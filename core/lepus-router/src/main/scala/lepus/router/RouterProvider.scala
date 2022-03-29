@@ -9,7 +9,7 @@ package lepus.router
 import cats.data.NonEmptyList
 import cats.effect.IO
 
-import lepus.router.http._
+import lepus.router.http.RequestMethod
 
 trait RouterProvider {
 
