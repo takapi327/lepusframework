@@ -16,7 +16,7 @@ object DecodeEndpoint {
   type DecodedResult = Vector[(RequestEndpoint[_], DecodeResult[_])]
   type Result = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
 
-  def apply[F[_]](
+  def apply(
     request:  HttpRequest,
     endpoint: RequestEndpoint[_]
   ): (DecodeEndpointResult, DecodedResult) = {
