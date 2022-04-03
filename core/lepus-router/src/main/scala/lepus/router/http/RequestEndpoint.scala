@@ -21,6 +21,14 @@ sealed trait RequestEndpoint[T] {
 
 object RequestEndpoint {
 
+  trait Param {
+    def validate(validator: Validator): ValidateParam
+  }
+
+  trait ValidateParam {
+    def validator: Validator
+  }
+
   /**
    * fixed-character path
    *
@@ -37,7 +45,7 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class PathParam[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] {
+  case class PathParam[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] with Param {
     def validate(validator: Validator): ValidatePathParam[T] = ValidatePathParam(name, converter, validator)
   }
 
@@ -48,7 +56,7 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] {
+  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] with Param {
     def validate(validator: Validator): ValidateQueryParam[T] = ValidateQueryParam(key, converter, validator)
   }
 
@@ -60,7 +68,7 @@ object RequestEndpoint {
    * @param validator Validation settings to validate path parameters
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class ValidatePathParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
+  case class ValidatePathParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T] with ValidateParam
 
   /**
    * Validation defined value for dynamically changing query parameters
@@ -70,7 +78,7 @@ object RequestEndpoint {
    * @param validator Validation settings to validate path parameters
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class ValidateQueryParam[T](key: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T]
+  case class ValidateQueryParam[T](key: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T] with ValidateParam
 
   /**
    * Model to store RequestEndpoint pairs

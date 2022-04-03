@@ -6,6 +6,8 @@
 
 package lepus.router.model
 
+import lepus.router.http.HttpRequest
+
 trait DecodeServerRequest
 
 /**
@@ -14,7 +16,7 @@ trait DecodeServerRequest
  * @param request      Request to pass Http request to wrapped Server
  * @param pathSegments The value of the Http request path divided by / and stored in an array.
  */
-case class DecodePathRequest(request: HttpServerRequest, pathSegments: List[String]) extends DecodeServerRequest {
+case class DecodePathRequest(request: HttpRequest, pathSegments: List[String]) extends DecodeServerRequest {
   def nextPathSegment: (Option[String], DecodePathRequest) =
     pathSegments match {
       case Nil          => (None, this)
@@ -23,7 +25,7 @@ case class DecodePathRequest(request: HttpServerRequest, pathSegments: List[Stri
 }
 
 object DecodePathRequest {
-  def apply(request: HttpServerRequest): DecodePathRequest = DecodePathRequest(request, request.pathSegments)
+  def apply(request: HttpRequest): DecodePathRequest = DecodePathRequest(request, request.pathSegments)
 }
 
 /**
@@ -32,7 +34,7 @@ object DecodePathRequest {
  * @param request       Request to pass Http request to wrapped Server
  * @param querySegments The value of the query parameter of the Http request stored in Map.
  */
-case class DecodeQueryRequest(request: HttpServerRequest, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest {
+case class DecodeQueryRequest(request: HttpRequest, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest {
   def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) = {
     querySegments.get(key) match {
       case Some(value) => (Some(value.flatMap(_.split(","))), DecodeQueryRequest(request, querySegments - key))
@@ -42,5 +44,5 @@ case class DecodeQueryRequest(request: HttpServerRequest, querySegments: Map[Str
 }
 
 object DecodeQueryRequest {
-  def apply(request: HttpServerRequest): DecodeQueryRequest = DecodeQueryRequest(request, request.queryParameters)
+  def apply(request: HttpRequest): DecodeQueryRequest = DecodeQueryRequest(request, request.queryParameters)
 }

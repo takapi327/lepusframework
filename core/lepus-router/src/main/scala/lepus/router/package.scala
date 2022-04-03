@@ -14,11 +14,11 @@ import cats.effect.IO
 import org.http4s.HttpRoutes
 
 import lepus.router.http.RequestMethod
-import lepus.router.model.ServerResponse
+import lepus.router.model.{ ServerRequest, ServerResponse }
 
 package object router extends LepusRouter with ExtensionMethods {
 
-  type Routes[F[_], T] = PartialFunction[RequestMethod, T => F[ServerResponse]]
+  type Routes[F[_], T] = PartialFunction[RequestMethod, ServerRequest[F, T] => F[ServerResponse]]
 
   implicit val routesSemigroup: Semigroup[HttpRoutes[IO]] = _ combineK _
 }

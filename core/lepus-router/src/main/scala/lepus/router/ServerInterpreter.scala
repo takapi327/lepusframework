@@ -10,11 +10,16 @@ import cats.data.{ Kleisli, OptionT }
 import cats.implicits._
 import cats.effect.{ Async, Sync }
 
-import org.http4s._
+import org.http4s.{ Request => Http4sRequest, HttpRoutes }
 
 import lepus.router.http._
 import lepus.router.model.ServerRequest
 
+/**
+ * Compare and verify Http requests and endpoints, and combine them with logic.
+ *
+ * @tparam F the effect type.
+ */
 trait ServerInterpreter[F[_]] {
 
   implicit def syncF:  Sync[F]
@@ -30,30 +35,30 @@ trait ServerInterpreter[F[_]] {
    * @return         If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
    */
   def bindFromRequest[T](routes: Routes[F, T], endpoint: RequestEndpoint[_]): HttpRoutes[F] = {
-    Kleisli { (request: Request[F]) =>
-      val serverRequest = new ServerRequest[F](request)
+    Kleisli { (http4sRequest: Http4sRequest[F]) =>
+      val request = new Request[F](http4sRequest)
 
       for {
-        logic        <- OptionT.fromOption[F] { routes.lift(serverRequest.method) }
-        decodeResult <- OptionT.fromOption[F] { decodeRequest[T](serverRequest, endpoint) }
-        response     <- OptionT { logic(decodeResult).map(_.toHttp4sResponse[F]()).map(_.some) }
-      } yield response
+        logic        <- OptionT.fromOption[F] { routes.lift(request.method) }
+        decodeResult <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
+        response     <- OptionT { logic(new ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
+      } yield response.toHttp4sResponse()
     }
   }
 
   /**
    * Verify that the actual request matches the endpoint that was intended to be received as a request.
    *
-   * @param serverRequest Wrapped HTTP request for http4s to pass to Server
-   * @param endpoint      Endpoints you expect to receive as requests
-   * @tparam T            Type of parameters to be received in the request
-   * @return              If the request and endpoint match, return Some; if not, return None.
+   * @param request  HTTP request for http4s to pass to Server
+   * @param endpoint Endpoints you expect to receive as requests
+   * @tparam T       Type of parameters to be received in the request
+   * @return         If the request and endpoint match, return Some; if not, return None.
    */
   private def decodeRequest[T](
-    serverRequest: ServerRequest[F],
-    endpoint:      RequestEndpoint[_]
+    request:  HttpRequest,
+    endpoint: RequestEndpoint[_]
   ): Option[T] = {
-    val (decodeEndpointResult, _) = DecodeEndpoint(serverRequest, endpoint)
+    val (decodeEndpointResult, _) = DecodeEndpoint(request, endpoint)
     decodeEndpointResult match {
       case _: DecodeEndpointResult.Failure      => None
       case DecodeEndpointResult.Success(values) =>

@@ -6,38 +6,13 @@
 
 package lepus.router.model
 
-import org.http4s.{ Request, Uri }
+import org.http4s.Request
 
-import lepus.router.http.{ RequestMethod, Header}
+import lepus.router.http.Header
 
-trait HttpServerRequest {
-  def method: RequestMethod
-  def pathSegments: List[String]
-  def queryParameters: Map[String, Seq[String]]
-}
+class ServerRequest[F[_], T](request: Request[F], val param: T) {
 
-class ServerRequest[F[_]](request: Request[F]) extends HttpServerRequest {
   lazy val protocol: String = request.httpVersion.toString()
-  lazy val method: RequestMethod = request.method.name.toUpperCase match {
-    case "GET"     => RequestMethod.Get
-    case "HEAD"    => RequestMethod.Head
-    case "POST"    => RequestMethod.Post
-    case "PUT"     => RequestMethod.Put
-    case "DELETE"  => RequestMethod.Delete
-    case "OPTIONS" => RequestMethod.Options
-    case "PATCH"   => RequestMethod.Patch
-    case "CONNECT" => RequestMethod.Connect
-    case "TRACE"   => RequestMethod.Trace
-    case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
-  }
-
-  lazy val pathSegments: List[String] = {
-    request.pathInfo.renderString
-      .dropWhile(_ == '/').split("/")
-      .toList.map(Uri.decode(_))
-  }
-
-  lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
 
   lazy val headers: Seq[Header.RequestHeader] = request.headers.headers.map(
     header => Header.RequestHeader(header.name.toString, header.value)
@@ -52,4 +27,7 @@ class ServerRequest[F[_]](request: Request[F]) extends HttpServerRequest {
    * @return Http Request Header value
    */
   def findHeaderValue(name: String): Option[String] = headers.find(_.is(name)).map(_.value)
+
+  def as[A](implicit F: cats.MonadThrow[F], decoder: org.http4s.EntityDecoder[F, A]): F[A] =
+    request.as[A]
 }
