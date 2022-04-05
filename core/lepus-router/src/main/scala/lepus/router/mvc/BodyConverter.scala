@@ -12,7 +12,7 @@ import cats.data.Validated
 
 import io.circe.parser.decodeAccumulating
 import io.circe.syntax._
-import io.circe.{CursorOp, Decoder, DecodingFailure, Encoder, Errors, ParsingFailure, Printer}
+import io.circe.{ CursorOp, Decoder, DecodingFailure, Encoder, Errors, ParsingFailure, Printer }
 
 import fs2._
 
@@ -25,9 +25,7 @@ trait BodyConverter[T] {
 
 object BodyConverter {
 
-  case class Json[T](
-    private val _decode: String => ConvertResult
-  )(_encode: T => ConvertResult) extends BodyConverter[T] {
+  case class Json[T](_decode: String => ConvertResult)(_encode: T => ConvertResult) extends BodyConverter[T] {
     override def decode(s: String): ConvertResult = _decode(s)
     override def encode(t: T):      ConvertResult = _encode(t)
   }
@@ -65,6 +63,14 @@ trait ConvertResult {
 object ConvertResult {
   sealed trait Success extends ConvertResult
   sealed trait Failure extends ConvertResult
+
+  case class PlainText[T](value: T) extends Success {
+    override def toString(): String = value.toString
+    override def toStream(): Stream[Pure, Byte] = {
+      val bytes = value.toString.getBytes(UTF_8)
+      Stream.chunk(Chunk.array(bytes))
+    }
+  }
 
   case class JsValue[T](value: T) extends Success {
     override def toString(): String = value.toString
