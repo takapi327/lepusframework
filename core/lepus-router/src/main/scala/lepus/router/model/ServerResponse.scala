@@ -133,4 +133,28 @@ object ServerResponse {
 
   /** Generates a ‘431 REQUEST_HEADER_FIELDS_TOO_LARGE’ result. */
   val RequestHeaderFieldsTooLarge = new Result(ResponseStatus.RequestHeaderFieldsTooLarge)
+
+  /** Generates a ‘500 INTERNAL_SERVER_ERROR’ result. */
+  val InternalServerError = new Result(ResponseStatus.InternalServerError)
+
+  /** Generates a ‘501 NOT_IMPLEMENTED’ result. */
+  val NotImplemented = new Result(ResponseStatus.NotImplemented)
+
+  /** Generates a ‘502 BAD_GATEWAY’ result. */
+  val BadGateway = new Result(ResponseStatus.BadGateway)
+
+  /** Generates a ‘503 SERVICE_UNAVAILABLE’ result. */
+  val ServiceUnavailable = new Result(ResponseStatus.ServiceUnavailable)
+
+  /** Generates a ‘504 GATEWAY_TIMEOUT’ result. */
+  val GatewayTimeout = new Result(ResponseStatus.GatewayTimeout)
+
+  /** Generates a ‘505 HTTP_VERSION_NOT_SUPPORTED’ result. */
+  val HttpVersionNotSupported = new Result(ResponseStatus.HttpVersionNotSupported)
+
+  /** Generates a ‘507 INSUFFICIENT_STORAGE’ result. */
+  val InsufficientStorage = new Result(ResponseStatus.InsufficientStorage)
+
+  /** Generates a ‘511 NETWORK_AUTHENTICATION_REQUIRED’ result. */
+  val NetworkAuthenticationRequired = new Result(ResponseStatus.NetworkAuthenticationRequired)
 }
