@@ -6,7 +6,7 @@
 
 package lepus.router.model
 
-import fs2._
+import fs2.Stream
 
 import org.http4s.{ Response, Headers => Http4sHeaders }
 
@@ -14,6 +14,13 @@ import lepus.router.http.ResponseStatus
 import lepus.router.http.Header.ResponseHeader
 import lepus.router.mvc.ConvertResult
 
+/**
+ * A model of the response to be returned in response to a received request.
+ *
+ * @param status  Status of Response
+ * @param headers An array of headers to be attached to the response.
+ * @param body    The value of the response body, converted to a Stream.
+ */
 case class ServerResponse(
   status:  ResponseStatus,
   headers: Seq[ResponseHeader],
@@ -42,6 +49,9 @@ object ServerResponse {
       }
       ServerResponse(status, Seq(defaultHeader), Some(content))
     }
+
+    def apply(content: String): ServerResponse =
+      ServerResponse(status, Seq(ResponseHeader.TextPlain), Some(ConvertResult.PlainText(content)))
   }
 
   /** Generates a ‘200 OK’ result. */
