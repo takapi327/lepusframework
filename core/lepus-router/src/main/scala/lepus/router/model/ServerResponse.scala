@@ -44,8 +44,28 @@ object ServerResponse {
     }
   }
 
-  val Ok        = new Result(ResponseStatus.Ok)
+  /** Generates a ‘200 OK’ result. */
+  val Ok = new Result(ResponseStatus.Ok)
+
+  /** Generates a ‘201 CREATED’ result. */
+  val Created = new Result(ResponseStatus.Created)
+
+  /** Generates a ‘202 ACCEPTED’ result. */
+  val Accepted = new Result(ResponseStatus.Accepted)
+
+  /** Generates a ‘203 NON_AUTHORITATIVE_INFORMATION’ result. */
+  val NonAuthoritativeInformation = new Result(ResponseStatus.NonAuthoritativeInformation)
+
+  /** Generates a ‘204 NO_CONTENT’ result. */
   val NoContent = ServerResponse(ResponseStatus.NoContent, Seq.empty, None)
 
-  val NotFound = ServerResponse(ResponseStatus.NotFound, Seq.empty, None)
+  /** Generates a ‘205 RESET_CONTENT’ result. */
+  val ResetContent = ServerResponse(ResponseStatus.ResetContent, Seq.empty, None)
+
+  /** Generates a ‘206 PARTIAL_CONTENT’ result. */
+  val PartialContent = new Result(ResponseStatus.PartialContent)
+
+  /** Generates a ‘207 MULTI_STATUS’ result. */
+  val MultiStatus = new Result(ResponseStatus.MultiStatus)
+
 }
