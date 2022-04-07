@@ -8,7 +8,8 @@ package lepus.router.model
 
 import fs2.Stream
 
-import org.http4s.{ Response, Headers => Http4sHeaders }
+import org.http4s.{ Response, Uri, Headers => Http4sHeaders }
+import org.http4s.headers.Location
 
 import lepus.router.http.ResponseStatus
 import lepus.router.http.Header.ResponseHeader
@@ -23,18 +24,18 @@ import lepus.router.mvc.ConvertResult
  */
 case class ServerResponse(
   status:  ResponseStatus,
-  headers: Seq[ResponseHeader],
+  headers: Http4sHeaders,
   body:    Option[ConvertResult]
 ) {
   def addHeader(header: ResponseHeader): ServerResponse =
-    copy(headers = headers :+ header)
-  def addHeaders(headers: Seq[ResponseHeader]): ServerResponse =
-    copy(headers = headers ++ headers)
+    copy(headers = Http4sHeaders(headers.headers :+ header.toHttp4sHeader()))
+  def addHeaders(headerList: Seq[ResponseHeader]): ServerResponse =
+    copy(headers = Http4sHeaders(headers.headers ++ headerList.map(_.toHttp4sHeader())))
 
   def toHttp4sResponse[F[_]](): Response[F] = {
     Response[F](
       status  = status.toHttp4sStatus(),
-      headers = Http4sHeaders(headers.map(_.toHttp4sHeader())),
+      headers = headers,
       body    = body.map(_.toStream()).getOrElse(Stream.empty)
     )
   }
@@ -42,129 +43,183 @@ case class ServerResponse(
 
 object ServerResponse {
 
-  class Result(status: ResponseStatus) extends ServerResponse(status, Seq.empty, None) {
+  final class Result(status: ResponseStatus) {
     def apply[C <: ConvertResult](content: C): ServerResponse = {
       val defaultHeader = content match {
         case ConvertResult.JsValue(_) => ResponseHeader.ApplicationJson
       }
-      ServerResponse(status, Seq(defaultHeader), Some(content))
+      ServerResponse(status, Http4sHeaders(defaultHeader.toHttp4sHeader()), Some(content))
     }
 
     def apply(content: String): ServerResponse =
-      ServerResponse(status, Seq(ResponseHeader.TextPlain), Some(ConvertResult.PlainText(content)))
+      ServerResponse(status, Http4sHeaders(ResponseHeader.TextPlain.toHttp4sHeader()), Some(ConvertResult.PlainText(content)))
   }
 
+  final class Redirect(status: ResponseStatus) {
+    def apply(url: String): ServerResponse =
+      Uri.fromString(url) match {
+        case Right(uri) => ServerResponse(status, Http4sHeaders(Location(uri)), None)
+        case Left(ex)   => throw new Exception(ex.message)
+      }
+
+    def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): ServerResponse =
+      Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match {
+        case Right(uri) => ServerResponse(status, Http4sHeaders(Location(uri)), None)
+        case Left(ex)   => throw new Exception(ex.message)
+      }
+  }
+
+  /**
+   * Process for linking URLs to query parameters.
+   *
+   * @param url         String of the URL to redirect to.
+   * @param queryParams Query parameter to pass to the redirect URL.
+   * @return The complete path with the URL to be redirected to and the query parameters tied to it.
+   */
+  private[lepus] def bindUrlAndQueryParams(url: String, queryParams: Map[String, Seq[String]]): String =
+    if (queryParams.isEmpty) url
+    else {
+      val queryString: String = queryParams.map {
+        case (key, values) => s"$key=${values.mkString(",")}"
+      }.mkString("&")
+      url + (if (url.contains("?")) "&" else "?") + queryString
+    }
+
+  lazy val Result   = (status: ResponseStatus) => new Result(status)
+  lazy val Redirect = (status: ResponseStatus) => new Redirect(status)
+
   /** Generates a ‘200 OK’ result. */
-  val Ok = new Result(ResponseStatus.Ok)
+  val Ok = Result(ResponseStatus.Ok)
 
   /** Generates a ‘201 CREATED’ result. */
-  val Created = new Result(ResponseStatus.Created)
+  val Created = Result(ResponseStatus.Created)
 
   /** Generates a ‘202 ACCEPTED’ result. */
-  val Accepted = new Result(ResponseStatus.Accepted)
+  val Accepted = Result(ResponseStatus.Accepted)
 
   /** Generates a ‘203 NON_AUTHORITATIVE_INFORMATION’ result. */
-  val NonAuthoritativeInformation = new Result(ResponseStatus.NonAuthoritativeInformation)
+  val NonAuthoritativeInformation = Result(ResponseStatus.NonAuthoritativeInformation)
 
   /** Generates a ‘204 NO_CONTENT’ result. */
-  val NoContent = ServerResponse(ResponseStatus.NoContent, Seq.empty, None)
+  val NoContent = ServerResponse(ResponseStatus.NoContent, Http4sHeaders.empty, None)
 
   /** Generates a ‘205 RESET_CONTENT’ result. */
-  val ResetContent = ServerResponse(ResponseStatus.ResetContent, Seq.empty, None)
+  val ResetContent = ServerResponse(ResponseStatus.ResetContent, Http4sHeaders.empty, None)
 
   /** Generates a ‘206 PARTIAL_CONTENT’ result. */
-  val PartialContent = new Result(ResponseStatus.PartialContent)
+  val PartialContent = Result(ResponseStatus.PartialContent)
 
   /** Generates a ‘207 MULTI_STATUS’ result. */
-  val MultiStatus = new Result(ResponseStatus.MultiStatus)
+  val MultiStatus = Result(ResponseStatus.MultiStatus)
+
+  /** Generates a ‘300 MULTIPLE_CHOICES’ simple result. */
+  val MultipleChoices: Redirect = Redirect(ResponseStatus.MultipleChoices)
+
+  /** Generates a ‘301 MOVED_PERMANENTLY’ simple result. */
+  val MovedPermanently: Redirect = Redirect(ResponseStatus.MovedPermanently)
+
+  /** Generates a ‘302 FOUND’ simple result. */
+  val Found: Redirect = Redirect(ResponseStatus.Found)
+
+  /** Generates a ‘303 SEE_OTHER’ simple result. */
+  val SeeOther: Redirect = Redirect(ResponseStatus.SeeOther)
+
+  /** Generates a ‘304 NOT_MODIFIED’ result. */
+  val NotModified: Redirect = Redirect(ResponseStatus.NotModified)
+
+  /** Generates a ‘307 TEMPORARY_REDIRECT’ simple result. */
+  val TemporaryRedirect: Redirect = Redirect(ResponseStatus.TemporaryRedirect)
+
+  /** Generates a ‘308 PERMANENT_REDIRECT’ simple result. */
+  val PermanentRedirect: Redirect = Redirect(ResponseStatus.PermanentRedirect)
 
   /** Generates a ‘400 BAD_REQUEST’ result. */
-  val BadRequest = new Result(ResponseStatus.BadRequest)
+  val BadRequest = Result(ResponseStatus.BadRequest)
 
   /** Generates a ‘401 UNAUTHORIZED’ result. */
-  val Unauthorized = new Result(ResponseStatus.Unauthorized)
+  val Unauthorized = Result(ResponseStatus.Unauthorized)
 
   /** Generates a ‘402 PAYMENT_REQUIRED’ result. */
-  val PaymentRequired = new Result(ResponseStatus.PaymentRequired)
+  val PaymentRequired = Result(ResponseStatus.PaymentRequired)
 
   /** Generates a ‘403 FORBIDDEN’ result. */
-  val Forbidden = new Result(ResponseStatus.Forbidden)
+  val Forbidden = Result(ResponseStatus.Forbidden)
 
   /** Generates a ‘404 NOT_FOUND’ result. */
-  val NotFound = new Result(ResponseStatus.NotFound)
+  val NotFound = Result(ResponseStatus.NotFound)
 
   /** Generates a ‘405 METHOD_NOT_ALLOWED’ result. */
-  val MethodNotAllowed = new Result(ResponseStatus.MethodNotAllowed)
+  val MethodNotAllowed = Result(ResponseStatus.MethodNotAllowed)
 
   /** Generates a ‘406 NOT_ACCEPTABLE’ result. */
-  val NotAcceptable = new Result(ResponseStatus.NotAcceptable)
+  val NotAcceptable = Result(ResponseStatus.NotAcceptable)
 
   /** Generates a ‘408 REQUEST_TIMEOUT’ result. */
-  val RequestTimeout = new Result(ResponseStatus.RequestTimeout)
+  val RequestTimeout = Result(ResponseStatus.RequestTimeout)
 
   /** Generates a ‘409 CONFLICT’ result. */
-  val Conflict = new Result(ResponseStatus.Conflict)
+  val Conflict = Result(ResponseStatus.Conflict)
 
   /** Generates a ‘410 GONE’ result. */
-  val Gone = new Result(ResponseStatus.Gone)
+  val Gone = Result(ResponseStatus.Gone)
 
   /** Generates a ‘412 PRECONDITION_FAILED’ result. */
-  val PreconditionFailed = new Result(ResponseStatus.PreconditionFailed)
+  val PreconditionFailed = Result(ResponseStatus.PreconditionFailed)
 
   /** Generates a ‘413 REQUEST_ENTITY_TOO_LARGE’ result. */
-  val EntityTooLarge = new Result(ResponseStatus.RequestEntityTooLarge)
+  val EntityTooLarge = Result(ResponseStatus.RequestEntityTooLarge)
 
   /** Generates a ‘414 REQUEST_URI_TOO_LONG’ result. */
-  val UriTooLong = new Result(ResponseStatus.RequestUriTooLong)
+  val UriTooLong = Result(ResponseStatus.RequestUriTooLong)
 
   /** Generates a ‘415 UNSUPPORTED_MEDIA_TYPE’ result. */
-  val UnsupportedMediaType = new Result(ResponseStatus.UnsupportedMediaType)
+  val UnsupportedMediaType = Result(ResponseStatus.UnsupportedMediaType)
 
   /** Generates a ‘417 EXPECTATION_FAILED’ result. */
-  val ExpectationFailed = new Result(ResponseStatus.ExpectationFailed)
+  val ExpectationFailed = Result(ResponseStatus.ExpectationFailed)
 
   /** Generates a ‘418 IM_A_TEAPOT’ result. */
-  val ImATeapot = new Result(ResponseStatus.ImATeapot)
+  val ImATeapot = Result(ResponseStatus.ImATeapot)
 
   /** Generates a ‘422 UNPROCESSABLE_ENTITY’ result. */
-  val UnprocessableEntity = new Result(ResponseStatus.UnprocessableEntity)
+  val UnprocessableEntity = Result(ResponseStatus.UnprocessableEntity)
 
   /** Generates a ‘423 LOCKED’ result. */
-  val Locked = new Result(ResponseStatus.Locked)
+  val Locked = Result(ResponseStatus.Locked)
 
   /** Generates a ‘424 FAILED_DEPENDENCY’ result. */
-  val FailedDependency = new Result(ResponseStatus.FailedDependency)
+  val FailedDependency = Result(ResponseStatus.FailedDependency)
 
   /** Generates a ‘428 PRECONDITION_REQUIRED’ result. */
-  val PreconditionRequired = new Result(ResponseStatus.PreconditionRequired)
+  val PreconditionRequired = Result(ResponseStatus.PreconditionRequired)
 
   /** Generates a ‘429 TOO_MANY_REQUESTS’ result. */
-  val TooManyRequests = new Result(ResponseStatus.TooManyRequests)
+  val TooManyRequests = Result(ResponseStatus.TooManyRequests)
 
   /** Generates a ‘431 REQUEST_HEADER_FIELDS_TOO_LARGE’ result. */
-  val RequestHeaderFieldsTooLarge = new Result(ResponseStatus.RequestHeaderFieldsTooLarge)
+  val RequestHeaderFieldsTooLarge = Result(ResponseStatus.RequestHeaderFieldsTooLarge)
 
   /** Generates a ‘500 INTERNAL_SERVER_ERROR’ result. */
-  val InternalServerError = new Result(ResponseStatus.InternalServerError)
+  val InternalServerError = Result(ResponseStatus.InternalServerError)
 
   /** Generates a ‘501 NOT_IMPLEMENTED’ result. */
-  val NotImplemented = new Result(ResponseStatus.NotImplemented)
+  val NotImplemented = Result(ResponseStatus.NotImplemented)
 
   /** Generates a ‘502 BAD_GATEWAY’ result. */
-  val BadGateway = new Result(ResponseStatus.BadGateway)
+  val BadGateway = Result(ResponseStatus.BadGateway)
 
   /** Generates a ‘503 SERVICE_UNAVAILABLE’ result. */
-  val ServiceUnavailable = new Result(ResponseStatus.ServiceUnavailable)
+  val ServiceUnavailable = Result(ResponseStatus.ServiceUnavailable)
 
   /** Generates a ‘504 GATEWAY_TIMEOUT’ result. */
-  val GatewayTimeout = new Result(ResponseStatus.GatewayTimeout)
+  val GatewayTimeout = Result(ResponseStatus.GatewayTimeout)
 
   /** Generates a ‘505 HTTP_VERSION_NOT_SUPPORTED’ result. */
-  val HttpVersionNotSupported = new Result(ResponseStatus.HttpVersionNotSupported)
+  val HttpVersionNotSupported = Result(ResponseStatus.HttpVersionNotSupported)
 
   /** Generates a ‘507 INSUFFICIENT_STORAGE’ result. */
-  val InsufficientStorage = new Result(ResponseStatus.InsufficientStorage)
+  val InsufficientStorage = Result(ResponseStatus.InsufficientStorage)
 
   /** Generates a ‘511 NETWORK_AUTHENTICATION_REQUIRED’ result. */
-  val NetworkAuthenticationRequired = new Result(ResponseStatus.NetworkAuthenticationRequired)
+  val NetworkAuthenticationRequired = Result(ResponseStatus.NetworkAuthenticationRequired)
 }
