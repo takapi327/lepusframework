@@ -28,7 +28,7 @@ object Path {
 
   def fromEndpoint(endpoint: Endpoint): Path = {
     val parameters = endpoint.endpoint.asVector().flatMap {
-      case e: RequestEndpoint.PathParam[_]    => Some(Parameter.fromRequestEndpoint(e))
+      case e: RequestEndpoint.PathParam[_]  => Some(Parameter.fromRequestEndpoint(e))
       case e: RequestEndpoint.QueryParam[_] => Some(Parameter.fromRequestEndpoint(e))
       case _                                => None
     }.toList
@@ -42,12 +42,21 @@ object Path {
   }
 }
 
+/**
+ * Model representing parameters given to Http requests.
+ *
+ * @param name        parameter identifier
+ * @param in          Classification of this parameter
+ * @param required    Value of whether this parameter is required at Http request time.
+ * @param schema      This parameter type
+ * @param description Description of this parameter
+ */
 final case class Parameter(
   name:        String,
   in:          String,
   required:    Boolean,
   schema:      Schema,
-  description: Option[String] = None,
+  description: Option[String],
 )
 
 object Parameter {
@@ -59,7 +68,7 @@ object Parameter {
       in          = ParameterInType.PATH,
       required    = true,
       schema      = endpoint.converter.schema,
-      description = None,
+      description = endpoint.description,
     )
 
   def fromRequestEndpoint(endpoint: RequestEndpoint.QueryParam[_]): Parameter =
@@ -68,7 +77,7 @@ object Parameter {
       in          = ParameterInType.QUERY,
       required    = false,
       schema      = endpoint.converter.schema,
-      description = None,
+      description = endpoint.description,
     )
 
   object ParameterInType {
