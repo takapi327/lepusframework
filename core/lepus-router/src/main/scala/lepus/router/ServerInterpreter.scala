@@ -13,7 +13,8 @@ import cats.effect.{ Async, Sync }
 import org.http4s.{ Request => Http4sRequest, HttpRoutes }
 
 import lepus.router.http._
-import lepus.router.model.ServerRequest
+import lepus.router.model.{ ServerRequest, ServerResponse }
+import lepus.router.mvc.ConvertResult._
 
 /**
  * Compare and verify Http requests and endpoints, and combine them with logic.
@@ -42,9 +43,25 @@ trait ServerInterpreter[F[_]] {
         logic        <- OptionT.fromOption[F] { routes.lift(request.method) }
         decodeResult <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
         response     <- OptionT { logic(new ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
-      } yield response.toHttp4sResponse()
+      } yield addResponseHeader(response).toHttp4sResponse()
     }
   }
+
+  /**
+   * Add response headers according to body
+   *
+   * @param response Logic return value corresponding to the endpoint
+   * @return ServerResponse with headers according to the contents of the body
+   */
+  def addResponseHeader(response: ServerResponse): ServerResponse =
+    response.body match {
+      case None       => response
+      case Some(body) => body match {
+        case PlainText(_) => response.addHeader(Header.ResponseHeader.TextPlain)
+        case JsValue(_)   => response.addHeader(Header.ResponseHeader.ApplicationJson)
+        case _            => response
+      }
+    }
 
   /**
    * Verify that the actual request matches the endpoint that was intended to be received as a request.

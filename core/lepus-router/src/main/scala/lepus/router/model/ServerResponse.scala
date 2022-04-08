@@ -44,12 +44,8 @@ case class ServerResponse(
 object ServerResponse {
 
   final class Result(status: ResponseStatus) {
-    def apply[C <: ConvertResult](content: C): ServerResponse = {
-      val defaultHeader = content match {
-        case ConvertResult.JsValue(_) => ResponseHeader.ApplicationJson
-      }
-      ServerResponse(status, Http4sHeaders(defaultHeader.toHttp4sHeader()), Some(content))
-    }
+    def apply[C <: ConvertResult](content: C): ServerResponse =
+      ServerResponse(status, Http4sHeaders.empty, Some(content))
 
     def apply(content: String): ServerResponse =
       ServerResponse(status, Http4sHeaders(ResponseHeader.TextPlain.toHttp4sHeader()), Some(ConvertResult.PlainText(content)))
