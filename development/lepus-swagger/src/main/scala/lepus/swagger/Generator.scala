@@ -30,18 +30,9 @@ object Generator extends ExtensionMethods {
           |
           |package lepus.swagger
           |
-          |import java.io.File
-          |import java.nio.file.Files
-          |
-          |import scala.io.Codec
-          |
-          |import lepus.core.util.Configuration
-          |import lepus.router.{ RouterProvider => LepusRouterProvider }
-          |import Exception._
+          |${indent(2)(imports)}
           |
           |object LepusSwagger extends ExtensionMethods {
-          |
-          |  type RouterProvider = LepusRouterProvider
           |
           |  private val SERVER_ROUTES = "lepus.router"
           |
@@ -113,4 +104,17 @@ object Generator extends ExtensionMethods {
 
     outputFile
   }
+
+  private[lepus] def indent(i: Int)(str: String): String =
+    str.linesIterator.map(" " * i + _).mkString("\n")
+
+  private[lepus] val imports: String =
+   """
+     |import java.io.File
+     |import java.nio.file.Files
+     |import scala.io.Codec
+     |import lepus.core.util.Configuration
+     |import lepus.router.RouterProvider
+     |import Exception._
+     |""".stripMargin
 }
