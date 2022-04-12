@@ -27,6 +27,13 @@ trait ExtensionMethods {
       }
     }
 
+    def toPath: String = "/" + asVector().map {
+      case RequestEndpoint.FixedPath(name, _)    => name
+      case RequestEndpoint.PathParam(name, _, _) => name
+      case RequestEndpoint.QueryParam(key, _, _) => key
+      case _                                     => ""
+    }.mkString("/")
+
     def isPath(): Boolean =
       endpoint match {
         case _: RequestEndpoint.FixedPath[_]         => true
