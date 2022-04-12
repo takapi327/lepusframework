@@ -7,21 +7,7 @@
 package lepus.router
 
 import cats.data.NonEmptyList
-import cats.effect.IO
 
-import lepus.router.http.RequestMethod
-
-trait RouterProvider {
-
-  val GET     = RequestMethod.Get
-  val HEAD    = RequestMethod.Head
-  val POST    = RequestMethod.Post
-  val PUT     = RequestMethod.Put
-  val DELETE  = RequestMethod.Delete
-  val OPTIONS = RequestMethod.Options
-  val PATCH   = RequestMethod.Patch
-  val CONNECT = RequestMethod.Connect
-  val TRACE   = RequestMethod.Trace
-
-  val routes: NonEmptyList[ServerRoute[IO, _]]
+trait RouterProvider[F[_]] {
+  def routes: NonEmptyList[RouterConstructor[F]]
 }
