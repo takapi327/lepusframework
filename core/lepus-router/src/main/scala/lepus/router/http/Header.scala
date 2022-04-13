@@ -17,6 +17,7 @@ trait Header {
   def value: String
 
   override def toString: String = s"$name: $value"
+  def toSwaggerString: String = s"$name/$value"
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
 
