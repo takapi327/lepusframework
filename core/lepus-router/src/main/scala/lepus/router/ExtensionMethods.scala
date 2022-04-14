@@ -12,41 +12,37 @@ import lepus.router.http._
 
 trait ExtensionMethods {
 
-  implicit class RequestEndpointOps[T](endpoint: RequestEndpoint[T]) {
-    def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint[_], Vector[T]]): Vector[T] = {
+  implicit class RequestEndpointOps(endpoint: RequestEndpoint.Endpoint) {
+    def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint, Vector[T]]): Vector[T] = {
       endpoint match {
-        case RequestEndpoint.Pair(left, right)          => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
-        case r: RequestEndpoint[_] if pf.isDefinedAt(r) => pf(r)
-        case _                                          => Vector.empty
+        case RequestEndpoint.Pair(left, right)                => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
+        case r: RequestEndpoint.Endpoint if pf.isDefinedAt(r) => pf(r)
+        case _                                                => Vector.empty
       }
     }
 
-    def asVector(): Vector[RequestEndpoint[_]] = {
+    def asVector(): Vector[RequestEndpoint.Endpoint] = {
       recursiveEndpoints {
-        case e: RequestEndpoint[_] => Vector(e)
+        case e: RequestEndpoint.Endpoint => Vector(e)
       }
     }
 
     def toPath: String = "/" + asVector().map {
-      case RequestEndpoint.FixedPath(name, _)    => name
-      case RequestEndpoint.PathParam(name, _, _) => name
-      case RequestEndpoint.QueryParam(key, _, _) => key
-      case _                                     => ""
+      case e: RequestEndpoint.FixedPath[_] => e.name
+      case e: RequestEndpoint.Path         => s"{${e.name}}"
+      case _                               => ""
     }.mkString("/")
 
-    def isPath(): Boolean =
+    def isPath: Boolean =
       endpoint match {
-        case _: RequestEndpoint.FixedPath[_]         => true
-        case _: RequestEndpoint.PathParam[_]         => true
-        case _: RequestEndpoint.ValidatePathParam[_] => true
-        case _                                       => false
+        case _: RequestEndpoint.Path => true
+        case _                       => false
       }
 
-    def isQueryParam(): Boolean =
+    def isQueryParam: Boolean =
       endpoint match {
-        case _: RequestEndpoint.QueryParam[_]         => true
-        case _: RequestEndpoint.ValidateQueryParam[_] => true
-        case _                                        => false
+        case _: RequestEndpoint.Query => true
+        case _                        => false
       }
   }
 
