@@ -55,7 +55,7 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   lazy val methods: List[RequestMethod] = RequestMethod.all.filter(routes.isDefinedAt)
 
   /** The value that will be the path of the Http request. */
-  def endpoint: RequestEndpoint[_]
+  def endpoint: RequestEndpoint.Endpoint
 
   /** Summary of this endpoint, used during Swagger (Open API) document generation. */
   def summary: Option[String] = None
