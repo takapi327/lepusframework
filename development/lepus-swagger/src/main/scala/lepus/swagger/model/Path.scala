@@ -13,6 +13,16 @@ import lepus.router.model.Schema
 import lepus.router.http.RequestEndpoint
 import lepus.router.RouterConstructor
 
+/**
+ * Model for generating Swagger documentation for a single endpoint path
+ *
+ * @param summary     Summary of this endpoint
+ * @param description Description of this endpoint
+ * @param tags        Value to classify endpoints
+ * @param deprecated  indicate whether this endpoint is deprecated or not
+ * @param parameters  List of parameters that can be handled by this endpoint
+ * @param responses   List of response values per endpoint status
+ */
 final case class Path(
   summary:     Option[String]        = None,
   description: Option[String]        = None,
@@ -39,6 +49,7 @@ object Path {
       summary     = router.summary,
       description = router.description,
       tags        = router.tags,
+      deprecated  = router.deprecated,
       parameters  = parameters
     )
   }
