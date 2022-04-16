@@ -30,7 +30,7 @@ object LepusServer extends IOApp {
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    val httpApp = routerProvider.routes.map(_.toHttpRoutes()).reduce
+    val httpApp = routerProvider.routes.map(_.toHttpRoutes).reduce
 
     BlazeServerBuilder[IO]
       .bindHttp(port, host)

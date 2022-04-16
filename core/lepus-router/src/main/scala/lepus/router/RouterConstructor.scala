@@ -18,7 +18,7 @@ import lepus.router.http.{ RequestEndpoint, RequestMethod }
  * For example:
  * {{{
  *   // http:localhost:5555/hello/world/lepus
- *   object HelloEndpoint extends RouterConstructor[IO] {
+ *   object HelloRoute extends RouterConstructor[IO] {
  *     override type Param = (String, Long)
  *     override def endpoint: RequestEndpoint[_] =
  *       "hello" / bindPath[String]("world") / bindPath[String]("name")
