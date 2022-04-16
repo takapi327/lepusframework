@@ -67,6 +67,9 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   /** Tag of this endpoint, used during Swagger (Open API) document generation. */
   def tags: Set[String] = Set.empty[String]
 
+  /** A flag used during Swagger (Open API) document generation to indicate whether this endpoint is deprecated or not. */
+  def deprecated: Option[Boolean] = None
+
   /** Corresponding logic for each method of this endpoint. */
   def routes: Routes[F, Param]
 
