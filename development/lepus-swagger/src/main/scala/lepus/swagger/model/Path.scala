@@ -9,13 +9,14 @@ package lepus.swagger.model
 import io.circe._
 import io.circe.generic.semiauto._
 
-import lepus.router.model.{ Endpoint, Schema }
+import lepus.router.model.Schema
 import lepus.router.http.RequestEndpoint
+import lepus.router.RouterConstructor
 
 final case class Path(
   summary:     Option[String]        = None,
   description: Option[String]        = None,
-  tags:        List[String]          = List.empty,
+  tags:        Set[String]           = Set.empty,
   deprecated:  Option[Boolean]       = None,
   parameters:  List[Parameter]       = List.empty,
   //requestBody: Option[RequestBody]  = None,
@@ -26,17 +27,18 @@ final case class Path(
 object Path {
   implicit lazy val encoder: Encoder[Path] = deriveEncoder
 
-  def fromEndpoint(endpoint: Endpoint): Path = {
-    val parameters = endpoint.endpoint.asVector().flatMap {
-      case e: RequestEndpoint.PathParam[_]  => Some(Parameter.fromRequestEndpoint(e))
-      case e: RequestEndpoint.QueryParam[_] => Some(Parameter.fromRequestEndpoint(e))
-      case _                                => None
+  def fromEndpoint[F[_]](router: RouterConstructor[F]): Path = {
+    val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
+    val parameters: List[Parameter] = endpoints.flatMap {
+      case e: RequestEndpoint.Path  with RequestEndpoint.Param => Some(Parameter.fromRequestEndpoint(e))
+      case e: RequestEndpoint.Query with RequestEndpoint.Param => Some(Parameter.fromRequestEndpoint(e))
+      case _                                                   => None
     }.toList
 
     Path(
-      summary     = endpoint.summary,
-      description = endpoint.description,
-      tags        = List.empty,
+      summary     = router.summary,
+      description = router.description,
+      tags        = router.tags,
       parameters  = parameters
     )
   }
@@ -62,7 +64,7 @@ final case class Parameter(
 object Parameter {
   implicit lazy val encoder: Encoder[Parameter] = deriveEncoder
 
-  def fromRequestEndpoint(endpoint: RequestEndpoint.PathParam[_]): Parameter =
+  def fromRequestEndpoint(endpoint: RequestEndpoint.Path with RequestEndpoint.Param): Parameter =
     Parameter(
       name        = endpoint.name,
       in          = ParameterInType.PATH,
@@ -71,7 +73,7 @@ object Parameter {
       description = endpoint.description,
     )
 
-  def fromRequestEndpoint(endpoint: RequestEndpoint.QueryParam[_]): Parameter =
+  def fromRequestEndpoint(endpoint: RequestEndpoint.Query with RequestEndpoint.Param): Parameter =
     Parameter(
       name        = endpoint.key,
       in          = ParameterInType.QUERY,
