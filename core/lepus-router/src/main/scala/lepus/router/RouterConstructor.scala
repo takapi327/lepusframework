@@ -67,6 +67,6 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   def routes: Routes[F, Param]
 
   /** Combine endpoints and logic to generate HttpRoutes. */
-  final def toHttpRoutes(): HttpRoutes[F] =
+  protected final def toHttpRoutes(): HttpRoutes[F] =
     ServerInterpreter[F]().bindFromRequest[Param](routes, endpoint)
 }
