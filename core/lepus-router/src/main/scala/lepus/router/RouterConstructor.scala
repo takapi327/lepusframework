@@ -13,6 +13,7 @@ import org.http4s.HttpRoutes
 import lepus.router.http.{ RequestEndpoint, RequestMethod }
 
 /**
+ * A model that contains one routing information.
  *
  * For example:
  * {{{
@@ -63,10 +64,13 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   /** Description of this endpoint, used during Swagger (Open API) document generation. */
   def description: Option[String] = None
 
+  /** Tag of this endpoint, used during Swagger (Open API) document generation. */
+  def tags: Set[String] = Set.empty[String]
+
   /** Corresponding logic for each method of this endpoint. */
   def routes: Routes[F, Param]
 
   /** Combine endpoints and logic to generate HttpRoutes. */
-  protected final def toHttpRoutes(): HttpRoutes[F] =
+  final def toHttpRoutes: HttpRoutes[F] =
     ServerInterpreter[F]().bindFromRequest[Param](routes, endpoint)
 }
