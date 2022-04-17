@@ -7,7 +7,10 @@
 package lepus.router.model
 
 /**
- * Classification by API tags
+ * Define an array of tags to be used to organize the API.
+ * Tags defined here will be displayed in the order in which they are defined.
+ * It is not necessary to define all the tags used in the API, but the tags that are automatically created will be added after the tags defined here.
+ * An untagged API will be assigned a tag named default.
  */
 trait Tag {
 
@@ -17,18 +20,9 @@ trait Tag {
   /** API tag description. */
   def description: Option[String] = None
 
-  /** API tag external documents. */
-  def externalDocs: Option[ExternalDoc] = None
-}
-
-/**
- * External Documentation
- */
-trait ExternalDoc {
-
   /** API tag external documents description. */
-  def description: Option[String] = None
+  def externalDocsDescription: Option[String] = None
 
   /** API tag external documents url. */
-  def url: Option[String] = None
+  def externalDocsUrl: Option[String] = None
 }
