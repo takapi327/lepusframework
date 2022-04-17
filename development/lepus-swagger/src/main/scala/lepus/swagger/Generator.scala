@@ -46,7 +46,7 @@ object Generator extends ExtensionMethods {
           |
           |    val groupEndpoint = routerProvider.routes.groupBy(_.endpoint.toPath)
           |    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
-          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints)
+          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints, routerProvider.tags)
           |
           |    if (!file.exists()) {
           |      file.getParentFile.mkdirs()
