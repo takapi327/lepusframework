@@ -47,7 +47,7 @@ object Path {
     Path(
       summary     = router.summary,
       description = router.description,
-      tags        = router.tags,
+      tags        = router.tags.map(_.name),
       deprecated  = router.deprecated,
       parameters  = parameters
     )
