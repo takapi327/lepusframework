@@ -8,13 +8,14 @@ package lepus.router.http
 
 import org.typelevel.ci.CIString
 
-import org.http4s.{ Header => Http4sHeader }
+import org.http4s.{ Uri, Header => Http4sHeader }
 
 import Header._
 trait Header {
 
   def name:  String
   def value: String
+  def uri:   Option[Uri]
 
   override def toString: String = s"$name: $value"
   def toSwaggerString: String = s"$name/$value"
@@ -39,8 +40,8 @@ trait Header {
 }
 
 object Header {
-  case class RequestHeader(name: String, value: String) extends Header
-  case class ResponseHeader(name: String, value: String) extends Header
+  case class RequestHeader(name: String, value: String, uri: Option[Uri] = None) extends Header
+  case class ResponseHeader(name: String, value: String, uri: Option[Uri] = None) extends Header
 
   object ResponseHeader {
     val ApplicationGzip:               ResponseHeader = ResponseHeader("application", "gzip")
