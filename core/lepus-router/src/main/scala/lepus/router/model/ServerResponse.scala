@@ -12,6 +12,7 @@ import org.http4s.{ Response, Uri, Headers => Http4sHeaders }
 import org.http4s.headers.Location
 
 import lepus.router.http.ResponseStatus
+import lepus.router.http.Header
 import lepus.router.http.Header.ResponseHeader
 import lepus.router.mvc.ConvertResult
 
@@ -24,18 +25,18 @@ import lepus.router.mvc.ConvertResult
  */
 case class ServerResponse(
   status:  ResponseStatus,
-  headers: Http4sHeaders,
+  headers: Seq[Header],
   body:    Option[ConvertResult]
 ) {
-  def addHeader(header: ResponseHeader): ServerResponse =
-    copy(headers = Http4sHeaders(headers.headers :+ header.toHttp4sHeader()))
-  def addHeaders(headerList: Seq[ResponseHeader]): ServerResponse =
-    copy(headers = Http4sHeaders(headers.headers ++ headerList.map(_.toHttp4sHeader())))
+  def addHeader(header: Header): ServerResponse =
+    copy(headers = headers :+ header)
+  def addHeaders(headerList: Seq[Header]): ServerResponse =
+    copy(headers = headers ++ headerList)
 
   def toHttp4sResponse[F[_]](): Response[F] = {
     Response[F](
       status  = status.toHttp4sStatus(),
-      headers = headers,
+      headers = Http4sHeaders(headers.map(_.toHttp4sHeader()), headers.flatMap(_.uri).map(Location(_))),
       body    = body.map(_.toStream()).getOrElse(Stream.empty)
     )
   }
@@ -45,22 +46,22 @@ object ServerResponse {
 
   final class Result(status: ResponseStatus) {
     def apply[C <: ConvertResult](content: C): ServerResponse =
-      ServerResponse(status, Http4sHeaders.empty, Some(content))
+      ServerResponse(status, Seq.empty, Some(content))
 
     def apply(content: String): ServerResponse =
-      ServerResponse(status, Http4sHeaders(ResponseHeader.TextPlain.toHttp4sHeader()), Some(ConvertResult.PlainText(content)))
+      ServerResponse(status, Seq(ResponseHeader.TextPlain), Some(ConvertResult.PlainText(content)))
   }
 
   final class Redirect(status: ResponseStatus) {
     def apply(url: String): ServerResponse =
       Uri.fromString(url) match {
-        case Right(uri) => ServerResponse(status, Http4sHeaders(Location(uri)), None)
+        case Right(uri) => ServerResponse(status, Seq(ResponseHeader("location", uri.renderString, Some(uri))), None)
         case Left(ex)   => throw new Exception(ex.message)
       }
 
     def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): ServerResponse =
       Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match {
-        case Right(uri) => ServerResponse(status, Http4sHeaders(Location(uri)), None)
+        case Right(uri) => ServerResponse(status, Seq(ResponseHeader("location", uri.renderString, Some(uri))), None)
         case Left(ex)   => throw new Exception(ex.message)
       }
   }
@@ -97,10 +98,10 @@ object ServerResponse {
   val NonAuthoritativeInformation = Result(ResponseStatus.NonAuthoritativeInformation)
 
   /** Generates a ‘204 NO_CONTENT’ result. */
-  val NoContent = ServerResponse(ResponseStatus.NoContent, Http4sHeaders.empty, None)
+  val NoContent = ServerResponse(ResponseStatus.NoContent, Seq.empty, None)
 
   /** Generates a ‘205 RESET_CONTENT’ result. */
-  val ResetContent = ServerResponse(ResponseStatus.ResetContent, Http4sHeaders.empty, None)
+  val ResetContent = ServerResponse(ResponseStatus.ResetContent, Seq.empty, None)
 
   /** Generates a ‘206 PARTIAL_CONTENT’ result. */
   val PartialContent = Result(ResponseStatus.PartialContent)
