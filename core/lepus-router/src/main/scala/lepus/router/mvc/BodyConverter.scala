@@ -31,8 +31,9 @@ object BodyConverter {
   }
 
   object Json {
-    def toJson[T: Encoder: Decoder](s: String): ConvertResult = circeJson[T].decode(s)
-    def toJson[T: Encoder: Decoder](t: T):      ConvertResult = circeJson[T].encode(t)
+    def toJson[T: Encoder: Decoder]:            Json[T]       = circeJson[T]
+    def toJson[T: Encoder: Decoder](s: String): ConvertResult = toJson[T].decode(s)
+    def toJson[T: Encoder: Decoder](t: T):      ConvertResult = toJson[T].encode(t)
   }
 
   implicit def circeJson[T: Encoder: Decoder]: Json[T] =
@@ -72,7 +73,7 @@ object ConvertResult {
     }
   }
 
-  case class JsValue[T](value: T) extends Success {
+  case class JsValue[T: Encoder: Decoder](value: T) extends Success {
     override def toString(): String = value.toString
     override def toStream(): Stream[Pure, Byte] = {
       val bytes = value.toString.getBytes(UTF_8)
