@@ -9,3 +9,8 @@ object ScalaVersions {
   val scala213 = "2.13.7"
   val scala3   = "3.1.2"
 }
+
+object JavaVersions {
+  val java8  = "8"
+  val java11 = "11"
+}
