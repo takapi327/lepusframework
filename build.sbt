@@ -9,7 +9,7 @@ import BuildSettings._
 import Dependencies._
 
 // Global settings
-ThisBuild / crossScalaVersions := Seq(ScalaVersions.scala3, ScalaVersions.scala213, ScalaVersions.scala212)
+ThisBuild / crossScalaVersions := Seq(ScalaVersions.scala213, ScalaVersions.scala212)
 
 // Project settings
 lazy val LepusProject = Project("Lepus", file("core/lepus"))
