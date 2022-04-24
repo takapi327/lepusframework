@@ -8,7 +8,9 @@ package lepus.swagger
 
 import io.circe._
 import io.circe.generic.semiauto._
+import io.circe.syntax.EncoderOps
 
+import lepus.router.model.Tag
 import lepus.swagger.model._
 
 /**
@@ -24,16 +26,34 @@ final case class SwaggerUI(
   openapi:    String                         = "3.0.3",
   info:       Info,
   servers:    List[Server]                   = List.empty,
-  tags:       List[Tag]                      = List.empty,
+  tags:       Set[Tag]                       = Set.empty,
   paths:      Map[String, Map[String, Path]] = Map.empty,
   components: List[Component]                = List.empty
 )
 
 object SwaggerUI {
 
+  implicit lazy val encodeTag: Encoder[Tag] = Encoder.instance {
+    tag => Json.obj(
+      "name"         -> tag.name.asJson,
+      "description"  -> tag.description.asJson,
+      "externalDocs" -> (for {
+        desc <- tag.externalDocsDescription
+        url  <- tag.externalDocsUrl
+      } yield Json.obj(
+        "description" -> desc.asJson,
+        "url"         -> url.asJson
+      )).asJson
+    )
+  }
   implicit lazy val encoder: Encoder[SwaggerUI] = deriveEncoder
 
-  def build(info: Info, paths: Map[String, Map[String, Path]]): SwaggerUI = SwaggerUI(info = info, paths = paths)
+  def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): SwaggerUI =
+    SwaggerUI(
+      info  = info,
+      paths = paths,
+      tags  = tags
+    )
 }
 
 /**
@@ -91,24 +111,6 @@ final case class Server(
 
 object Server {
   implicit lazy val encoder: Encoder[Server] = deriveEncoder
-}
-
-/**
- * Define an array of tags to be used to organize the API.
- * Tags defined here will be displayed in the order in which they are defined.
- * It is not necessary to define all the tags used in the API, but the tags that are automatically created will be added after the tags defined here.
- * An untagged API will be assigned a tag named default.
- *
- * @param name        Tag name
- * @param description Explanation of tags
- */
-final case class Tag(
-  name:        String,
-  description: Option[String]
-)
-
-object Tag {
-  implicit lazy val encoder: Encoder[Tag] = deriveEncoder
 }
 
 final case class Component()

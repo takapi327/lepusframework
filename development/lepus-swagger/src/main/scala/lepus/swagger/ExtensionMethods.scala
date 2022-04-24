@@ -11,8 +11,7 @@ import cats.data.NonEmptyList
 import io.circe.syntax._
 import io.circe.yaml.Printer
 
-import lepus.router.model.Endpoint
-import lepus.router.http._
+import lepus.router.RouterConstructor
 import lepus.swagger.model._
 
 trait ExtensionMethods {
@@ -21,22 +20,13 @@ trait ExtensionMethods {
     def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(swaggerUI.asJson)
   }
 
-  implicit class LepusEndpointOps(endpoint: Endpoint) {
-    def toPath: String = "/" + endpoint.endpoint.asVector().map {
-      case RequestEndpoint.FixedPath(name, _) => name
-      case RequestEndpoint.PathParam(name, _) => name
-      case RequestEndpoint.QueryParam(key, _) => key
-      case _                                  => ""
-    }.mkString("/")
-  }
-
-  implicit class ServerRouteOps[F[_]](serverRoutes: NonEmptyList[lepus.router.ServerRoute[F, _]]) {
+  implicit class RouterConstructorsOps[F[_]](routes: NonEmptyList[RouterConstructor[F]]) {
     def toPathMap: Map[String, Path] = {
       (for {
-        serverRoute <- serverRoutes.toList
-        method      <- serverRoute.methods
+        router <- routes.toList
+        method <- router.methods
       } yield {
-        (method.toString().toLowerCase -> Path.fromEndpoint(serverRoute.endpoint))
+        method.toString().toLowerCase -> Path.fromEndpoint(router)
       }).toMap
     }
   }

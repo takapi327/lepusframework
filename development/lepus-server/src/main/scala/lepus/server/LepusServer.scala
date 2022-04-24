@@ -13,12 +13,10 @@ import cats.effect._
 import org.http4s.blaze.server.BlazeServerBuilder
 
 import lepus.core.util.Configuration
-import lepus.router.{ RouterProvider => LepusRouterProvider, _ }
+import lepus.router.{ RouterProvider, _ }
 import Exception._
 
 object LepusServer extends IOApp {
-
-  type RouterProvider = LepusRouterProvider
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"
@@ -30,9 +28,9 @@ object LepusServer extends IOApp {
     val port: Int    = config.get[Int](SERVER_PORT)
     val host: String = config.get[String](SERVER_HOST)
 
-    val routerProvider: RouterProvider = loadRouterProvider()
+    val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    val httpApp = routerProvider.routes.map(_.toHttpRoutes()).reduce
+    val httpApp = routerProvider.routes.map(_.toHttpRoutes).reduce
 
     BlazeServerBuilder[IO]
       .bindHttp(port, host)
@@ -43,7 +41,7 @@ object LepusServer extends IOApp {
       .as(ExitCode.Success)
   }
 
-  private def loadRouterProvider(): RouterProvider = {
+  private def loadRouterProvider(): RouterProvider[IO] = {
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
@@ -52,12 +50,12 @@ object LepusServer extends IOApp {
           throw ServerStartException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
       }
 
-    if (!classOf[RouterProvider].isAssignableFrom(routeClass)) {
+    if (!classOf[RouterProvider[IO]].isAssignableFrom(routeClass)) {
       throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
     }
 
     val constructor =
-      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider]
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO]]
       catch {
         case ex: NoSuchMethodException =>
           throw ServerStartException(

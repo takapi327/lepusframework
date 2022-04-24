@@ -8,25 +8,30 @@ package lepus.router.http
 
 import lepus.router.mvc._
 
-sealed trait RequestEndpoint[T] {
-
-  def and[T](other: RequestEndpoint[T]): RequestEndpoint[T] =
-    RequestEndpoint.Pair(this, other)
-
-  def /[T](other: RequestEndpoint[T]): RequestEndpoint[T] = and(other)
-
-  def :?[T](other: RequestEndpoint.QueryParam[T]): RequestEndpoint[T] = and(other)
-  def :&[T](other: RequestEndpoint.QueryParam[T]): RequestEndpoint[T] = and(other)
-}
-
 object RequestEndpoint {
 
-  trait Param {
-    def validate(validator: Validator): ValidateParam
+  sealed trait Endpoint {
+    private[lepus] type thisType
+    def and(other: Endpoint): Endpoint =
+      RequestEndpoint.Pair(this, other)
+
+    def /(other: Path): Endpoint = and(other)
+    def :?(other: Query): Endpoint = and(other)
+    def :&(other: Query): Endpoint = and(other)
   }
 
-  trait ValidateParam {
-    def validator: Validator
+  sealed trait Param extends Endpoint {
+    def converter: EndpointConverter[String, _]
+    def description: Option[String]
+    def setDescription(content: String): thisType
+  }
+
+  sealed trait Path extends Endpoint {
+    def name: String
+  }
+
+  sealed trait Query extends Endpoint {
+    def key: String
   }
 
   /**
@@ -36,7 +41,7 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class FixedPath[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T]
+  case class FixedPath[T](name: String, converter: EndpointConverter[String, T]) extends Path
 
   /**
    * Dynamically changing path parameters
@@ -45,8 +50,10 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class PathParam[T](name: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] with Param {
-    def validate(validator: Validator): ValidatePathParam[T] = ValidatePathParam(name, converter, validator)
+  case class PathParam[T](name: String, converter: EndpointConverter[String, T], description: Option[String] = None) extends Path with Param {
+    override private[lepus] type thisType = PathParam[T]
+    override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
+    def validate(validator: Validator): Path = ValidatePathParam(name, converter, validator, description)
   }
 
   /**
@@ -56,8 +63,10 @@ object RequestEndpoint {
    * @param converter For converting String paths to any T type
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class QueryParam[T](key: String, converter: EndpointConverter[String, T]) extends RequestEndpoint[T] with Param {
-    def validate(validator: Validator): ValidateQueryParam[T] = ValidateQueryParam(key, converter, validator)
+  case class QueryParam[T](key: String, converter: EndpointConverter[String, T], description: Option[String] = None) extends Query with Param {
+    override private[lepus] type thisType = QueryParam[T]
+    override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
+    def validate(validator: Validator): Query = ValidateQueryParam(key, converter, validator, description)
   }
 
   /**
@@ -68,7 +77,15 @@ object RequestEndpoint {
    * @param validator Validation settings to validate path parameters
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class ValidatePathParam[T](name: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T] with ValidateParam
+  case class ValidatePathParam[T](
+    name:        String,
+    converter:   EndpointConverter[String, T],
+    validator:   Validator,
+    description: Option[String] = None
+  ) extends Path with Param {
+    override private[lepus] type thisType = ValidatePathParam[T]
+    override def setDescription(content: String): ValidatePathParam[T] = this.copy(description = Some(content))
+  }
 
   /**
    * Validation defined value for dynamically changing query parameters
@@ -78,19 +95,24 @@ object RequestEndpoint {
    * @param validator Validation settings to validate path parameters
    * @tparam T        Parameters of the type you want to convert String to
    */
-  case class ValidateQueryParam[T](key: String, converter: EndpointConverter[String, T], validator: Validator) extends RequestEndpoint[T] with ValidateParam
+  case class ValidateQueryParam[T](
+    key:         String,
+    converter:   EndpointConverter[String, T],
+    validator:   Validator,
+    description: Option[String] = None
+  ) extends Query with Param {
+    override private[lepus] type thisType = ValidateQueryParam[T]
+    override def setDescription(content: String): ValidateQueryParam[T] = this.copy(description = Some(content))
+  }
 
   /**
    * Model to store RequestEndpoint pairs
    *
    * @param left  Pairs of RequestEndpoints are stored from left to right in the HTTP URL path.
    * @param right The RequestEndpoint currently referenced in the HTTP URL path is stored.
-   * @tparam L    Type parameter to adapt to the path stored in the RequestEndpoint pair
-   * @tparam R    Type parameter applied to the path of the currently referenced RequestEndpoint
-   * @tparam LR   L, R compound
    */
-  case class Pair[L, R, LR](
-    left:  RequestEndpoint[L],
-    right: RequestEndpoint[R]
-  ) extends RequestEndpoint[LR]
+  case class Pair(
+    left:  Endpoint,
+    right: Endpoint
+  ) extends Endpoint
 }

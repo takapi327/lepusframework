@@ -29,21 +29,11 @@ object Generator extends ExtensionMethods {
           | */
           |
           |package lepus.swagger
-          |
-          |import java.io.File
-          |import java.nio.file.Files
-          |
-          |import scala.io.Codec
-          |
-          |import lepus.core.util.Configuration
-          |import lepus.router.{ RouterProvider => LepusRouterProvider }
-          |import Exception._
+          |${indent(0)(imports)}
           |
           |object LepusSwagger extends ExtensionMethods {
           |
-          |  type RouterProvider = LepusRouterProvider
-          |
-          |  private val SERVER_ROUTES = "lepus.router"
+          |  private val SERVER_ROUTES = "lepus.server.routes"
           |
           |  def main(args: Array[String]): Unit = generate()
           |
@@ -52,11 +42,11 @@ object Generator extends ExtensionMethods {
           |
           |    val file = new File("/tmp/", "LepusSwagger.yaml")
           |
-          |    val routerProvider: RouterProvider = loadRouterProvider(config)
+          |    val routerProvider: RouterProvider[IO] = loadRouterProvider(config)
           |
           |    val groupEndpoint = routerProvider.routes.groupBy(_.endpoint.toPath)
           |    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
-          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints)
+          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints, routerProvider.tags)
           |
           |    if (!file.exists()) {
           |      file.getParentFile.mkdirs()
@@ -65,7 +55,7 @@ object Generator extends ExtensionMethods {
           |    Files.write(file.toPath, swaggerUI.toYaml.getBytes(implicitly[Codec].name))
           |  }
           |
-          |  private def loadRouterProvider(config: Configuration): RouterProvider = {
+          |  private def loadRouterProvider(config: Configuration): RouterProvider[IO] = {
           |    val routesClassName: String = config.get[String](SERVER_ROUTES)
           |    val routeClass: Class[_] =
           |      try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$$")
@@ -74,7 +64,7 @@ object Generator extends ExtensionMethods {
           |          throw GenerateSwaggerException(s"Couldn't find RouterProvider class '$$routesClassName'", Some(ex))
           |      }
           |
-          |    if (!classOf[RouterProvider].isAssignableFrom(routeClass)) {
+          |    if (!classOf[RouterProvider[IO]].isAssignableFrom(routeClass)) {
           |      throw GenerateSwaggerException(
           |        s\"\"\"
           |          |Class $${routeClass.getName} must implement RouterProvider interface
@@ -83,14 +73,14 @@ object Generator extends ExtensionMethods {
           |          |
           |          |import lepus.router.RouterProvider
           |          |
-          |          |object $${routeClass.getName} extends RouterProvider
+          |          |object $${routeClass.getName} extends RouterProvider[IO]
           |          |
           |          |\"\"\".stripMargin
           |      )
           |    }
           |
           |    val constructor =
-          |      try routeClass.getField("MODULE$$").get(null).asInstanceOf[RouterProvider]
+          |      try routeClass.getField("MODULE$$").get(null).asInstanceOf[RouterProvider[IO]]
           |      catch {
           |        case ex: NoSuchMethodException =>
           |          throw GenerateSwaggerException(
@@ -113,4 +103,18 @@ object Generator extends ExtensionMethods {
 
     outputFile
   }
+
+  private[lepus] def indent(i: Int)(str: String): String =
+    str.linesIterator.map(" " * i + _).mkString("\n")
+
+  private[lepus] val imports: String =
+   """
+     |import java.io.File
+     |import java.nio.file.Files
+     |import scala.io.Codec
+     |import cats.effect.IO
+     |import lepus.core.util.Configuration
+     |import lepus.router.RouterProvider
+     |import Exception._
+     |""".stripMargin
 }
