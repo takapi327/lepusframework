@@ -31,7 +31,7 @@ object LepusSettings {
          |  /______/ \___,_/ / .____/ \___,_//______/
          |                  / /
          |                 /_/
-         |""".stripMargin.lines.map(v => BLUE + v + RESET).mkString("\n") +
+         |""".stripMargin.linesIterator.map(v => BLUE + v + RESET).mkString("\n") +
         s"""
            |
            |  Version Information
