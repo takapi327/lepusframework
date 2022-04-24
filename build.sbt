@@ -5,11 +5,13 @@
  */
 
 import ScalaVersions._
+import JavaVersions._
 import BuildSettings._
 import Dependencies._
 
 // Global settings
-ThisBuild / crossScalaVersions := Seq(ScalaVersions.scala213, ScalaVersions.scala212)
+ThisBuild / crossScalaVersions         := Seq(scala213, scala212)
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11), JavaSpec.temurin(java8))
 
 // Project settings
 lazy val LepusProject = Project("Lepus", file("core/lepus"))
