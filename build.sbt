@@ -13,6 +13,21 @@ import Dependencies._
 ThisBuild / crossScalaVersions         := Seq(scala213, scala212)
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11), JavaSpec.temurin(java8))
 
+ThisBuild / githubWorkflowAddedJobs ++= Seq(
+  WorkflowJob(
+    "scalafmt",
+    "Scalafmt",
+    githubWorkflowJobSetup.value.toList ::: List(
+      WorkflowStep.Run(
+        List("sbt scalafmtCheck"),
+        name = Some("Scalafmt check"),
+      )
+    ),
+    scalas = List(scala213, scala212),
+    javas  = List(JavaSpec.temurin(java11), JavaSpec.temurin(java8)),
+  )
+)
+
 // Project settings
 lazy val LepusProject = Project("Lepus", file("core/lepus"))
   .settings(
