@@ -10,7 +10,7 @@ Fixes #xxxxx
 
 - [ ] Wrote unit and integration tests
 - [ ] Linked to Github issue with discussion and accepted design OR link to spec that describes this work.
-- [ ] Code formatting with scalafmt
+- [ ] Code formatting by scalafmt (sbt scalafmtAll command execution)
 - [ ] Add copyright headers to new files
 
 ## References
