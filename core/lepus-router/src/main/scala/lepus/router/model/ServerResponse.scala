@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.model
 
@@ -16,13 +14,15 @@ import lepus.router.http.Header
 import lepus.router.http.Header.ResponseHeader
 import lepus.router.mvc.ConvertResult
 
-/**
- * A model of the response to be returned in response to a received request.
- *
- * @param status  Status of Response
- * @param headers An array of headers to be attached to the response.
- * @param body    The value of the response body, converted to a Stream.
- */
+/** A model of the response to be returned in response to a received request.
+  *
+  * @param status
+  *   Status of Response
+  * @param headers
+  *   An array of headers to be attached to the response.
+  * @param body
+  *   The value of the response body, converted to a Stream.
+  */
 case class ServerResponse(
   status:  ResponseStatus,
   headers: Seq[Header],
@@ -66,19 +66,23 @@ object ServerResponse {
       }
   }
 
-  /**
-   * Process for linking URLs to query parameters.
-   *
-   * @param url         String of the URL to redirect to.
-   * @param queryParams Query parameter to pass to the redirect URL.
-   * @return The complete path with the URL to be redirected to and the query parameters tied to it.
-   */
+  /** Process for linking URLs to query parameters.
+    *
+    * @param url
+    *   String of the URL to redirect to.
+    * @param queryParams
+    *   Query parameter to pass to the redirect URL.
+    * @return
+    *   The complete path with the URL to be redirected to and the query parameters tied to it.
+    */
   private[lepus] def bindUrlAndQueryParams(url: String, queryParams: Map[String, Seq[String]]): String =
     if (queryParams.isEmpty) url
     else {
-      val queryString: String = queryParams.map {
-        case (key, values) => s"$key=${values.mkString(",")}"
-      }.mkString("&")
+      val queryString: String = queryParams
+        .map {
+          case (key, values) => s"$key=${ values.mkString(",") }"
+        }
+        .mkString("&")
       url + (if (url.contains("?")) "&" else "?") + queryString
     }
 

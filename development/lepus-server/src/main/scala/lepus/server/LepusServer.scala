@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.server
 
@@ -51,7 +49,7 @@ object LepusServer extends IOApp {
       }
 
     if (!classOf[RouterProvider[IO]].isAssignableFrom(routeClass)) {
-      throw ServerStartException(s"Class ${routeClass.getName} must implement RouterProvider interface")
+      throw ServerStartException(s"Class ${ routeClass.getName } must implement RouterProvider interface")
     }
 
     val constructor =
@@ -59,7 +57,7 @@ object LepusServer extends IOApp {
       catch {
         case ex: NoSuchMethodException =>
           throw ServerStartException(
-            s"RouterProvider class ${routeClass.getName} must have a public default constructor",
+            s"RouterProvider class ${ routeClass.getName } must have a public default constructor",
             Some(ex)
           )
       }

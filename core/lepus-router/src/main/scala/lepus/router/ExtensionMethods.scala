@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router
 
@@ -15,7 +13,7 @@ trait ExtensionMethods {
   implicit class RequestEndpointOps(endpoint: RequestEndpoint.Endpoint) {
     def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint, Vector[T]]): Vector[T] = {
       endpoint match {
-        case RequestEndpoint.Pair(left, right)                => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
+        case RequestEndpoint.Pair(left, right) => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
         case r: RequestEndpoint.Endpoint if pf.isDefinedAt(r) => pf(r)
         case _                                                => Vector.empty
       }
@@ -27,11 +25,13 @@ trait ExtensionMethods {
       }
     }
 
-    def toPath: String = "/" + asVector().map {
-      case e: RequestEndpoint.FixedPath[_] => e.name
-      case e: RequestEndpoint.Path         => s"{${e.name}}"
-      case _                               => ""
-    }.mkString("/")
+    def toPath: String = "/" + asVector()
+      .map {
+        case e: RequestEndpoint.FixedPath[_] => e.name
+        case e: RequestEndpoint.Path         => s"{${ e.name }}"
+        case _                               => ""
+      }
+      .mkString("/")
 
     def isPath: Boolean =
       endpoint match {
@@ -55,7 +55,7 @@ trait ExtensionMethods {
         throw new IllegalArgumentException(s"Cannot convert $v to params!")
       } else if (v.size == 1) {
         v.head.asInstanceOf[Any]
-      } else  {
+      } else {
         val clazz = Class.forName("scala.Tuple" + v.size)
         clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
       }

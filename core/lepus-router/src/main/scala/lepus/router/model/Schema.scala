@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.model
 
@@ -15,17 +13,17 @@ object Schema {
 
   val int32Integer   = Schema(SchemaType.INTEGER, SchemaFormat.INT32)
   val int64Integer   = Schema(SchemaType.INTEGER, SchemaFormat.INT64)
-  val floatNumber    = Schema(SchemaType.NUMBER,  SchemaFormat.FLOAT)
-  val doubleNumber   = Schema(SchemaType.NUMBER,  SchemaFormat.DOUBLE)
+  val floatNumber    = Schema(SchemaType.NUMBER, SchemaFormat.FLOAT)
+  val doubleNumber   = Schema(SchemaType.NUMBER, SchemaFormat.DOUBLE)
   val boolean        = Schema(SchemaType.BOOLEAN, None)
-  val string         = Schema(SchemaType.STRING,  None)
-  val byteString     = Schema(SchemaType.STRING,  SchemaFormat.BYTE)
-  val binaryString   = Schema(SchemaType.STRING,  SchemaFormat.BINARY)
-  val dateString     = Schema(SchemaType.STRING,  SchemaFormat.DATE)
-  val dateTimeString = Schema(SchemaType.STRING,  SchemaFormat.DATETIME)
-  val emailString    = Schema(SchemaType.STRING,  SchemaFormat.EMAIL)
-  val passwordString = Schema(SchemaType.STRING,  SchemaFormat.PASSWORD)
-  val uuidString     = Schema(SchemaType.STRING,  SchemaFormat.UUID)
+  val string         = Schema(SchemaType.STRING, None)
+  val byteString     = Schema(SchemaType.STRING, SchemaFormat.BYTE)
+  val binaryString   = Schema(SchemaType.STRING, SchemaFormat.BINARY)
+  val dateString     = Schema(SchemaType.STRING, SchemaFormat.DATE)
+  val dateTimeString = Schema(SchemaType.STRING, SchemaFormat.DATETIME)
+  val emailString    = Schema(SchemaType.STRING, SchemaFormat.EMAIL)
+  val passwordString = Schema(SchemaType.STRING, SchemaFormat.PASSWORD)
+  val uuidString     = Schema(SchemaType.STRING, SchemaFormat.UUID)
 
   object SchemaType {
     val BOOLEAN = "boolean"
