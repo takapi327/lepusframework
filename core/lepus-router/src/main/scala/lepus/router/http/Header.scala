@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.http
 
@@ -18,7 +16,7 @@ trait Header {
   def uri:   Option[Uri]
 
   override def toString: String = s"$name: $value"
-  def toSwaggerString: String = s"$name/$value"
+  def toSwaggerString:   String = s"$name/$value"
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
 
@@ -34,13 +32,13 @@ trait Header {
   def isModel:       Boolean = is("model")
 
   def toHttp4sHeader(): Http4sHeader.Raw =
-    Http4sHeader.Raw(CIString(CONTENT_TYPE), s"${name}/${value}")
+    Http4sHeader.Raw(CIString(CONTENT_TYPE), s"${ name }/${ value }")
   def toHttp4sHeader(contentType: CIString): Http4sHeader.Raw =
-    Http4sHeader.Raw(contentType, s"${name}/${value}")
+    Http4sHeader.Raw(contentType, s"${ name }/${ value }")
 }
 
 object Header {
-  case class RequestHeader(name: String, value: String, uri: Option[Uri] = None) extends Header
+  case class RequestHeader(name: String, value: String, uri: Option[Uri] = None)  extends Header
   case class ResponseHeader(name: String, value: String, uri: Option[Uri] = None) extends Header
 
   object ResponseHeader {
@@ -73,10 +71,9 @@ object Header {
     val TextPlain:         ResponseHeader = ResponseHeader("text", "plain")
   }
 
-  /**
-   * The values listed in the following sites are defined as variables.
-   * see https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-   */
+  /** The values listed in the following sites are defined as variables. see
+    * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+    */
   val ACCEPT                           = "Accept"
   val ACCEPT_CHARSET                   = "Accept-Charset"
   val ACCEPT_ENCODING                  = "Accept-Encoding"

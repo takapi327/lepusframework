@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger
 
@@ -13,15 +11,19 @@ import io.circe.syntax.EncoderOps
 import lepus.router.model.Tag
 import lepus.swagger.model._
 
-/**
- *
- * @param openapi    OpenAPI version
- * @param info       API metadata
- * @param servers    Array of servers that provide the API
- * @param tags       Tags used to organize the API
- * @param paths      Paths and operations available as APIs
- * @param components An array of objects to use in the API
- */
+/** @param openapi
+  *   OpenAPI version
+  * @param info
+  *   API metadata
+  * @param servers
+  *   Array of servers that provide the API
+  * @param tags
+  *   Tags used to organize the API
+  * @param paths
+  *   Paths and operations available as APIs
+  * @param components
+  *   An array of objects to use in the API
+  */
 final case class SwaggerUI(
   openapi:    String                         = "3.0.3",
   info:       Info,
@@ -33,10 +35,10 @@ final case class SwaggerUI(
 
 object SwaggerUI {
 
-  implicit lazy val encodeTag: Encoder[Tag] = Encoder.instance {
-    tag => Json.obj(
-      "name"         -> tag.name.asJson,
-      "description"  -> tag.description.asJson,
+  implicit lazy val encodeTag: Encoder[Tag] = Encoder.instance { tag =>
+    Json.obj(
+      "name"        -> tag.name.asJson,
+      "description" -> tag.description.asJson,
       "externalDocs" -> (for {
         desc <- tag.externalDocsDescription
         url  <- tag.externalDocsUrl
@@ -56,15 +58,16 @@ object SwaggerUI {
     )
 }
 
-/**
- *
- * @param title          API Title
- * @param version        The version of the API design document you are describing
- * @param description    Description of the API
- * @param termsOfService
- * @param contact
- * @param license
- */
+/** @param title
+  *   API Title
+  * @param version
+  *   The version of the API design document you are describing
+  * @param description
+  *   Description of the API
+  * @param termsOfService
+  * @param contact
+  * @param license
+  */
 final case class Info(
   title:          String,
   version:        String,
@@ -97,16 +100,17 @@ object License {
   implicit lazy val encoder: Encoder[License] = deriveEncoder
 }
 
-/**
- * Define the server that is serving the API.
- * For the development environment, define localhost, and for other environments, define staging, production, etc.
- *
- * @param url         The server address that provides the API.
- * @param description Additional information about the servers provided
- */
+/** Define the server that is serving the API. For the development environment, define localhost, and for other
+  * environments, define staging, production, etc.
+  *
+  * @param url
+  *   The server address that provides the API.
+  * @param description
+  *   Additional information about the servers provided
+  */
 final case class Server(
   url:         String,
-  description: Option[String] = None,
+  description: Option[String] = None
 )
 
 object Server {

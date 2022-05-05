@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.sbt
 
@@ -35,17 +33,17 @@ object LepusSettings {
         s"""
            |
            |  Version Information
-           |    - Lepus ${LepusVersion.current}
-           |    - Java  ${System.getProperty("java.version")}
-           |    - Scala ${LepusVersion.scalaVersion}
-           |    - Sbt   ${LepusVersion.sbtVersion}
+           |    - Lepus ${ LepusVersion.current }
+           |    - Java  ${ System.getProperty("java.version") }
+           |    - Scala ${ LepusVersion.scalaVersion }
+           |    - Sbt   ${ LepusVersion.sbtVersion }
            |
            |""".stripMargin
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     libraryDependencies ++= Seq(lepusServer, lepusRouter),
-    Compile / run / mainClass := Some("lepus.server.LepusServer"),
-    lepusDependencyClasspath := (Runtime / externalDependencyClasspath).value,
+    Compile / run / mainClass   := Some("lepus.server.LepusServer"),
+    lepusDependencyClasspath    := (Runtime / externalDependencyClasspath).value,
     Compile / resourceDirectory := baseDirectory(_ / "conf").value,
     externalizedResources := {
       val resourceDirectories = (Compile / unmanagedResourceDirectories).value
@@ -64,6 +62,6 @@ object LepusSettings {
     libraryDependencies += lepusSwagger,
     baseClassloader := LepusCommands.baseClassloaderTask.value,
     (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue,
-    commands += LepusCommands.swaggerCommand,
+    commands += LepusCommands.swaggerCommand
   )
 }

@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger
 
@@ -29,7 +27,7 @@ object Generator extends ExtensionMethods {
           | */
           |
           |package lepus.swagger
-          |${indent(0)(imports)}
+          |${ indent(0)(imports) }
           |
           |object LepusSwagger extends ExtensionMethods {
           |
@@ -108,7 +106,7 @@ object Generator extends ExtensionMethods {
     str.linesIterator.map(" " * i + _).mkString("\n")
 
   private[lepus] val imports: String =
-   """
+    """
      |import java.io.File
      |import java.nio.file.Files
      |import scala.io.Codec

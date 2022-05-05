@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.sbt
 
@@ -27,7 +25,7 @@ object LepusGenerator {
   def lepusGenerateSwagger(
     title:         SettingKey[String],
     version:       SettingKey[String],
-    baseDirectory: SettingKey[File],
+    baseDirectory: SettingKey[File]
   ): Def.Initialize[Task[Seq[File]]] = Def.task {
 
     type Swagger = {
@@ -46,10 +44,12 @@ object LepusGenerator {
     val mainClass:  Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
     val mainObject: Swagger  = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
 
-    Seq(mainObject.generateSwagger(
-      title         = title.value,
-      version       = version.value,
-      baseDirectory = baseDirectory.value,
-    ))
+    Seq(
+      mainObject.generateSwagger(
+        title         = title.value,
+        version       = version.value,
+        baseDirectory = baseDirectory.value
+      )
+    )
   }
 }

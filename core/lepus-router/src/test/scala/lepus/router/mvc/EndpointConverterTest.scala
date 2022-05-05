@@ -1,8 +1,6 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.mvc
 
@@ -99,8 +97,11 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     checkDecodeFromSet[UUID]()
   }
 
-  def checkDecodeFromString[T: Arbitrary](implicit converter: EndpointConverter[String, T], classTag: ClassTag[T]): Assertion =
-    withClue(s"Test for ${classTag.runtimeClass.getName}") {
+  def checkDecodeFromString[T: Arbitrary](implicit
+    converter: EndpointConverter[String, T],
+    classTag:  ClassTag[T]
+  ): Assertion =
+    withClue(s"Test for ${ classTag.runtimeClass.getName }") {
       check((v: T) => {
         val decoded = converter.decode(v.toString) match {
           case Success(value) => value
@@ -110,38 +111,44 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
       })
     }
 
-  def checkDecodeFromArray[F[_], T: Arbitrary]()(implicit converter: EndpointConverter[String, F[T]], classTag: ClassTag[F[T]]): Assertion = {
+  def checkDecodeFromArray[F[_], T: Arbitrary]()(implicit
+    converter: EndpointConverter[String, F[T]],
+    classTag:  ClassTag[F[T]]
+  ): Assertion = {
     val gen  = Gen.containerOf[Iterable, T](Arbitrary.arbitrary[T])
     val list = gen.sample.getOrElse(Iterable.empty[T])
     converter.decode(list.iterator.mkString(",")) match {
-      case Success(value)         =>
+      case Success(value) =>
         val decoded = value.asInstanceOf[Iterable[T]]
         assert(
           classTag.runtimeClass.isInstance(decoded) &&
-          classTag.runtimeClass.isInstance(list)    &&
-          decoded.size === list.size                &&
-          decoded      === list                     &&
-          decoded.iterator.mkString(",") === list.iterator.mkString(",")
+            classTag.runtimeClass.isInstance(list) &&
+            decoded.size === list.size &&
+            decoded === list &&
+            decoded.iterator.mkString(",") === list.iterator.mkString(",")
         )
       case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
-      case unexpected             => fail(s"Value ${list.iterator.mkString(",")} got decoded to unexpected $unexpected")
+      case unexpected => fail(s"Value ${ list.iterator.mkString(",") } got decoded to unexpected $unexpected")
     }
   }
 
-  def checkDecodeFromSet[T: Arbitrary]()(implicit converter: EndpointConverter[String, Set[T]], classTag: ClassTag[Set[T]]): Assertion = {
+  def checkDecodeFromSet[T: Arbitrary]()(implicit
+    converter: EndpointConverter[String, Set[T]],
+    classTag:  ClassTag[Set[T]]
+  ): Assertion = {
     val gen  = Gen.containerOf[Set, T](Arbitrary.arbitrary[T])
     val list = gen.sample.getOrElse(Set.empty[T])
     converter.decode(list.mkString(",")) match {
       case Success(decoded) =>
         assert(
           classTag.runtimeClass.isInstance(decoded) &&
-          classTag.runtimeClass.isInstance(list)    &&
-          decoded.size === list.size                &&
-          decoded      === list                     &&
-          decoded.iterator.mkString(",") === list.iterator.mkString(",")
+            classTag.runtimeClass.isInstance(list) &&
+            decoded.size === list.size &&
+            decoded === list &&
+            decoded.iterator.mkString(",") === list.iterator.mkString(",")
         )
       case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
-      case unexpected             => fail(s"Value ${list.iterator.mkString(",")} got decoded to unexpected $unexpected")
+      case unexpected => fail(s"Value ${ list.iterator.mkString(",") } got decoded to unexpected $unexpected")
     }
   }
 }

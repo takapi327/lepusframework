@@ -1,14 +1,12 @@
-/**
- *  This file is part of the Lepus Framework.
- *  For the full copyright and license information,
- *  please view the LICENSE file that was distributed with this source code.
- */
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.http
 
 sealed abstract class RequestMethod(key: String) {
-  override def toString(): String = key
-  def is(method: String): Boolean = key.equalsIgnoreCase(method)
+  override def toString(): String  = key
+  def is(method: String):  Boolean = key.equalsIgnoreCase(method)
 }
 
 object RequestMethod {
