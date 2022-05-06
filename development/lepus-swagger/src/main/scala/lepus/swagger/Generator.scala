@@ -23,10 +23,11 @@ object Generator extends ExtensionMethods {
   def generateSwagger(
     title:         String,
     version:       String,
+    sourceManaged: File,
     baseDirectory: File
   ): File = {
 
-    val outputFile = new File(baseDirectory, "LepusSwagger.scala")
+    val outputFile = new File(sourceManaged, "LepusSwagger.scala")
 
     val scalaSource =
       s"""|/**
@@ -35,7 +36,7 @@ object Generator extends ExtensionMethods {
           | *  please view the LICENSE file that was distributed with this source code.
           | */
           |
-          |package lepus.swagger
+          |${ indent(0)(`package`) }
           |${ indent(0)(imports) }
           |
           |object LepusSwagger extends ExtensionMethods {
@@ -45,7 +46,7 @@ object Generator extends ExtensionMethods {
           |  def generate(): Unit = {
           |    val config = Configuration.load()
           |
-          |    val file = new File("/tmp/", "LepusSwagger.yaml")
+          |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
           |    val routerProvider: RouterProvider[IO] = lepus.swagger.Generator.loadRouterProvider(config)
           |
@@ -76,6 +77,8 @@ object Generator extends ExtensionMethods {
   private[lepus] def indent(i: Int)(str: String): String =
     str.linesIterator.map(" " * i + _).mkString("\n")
 
+  private[lepus] val `package`: String = "package lepus.swagger"
+
   private[lepus] val imports: String =
     """
      |import java.io.File
@@ -94,7 +97,7 @@ object Generator extends ExtensionMethods {
     * @return
     *   Value of RouterProvider registered in the app
     */
-  def loadRouterProvider(config: Configuration): RouterProvider[IO] = {
+  private[lepus] def loadRouterProvider(config: Configuration): RouterProvider[IO] = {
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
