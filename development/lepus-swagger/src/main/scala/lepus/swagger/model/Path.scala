@@ -32,7 +32,7 @@ final case class Path(
   deprecated:  Option[Boolean] = None,
   parameters:  List[Parameter] = List.empty,
   // requestBody: Option[RequestBody]  = None,
-  responses: Map[String, Response] = Map.empty
+  responses: Map[String, Response] = Map("default" -> Response.default)
   // security:    Option[Security]        = None
 )
 
@@ -52,7 +52,7 @@ object Path {
       description = router.description,
       tags        = router.tags.map(_.name),
       deprecated  = router.deprecated,
-      parameters  = parameters
+      parameters  = parameters,
     )
   }
 }
@@ -71,6 +71,11 @@ final case class Content(
 
 object Content {
   implicit lazy val encoder: Encoder[Content] = deriveEncoder
+
+  val default = Content(
+    schema   = Map("type" -> "string"),
+    examples = Map.empty
+  )
 }
 
 /** @param headers
@@ -91,4 +96,10 @@ final case class Response(
 
 object Response {
   implicit lazy val encoder: Encoder[Response] = deriveEncoder
+
+  val default = Response(
+    headers     = Map.empty,
+    content     = Map("text/plain" -> Content.default),
+    description = ""
+  )
 }
