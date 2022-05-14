@@ -6,7 +6,7 @@ package lepus.router
 
 import cats.effect.{ Async, Sync }
 
-import org.http4s.HttpRoutes
+import org.http4s.{ HttpRoutes => Http4sRoutes }
 
 import lepus.router.http.{ RequestEndpoint, RequestMethod, Response }
 import lepus.router.model.Tag
@@ -71,12 +71,12 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   def deprecated: Option[Boolean] = None
 
   /** An array of responses returned by each method. */
-  def responses: PartialFunction[RequestMethod, List[Response]] = PartialFunction.empty
+  def responses: HttpResponse[List[Response]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
-  def routes: Routes[F, Param]
+  def routes: HttpRoutes[F, Param]
 
   /** Combine endpoints and logic to generate HttpRoutes. */
-  final def toHttpRoutes: HttpRoutes[F] =
+  final def toHttpRoutes: Http4sRoutes[F] =
     ServerInterpreter[F]().bindFromRequest[Param](routes, endpoint)
 }

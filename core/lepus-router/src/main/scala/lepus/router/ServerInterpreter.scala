@@ -8,7 +8,7 @@ import cats.data.{ Kleisli, OptionT }
 import cats.implicits._
 import cats.effect.{ Async, Sync }
 
-import org.http4s.{ Request => Http4sRequest, HttpRoutes }
+import org.http4s.{ Request => Http4sRequest, HttpRoutes => Http4sRoutes }
 
 import lepus.router.http._
 import lepus.router.model.{ ServerRequest, ServerResponse }
@@ -35,7 +35,7 @@ trait ServerInterpreter[F[_]] {
     * @return
     *   If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
     */
-  def bindFromRequest[T](routes: Routes[F, T], endpoint: RequestEndpoint.Endpoint): HttpRoutes[F] = {
+  def bindFromRequest[T](routes: HttpRoutes[F, T], endpoint: RequestEndpoint.Endpoint): Http4sRoutes[F] = {
     Kleisli { (http4sRequest: Http4sRequest[F]) =>
       val request = new Request[F](http4sRequest)
 
