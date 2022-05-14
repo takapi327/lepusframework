@@ -4,11 +4,13 @@
 
 package lepus.swagger.model
 
+import scala.collection.immutable.ListMap
+
 import io.circe._
 import io.circe.generic.semiauto._
 
 import lepus.router.RouterConstructor
-import lepus.router.http.RequestEndpoint
+import lepus.router.http.{ RequestMethod, RequestEndpoint }
 
 /** Model for generating Swagger documentation for a single endpoint path
   *
@@ -31,15 +33,13 @@ final case class Path(
   tags:        Set[String]     = Set.empty,
   deprecated:  Option[Boolean] = None,
   parameters:  List[Parameter] = List.empty,
-  // requestBody: Option[RequestBody]  = None,
-  responses: Map[String, Response] = Map("default" -> Response.default)
-  // security:    Option[Security]        = None
+  responses:   ListMap[String, Response]
 )
 
 object Path {
   implicit lazy val encoder: Encoder[Path] = deriveEncoder
 
-  def fromEndpoint[F[_]](router: RouterConstructor[F]): Path = {
+  def fromEndpoint[F[_]](method: RequestMethod, router: RouterConstructor[F]): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: RequestEndpoint.Path with RequestEndpoint.Param  => Some(Parameter.fromRequestEndpoint(e))
@@ -47,12 +47,18 @@ object Path {
       case _                                                   => None
     }.toList
 
+    val responses = router.responses
+      .lift(method)
+      .map(resList => resList.map(res => res.status.code.toString -> Response.build(res)))
+      .getOrElse(List.empty)
+
     Path(
       summary     = router.summary,
       description = router.description,
       tags        = router.tags.map(_.name),
       deprecated  = router.deprecated,
       parameters  = parameters,
+      responses   = responses.to(ListMap)
     )
   }
 }
@@ -72,10 +78,11 @@ final case class Content(
 object Content {
   implicit lazy val encoder: Encoder[Content] = deriveEncoder
 
-  val default = Content(
-    schema   = Map("type" -> "string"),
-    examples = Map.empty
-  )
+  def build(content: lepus.router.http.Response.Content): (String, Content) =
+    content.mediaType.toSwaggerString -> Content(
+      schema   = Map.empty,
+      examples = Map.empty
+    )
 }
 
 /** @param headers
@@ -89,7 +96,7 @@ object Content {
   *   REQUIRED. A short description of the response. CommonMark syntax MAY be used for rich text representation.
   */
 final case class Response(
-  headers:     Map[String, String],
+  headers:     ListMap[String, Response.Header],
   content:     Map[String, Content],
   description: String
 )
@@ -97,9 +104,30 @@ final case class Response(
 object Response {
   implicit lazy val encoder: Encoder[Response] = deriveEncoder
 
-  val default = Response(
-    headers     = Map.empty,
-    content     = Map("text/plain" -> Content.default),
-    description = ""
+  def build(res: lepus.router.http.Response): Response =
+    Response(
+      headers = res.headers
+        .map(header => header.name -> Header(Schema(header.schema.`type`, header.schema.format), header.description))
+        .to(ListMap),
+      content     = Map.empty,
+      description = res.description
+    )
+
+  case class Schema(
+    `type`: String,
+    format: Option[String] = None
   )
+
+  object Schema {
+    implicit lazy val encoder: Encoder[Schema] = deriveEncoder
+  }
+
+  case class Header(
+    schema:      Schema,
+    description: String
+  )
+
+  object Header {
+    implicit lazy val encoder: Encoder[Header] = deriveEncoder
+  }
 }
