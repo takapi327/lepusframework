@@ -50,7 +50,7 @@ object Path {
     val responses = router.responses
       .lift(method)
       .map(resList => resList.map(res => res.status.code.toString -> Response.build(res)))
-      .getOrElse(List.empty)
+      .getOrElse(List("default" -> Response.empty))
 
     Path(
       summary     = router.summary,
@@ -103,6 +103,8 @@ final case class Response(
 
 object Response {
   implicit lazy val encoder: Encoder[Response] = deriveEncoder
+
+  val empty = Response(ListMap.empty, Map.empty, "Response is not specified")
 
   def build(res: lepus.router.http.Response): Response =
     Response(
