@@ -8,7 +8,7 @@ import cats.effect.{ Async, Sync }
 
 import org.http4s.HttpRoutes
 
-import lepus.router.http.{ RequestEndpoint, RequestMethod }
+import lepus.router.http.{ RequestEndpoint, RequestMethod, Response }
 import lepus.router.model.Tag
 
 /** A model that contains one routing information.
@@ -69,6 +69,9 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   /** A flag used during Swagger (Open API) document generation to indicate whether this endpoint is deprecated or not.
     */
   def deprecated: Option[Boolean] = None
+
+  /** An array of responses returned by each method. */
+  def responses: PartialFunction[RequestMethod, List[Response]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: Routes[F, Param]
