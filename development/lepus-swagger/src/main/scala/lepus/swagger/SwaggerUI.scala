@@ -4,6 +4,8 @@
 
 package lepus.swagger
 
+import scala.collection.immutable.ListMap
+
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax.EncoderOps
@@ -30,7 +32,7 @@ final case class SwaggerUI(
   servers:    List[Server]                   = List.empty,
   tags:       Set[Tag]                       = Set.empty,
   paths:      Map[String, Map[String, Path]] = Map.empty,
-  components: List[Component]                = List.empty
+  components: ListMap[String, Component]     = ListMap.empty
 )
 
 object SwaggerUI {
