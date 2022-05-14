@@ -24,7 +24,7 @@ trait ExtensionMethods {
         router <- routes.toList
         method <- router.methods
       } yield {
-        method.toString().toLowerCase -> Path.fromEndpoint(router)
+        method.toString().toLowerCase -> Path.fromEndpoint(method, router)
       }).toMap
     }
   }
