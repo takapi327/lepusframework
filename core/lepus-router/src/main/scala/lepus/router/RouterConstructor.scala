@@ -8,8 +8,8 @@ import cats.effect.{ Async, Sync }
 
 import org.http4s.{ HttpRoutes => Http4sRoutes }
 
-import lepus.router.http.{ RequestEndpoint, RequestMethod, Response }
-import lepus.router.model.Tag
+import lepus.router.http.{ RequestEndpoint, RequestMethod, Response, ResponseStatus, Header }
+import lepus.router.model.{ Tag, ServerResponse }
 
 /** A model that contains one routing information.
   *
@@ -48,8 +48,14 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   protected final val CONNECT = RequestMethod.Connect
   protected final val TRACE   = RequestMethod.Trace
 
+  /** Alias of ResponseStatus. */
+  protected final val responseStatus = ResponseStatus
+
+  /** Alias of ResponseHeader. */
+  protected final val responseHeader = Header.ResponseHeader
+
   /** Alias of ServerResponse. */
-  protected final val ServerResponse = lepus.router.model.ServerResponse
+  protected final val serverResponse = ServerResponse
 
   /** List of methods that can be handled by this endpoint. */
   lazy val methods: List[RequestMethod] = RequestMethod.all.filter(routes.isDefinedAt)
