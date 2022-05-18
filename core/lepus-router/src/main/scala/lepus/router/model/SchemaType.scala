@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.model
 
@@ -10,39 +10,77 @@ sealed trait SchemaType[T] {
 
 object SchemaType {
 
-  case class String[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "string"
+  case class SString[T]() extends SchemaType[T] {
+    override def thisType: String = "string"
   }
 
-  case class Integer[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "integer"
+  case class SInteger[T]() extends SchemaType[T] {
+    override def thisType: String = "integer"
   }
 
-  case class Number[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "number"
+  case class SNumber[T]() extends SchemaType[T] {
+    override def thisType: String = "number"
   }
 
-  case class Boolean[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "boolean"
+  case class SBoolean[T]() extends SchemaType[T] {
+    override def thisType: String = "boolean"
   }
 
-  case class Option[T, S](element: SchemaL[S]) extends SchemaType[T] {
-    override def thisType: Predef.String = s"option(${element.thisType})"
+  case class SOption[T, S](element: SchemaL[S]) extends SchemaType[T] {
+    override def thisType: String = s"option(${ element.thisType })"
   }
 
-  case class Array[T, S](element: SchemaL[S]) extends SchemaType[T] {
-    override def thisType: Predef.String = s"array(${element.thisType})"
+  case class SArray[T, S](element: SchemaL[S]) extends SchemaType[T] {
+    override def thisType: String = s"array(${ element.thisType })"
   }
 
-  case class Binary[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "binary"
+  case class SBinary[T]() extends SchemaType[T] {
+    override def thisType: String = "binary"
   }
 
-  case class Date[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "date"
+  case class SDate[T]() extends SchemaType[T] {
+    override def thisType: String = "date"
   }
 
-  case class DateTime[T]() extends SchemaType[T] {
-    override def thisType: Predef.String = "date-time"
+  case class SDateTime[T]() extends SchemaType[T] {
+    override def thisType: String = "date-time"
   }
+
+  case class SUnit[T]() extends SchemaType[T] {
+    override def thisType: String = "unit"
+  }
+
+  case class Entity[T](fields: List[Entity.Field[T]]) extends SchemaType[T] {
+    override def thisType: String =
+      s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
+  }
+
+  case class Trait[T](subtypes: List[SchemaL[_]])(
+    val subtypeSchema:          T => Option[SchemaWithValue[_]]
+  ) extends SchemaType[T] {
+    override def thisType: String = "oneOf:" + subtypes.map(_.thisType).mkString(",")
+  }
+
+  case class SchemaWithValue[T](schema: SchemaL[T], value: T)
+
+  object Entity {
+    trait Field[T] {
+      type FiledType
+      def name:   Field.Name
+      def schema: SchemaL[FiledType]
+      def thisType: String = s"field($name, ${ schema.thisType })"
+    }
+
+    object Field {
+      case class Name(name: String, encodedName: String)
+
+      def apply[T, S](_name: Field.Name, _schema: SchemaL[S]): Field[T] =
+        new Field[T] {
+          override type FiledType = S
+          override val name:   Name       = _name
+          override val schema: SchemaL[S] = _schema.asInstanceOf[SchemaL[FiledType]]
+        }
+    }
+  }
+
 }
