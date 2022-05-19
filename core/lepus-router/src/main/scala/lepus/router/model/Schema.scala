@@ -73,8 +73,8 @@ final case class SchemaL[T](
       format     = format
     )
 
-  /** Returns an array version of this schema, with the schema type wrapped in [[SArray]]. Sets `isOptional` to true as
-    * the collection might be empty.
+  /** Returns an array version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets `isOptional`
+    * to true as the collection might be empty.
     */
   def asArray: SchemaL[Array[T]] =
     SchemaL(
@@ -82,8 +82,8 @@ final case class SchemaL[T](
       isOptional = true
     )
 
-  /** Returns a collection version of this schema, with the schema type wrapped in [[SArray]]. Sets `isOptional` to true
-    * as the collection might be empty.
+  /** Returns a collection version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets
+    * `isOptional` to true as the collection might be empty.
     */
   def asIterable[C[X] <: Iterable[X]]: SchemaL[C[T]] =
     SchemaL(
@@ -104,7 +104,6 @@ object SchemaL {
   implicit val schemaFloat:          SchemaL[Float]          = SchemaL(SNumber[Float]()).format("float")
   implicit val schemaDouble:         SchemaL[Double]         = SchemaL(SNumber[Double]()).format("double")
   implicit val schemaBoolean:        SchemaL[Boolean]        = SchemaL(SBoolean())
-  implicit val schemaUnit:           SchemaL[Unit]           = SchemaL(SUnit())
   implicit val schemaByteArray:      SchemaL[Array[Byte]]    = SchemaL(SBinary())
   implicit val schemaInstant:        SchemaL[Instant]        = SchemaL(SBinary())
   implicit val schemaZonedDateTime:  SchemaL[ZonedDateTime]  = SchemaL(SDateTime())
