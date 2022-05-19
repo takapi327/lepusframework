@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.generic
 
@@ -17,7 +17,7 @@ trait SchemaDerivation {
 
   def join[T](ctx: ReadOnlyCaseClass[SchemaL, T]): SchemaL[T] = {
     if (ctx.isValueClass) {
-      require(ctx.parameters.nonEmpty, s"Cannot derive schema for generic value class: ${ctx.typeName.owner}")
+      require(ctx.parameters.nonEmpty, s"Cannot derive schema for generic value class: ${ ctx.typeName.owner }")
       val valueSchema = ctx.parameters.head.typeclass
       SchemaL[T](
         schemaType = valueSchema.schemaType.asInstanceOf[SchemaType[T]],
@@ -32,9 +32,11 @@ trait SchemaDerivation {
   }
 
   def split[T](ctx: SealedTrait[SchemaL, T]): SchemaL[T] = {
-    val subtypesByName = ctx.subtypes.map(subtype => {
-      typeNameToSchemaName(subtype.typeName) -> subtype.typeclass.asInstanceOf[Typeclass[T]]
-    }).toListMap
+    val subtypesByName = ctx.subtypes
+      .map(subtype => {
+        typeNameToSchemaName(subtype.typeName) -> subtype.typeclass.asInstanceOf[Typeclass[T]]
+      })
+      .toListMap
     val traitType = Trait(subtypesByName.values.toList)((t: T) =>
       ctx.split(t) { v =>
         for {
