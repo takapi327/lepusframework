@@ -4,6 +4,8 @@
 
 package lepus.swagger
 
+import scala.collection.immutable.ListMap
+
 import cats.data.NonEmptyList
 
 import io.circe.syntax._
@@ -26,6 +28,16 @@ trait ExtensionMethods {
       } yield {
         method.toString().toLowerCase -> Path.fromEndpoint(method, router)
       }).toMap
+    }
+  }
+
+  implicit class IterableToListMap[A](xs: Iterable[A]) {
+    def toListMap[T, U](implicit ev: A <:< (T, U)): ListMap[T, U] = {
+      val b = ListMap.newBuilder[T, U]
+      for (x <- xs)
+        b += x
+
+      b.result()
     }
   }
 }
