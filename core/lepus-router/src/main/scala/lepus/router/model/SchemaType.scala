@@ -46,18 +46,14 @@ object SchemaType {
     override def thisType: String = "date-time"
   }
 
-  case class SUnit[T]() extends SchemaType[T] {
-    override def thisType: String = "unit"
-  }
-
   case class Entity[T](fields: List[Entity.Field[T]]) extends SchemaType[T] {
+    def required: List[Entity.Field.Name] = fields.collect { case f if !f.schema.isOptional => f.name }
     override def thisType: String =
       s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
   }
 
-  case class Trait[T](subtypes: List[SchemaL[_]])(
-    val subtypeSchema:          T => Option[SchemaWithValue[_]]
-  ) extends SchemaType[T] {
+  case class Trait[T](subtypes: List[SchemaL[_]])(subtypeSchema: T => Option[SchemaWithValue[_]])
+    extends SchemaType[T] {
     override def thisType: String = "oneOf:" + subtypes.map(_.thisType).mkString(",")
   }
 
