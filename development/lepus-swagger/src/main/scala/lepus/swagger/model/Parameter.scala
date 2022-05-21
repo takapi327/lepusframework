@@ -4,11 +4,8 @@
 
 package lepus.swagger.model
 
-import io.circe._
-import io.circe.generic.semiauto._
-
-import lepus.router.model.Schema
 import lepus.router.http.RequestEndpoint
+import lepus.swagger.SchemaToOpenApiSchema
 
 /** Model representing parameters given to Http requests.
   *
@@ -27,19 +24,20 @@ final case class Parameter(
   name:        String,
   in:          String,
   required:    Boolean,
-  schema:      Schema,
+  schema:      Either[String, OpenApiSchema],
   description: Option[String]
 )
 
 object Parameter {
-  implicit lazy val encoder: Encoder[Parameter] = deriveEncoder
+
+  val schemaToOpenApiSchema = new SchemaToOpenApiSchema()
 
   def fromRequestEndpoint(endpoint: RequestEndpoint.Path with RequestEndpoint.Param): Parameter =
     Parameter(
       name        = endpoint.name,
       in          = ParameterInType.PATH,
       required    = true,
-      schema      = endpoint.converter.schema,
+      schema      = schemaToOpenApiSchema(endpoint.converter.schema),
       description = endpoint.description
     )
 
@@ -48,7 +46,7 @@ object Parameter {
       name        = endpoint.key,
       in          = ParameterInType.QUERY,
       required    = false,
-      schema      = endpoint.converter.schema,
+      schema      = schemaToOpenApiSchema(endpoint.converter.schema),
       description = endpoint.description
     )
 

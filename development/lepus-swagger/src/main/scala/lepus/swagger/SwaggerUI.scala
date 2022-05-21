@@ -6,10 +6,6 @@ package lepus.swagger
 
 import scala.collection.immutable.ListMap
 
-import io.circe._
-import io.circe.generic.semiauto._
-import io.circe.syntax.EncoderOps
-
 import lepus.router.model.Tag
 import lepus.swagger.model._
 
@@ -36,21 +32,6 @@ final case class SwaggerUI(
 )
 
 object SwaggerUI {
-
-  implicit lazy val encodeTag: Encoder[Tag] = Encoder.instance { tag =>
-    Json.obj(
-      "name"        -> tag.name.asJson,
-      "description" -> tag.description.asJson,
-      "externalDocs" -> (for {
-        desc <- tag.externalDocsDescription
-        url  <- tag.externalDocsUrl
-      } yield Json.obj(
-        "description" -> desc.asJson,
-        "url"         -> url.asJson
-      )).asJson
-    )
-  }
-  implicit lazy val encoder: Encoder[SwaggerUI] = deriveEncoder
 
   def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): SwaggerUI =
     SwaggerUI(
@@ -79,28 +60,16 @@ final case class Info(
   license:        Option[License] = None
 )
 
-object Info {
-  implicit lazy val encoder: Encoder[Info] = deriveEncoder
-}
-
 final case class Contact(
   name:  Option[String] = None,
   email: Option[String] = None,
   url:   Option[String] = None
 )
 
-object Contact {
-  implicit lazy val encoder: Encoder[Contact] = deriveEncoder
-}
-
 final case class License(
   name: String,
   url:  String
 )
-
-object License {
-  implicit lazy val encoder: Encoder[License] = deriveEncoder
-}
 
 /** Define the server that is serving the API. For the development environment, define localhost, and for other
   * environments, define staging, production, etc.
@@ -115,11 +84,4 @@ final case class Server(
   description: Option[String] = None
 )
 
-object Server {
-  implicit lazy val encoder: Encoder[Server] = deriveEncoder
-}
-
 final case class Component()
-object Component {
-  implicit lazy val encoder: Encoder[Component] = deriveEncoder
-}

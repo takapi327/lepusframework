@@ -37,7 +37,6 @@ final case class Path(
 )
 
 object Path {
-  implicit lazy val encoder: Encoder[Path] = deriveEncoder
 
   def fromEndpoint[F[_]](method: RequestMethod, router: RouterConstructor[F]): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
@@ -76,7 +75,6 @@ final case class Content(
 )
 
 object Content {
-  implicit lazy val encoder: Encoder[Content] = deriveEncoder
 
   def build(content: lepus.router.http.Response.Content): (String, Content) =
     content.mediaType.toSwaggerString -> Content(
@@ -102,7 +100,6 @@ final case class Response(
 )
 
 object Response {
-  implicit lazy val encoder: Encoder[Response] = deriveEncoder
 
   val empty = Response(ListMap.empty, Map.empty, "Response is not specified")
 
