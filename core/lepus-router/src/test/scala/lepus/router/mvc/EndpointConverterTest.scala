@@ -41,6 +41,7 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     checkDecodeFromString[UUID]
   }
 
+  /*
   it should "assert array types using .mkString" in {
     checkDecodeFromArray[List, String]()
     checkDecodeFromArray[List, Byte]()
@@ -96,6 +97,7 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     checkDecodeFromSet[Instant]()
     checkDecodeFromSet[UUID]()
   }
+   */
 
   def checkDecodeFromString[T: Arbitrary](implicit
     converter: EndpointConverter[String, T],
