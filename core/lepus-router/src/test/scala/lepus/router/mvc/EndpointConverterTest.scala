@@ -41,7 +41,7 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
     checkDecodeFromString[UUID]
   }
 
-  /*
+  /* Test code fails occasionally, so comment it out temporarily.
   it should "assert array types using .mkString" in {
     checkDecodeFromArray[List, String]()
     checkDecodeFromArray[List, Byte]()
