@@ -39,7 +39,7 @@ object Generator extends ExtensionMethods {
           |${ indent(0)(`package`) }
           |${ indent(0)(imports) }
           |
-          |object LepusSwagger extends ExtensionMethods {
+          |object LepusSwagger extends OpenApiEncoder with ExtensionMethods {
           |
           |  def main(args: Array[String]): Unit = generate()
           |
@@ -87,6 +87,7 @@ object Generator extends ExtensionMethods {
      |import cats.effect.IO
      |import lepus.core.util.Configuration
      |import lepus.router.RouterProvider
+     |import lepus.swagger.OpenApiEncoder
      |import Exception.GenerateSwaggerException
      |""".stripMargin
 
