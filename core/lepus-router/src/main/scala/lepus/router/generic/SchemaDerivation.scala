@@ -8,30 +8,30 @@ import language.experimental.macros
 
 import magnolia1._
 
-import lepus.router.model.{ SchemaL, SchemaType }
+import lepus.router.model.{ Schema, SchemaType }
 
 import SchemaType._
 trait SchemaDerivation {
 
-  type Typeclass[T] = SchemaL[T]
+  type Typeclass[T] = Schema[T]
 
-  def join[T](ctx: ReadOnlyCaseClass[SchemaL, T]): SchemaL[T] = {
+  def join[T](ctx: ReadOnlyCaseClass[Schema, T]): Schema[T] = {
     if (ctx.isValueClass) {
       require(ctx.parameters.nonEmpty, s"Cannot derive schema for generic value class: ${ ctx.typeName.owner }")
       val valueSchema = ctx.parameters.head.typeclass
-      SchemaL[T](
+      Schema[T](
         schemaType = valueSchema.schemaType.asInstanceOf[SchemaType[T]],
         format     = valueSchema.format
       )
     } else {
-      SchemaL[T](
+      Schema[T](
         schemaType = entitySchemaType(ctx),
         name       = Some(typeNameToSchemaName(ctx.typeName))
       )
     }
   }
 
-  def split[T](ctx: SealedTrait[SchemaL, T]): SchemaL[T] = {
+  def split[T](ctx: SealedTrait[Schema, T]): Schema[T] = {
     val subtypesByName = ctx.subtypes
       .map(subtype => {
         typeNameToSchemaName(subtype.typeName) -> subtype.typeclass.asInstanceOf[Typeclass[T]]
@@ -45,21 +45,21 @@ trait SchemaDerivation {
         } yield SchemaWithValue(schema, value)
       }
     )
-    SchemaL[T](
+    Schema[T](
       schemaType = traitType,
       name       = Some(typeNameToSchemaName(ctx.typeName))
     )
   }
 
-  implicit def gen[T]: SchemaL[T] = macro Magnolia.gen[T]
+  implicit def gen[T]: Schema[T] = macro Magnolia.gen[T]
 
-  private def typeNameToSchemaName(typeName: TypeName): SchemaL.Name =
-    SchemaL.Name(
+  private def typeNameToSchemaName(typeName: TypeName): Schema.Name =
+    Schema.Name(
       fullName       = typeName.full,
       typeParameters = allTypeArguments(typeName).map(_.short).toList
     )
 
-  private def entitySchemaType[T](ctx: ReadOnlyCaseClass[SchemaL, T]): Entity[T] =
+  private def entitySchemaType[T](ctx: ReadOnlyCaseClass[Schema, T]): Entity[T] =
     Entity(
       ctx.parameters.map { param =>
         Entity.Field[T, param.PType](
