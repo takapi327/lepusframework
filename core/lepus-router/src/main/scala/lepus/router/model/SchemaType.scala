@@ -26,11 +26,11 @@ object SchemaType {
     override def thisType: String = "boolean"
   }
 
-  case class SOption[T, S](element: SchemaL[S]) extends SchemaType[T] {
+  case class SOption[T, S](element: Schema[S]) extends SchemaType[T] {
     override def thisType: String = s"option(${ element.thisType })"
   }
 
-  case class SArray[T, S](element: SchemaL[S]) extends SchemaType[T] {
+  case class SArray[T, S](element: Schema[S]) extends SchemaType[T] {
     override def thisType: String = s"array(${ element.thisType })"
   }
 
@@ -52,29 +52,29 @@ object SchemaType {
       s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
   }
 
-  case class Trait[T](subtypes: List[SchemaL[_]])(subtypeSchema: T => Option[SchemaWithValue[_]])
+  case class Trait[T](subtypes: List[Schema[_]])(subtypeSchema: T => Option[SchemaWithValue[_]])
     extends SchemaType[T] {
     override def thisType: String = "oneOf:" + subtypes.map(_.thisType).mkString(",")
   }
 
-  case class SchemaWithValue[T](schema: SchemaL[T], value: T)
+  case class SchemaWithValue[T](schema: Schema[T], value: T)
 
   object Entity {
     trait Field[T] {
       type FiledType
       def name:   Field.Name
-      def schema: SchemaL[FiledType]
+      def schema: Schema[FiledType]
       def thisType: String = s"field($name, ${ schema.thisType })"
     }
 
     object Field {
       case class Name(name: String, encodedName: String)
 
-      def apply[T, S](_name: Field.Name, _schema: SchemaL[S]): Field[T] =
+      def apply[T, S](_name: Field.Name, _schema: Schema[S]): Field[T] =
         new Field[T] {
           override type FiledType = S
           override val name:   Name       = _name
-          override val schema: SchemaL[S] = _schema.asInstanceOf[SchemaL[FiledType]]
+          override val schema: Schema[S] = _schema.asInstanceOf[Schema[FiledType]]
         }
     }
   }
