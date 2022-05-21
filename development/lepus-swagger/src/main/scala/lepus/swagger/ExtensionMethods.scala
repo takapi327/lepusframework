@@ -16,7 +16,7 @@ import lepus.swagger.model._
 
 trait ExtensionMethods {
 
-  implicit class SwaggerUIOps(swaggerUI: SwaggerUI) {
+  implicit class SwaggerUIOps(swaggerUI: SwaggerUI)(implicit val encoder: io.circe.Encoder[SwaggerUI]) {
     def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(swaggerUI.asJson)
   }
 
