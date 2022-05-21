@@ -6,17 +6,17 @@ package lepus.swagger
 
 import scala.collection.mutable.ListBuffer
 
-import lepus.router.model.{ SchemaL, SchemaType }
+import lepus.router.model.{ Schema, SchemaType }
 
 class SchemaToTuple {
-  def apply(schema: SchemaL[_]): List[(SchemaL.Name, SchemaL[_])] = {
+  def apply(schema: Schema[_]): List[(Schema.Name, Schema[_])] = {
     val thisSchema = schema.name match {
       case Some(name) => List(name -> schema)
       case None       => Nil
     }
     val propertySchemas = schema match {
-      case SchemaL(SchemaType.SArray(s), _, _, _)    => apply(s)
-      case SchemaL(s: SchemaType.Entity[_], _, _, _) => s.fields.flatMap(v => apply(v.schema))
+      case Schema(SchemaType.SArray(s), _, _, _)    => apply(s)
+      case Schema(s: SchemaType.Entity[_], _, _, _) => s.fields.flatMap(v => apply(v.schema))
       case _                                         => List.empty
     }
     thisSchema ++ propertySchemas
@@ -25,9 +25,9 @@ class SchemaToTuple {
 
 object SchemaToTuple {
 
-  def unique(tuples: Iterable[(SchemaL.Name, SchemaL[_])]): Iterable[(SchemaL.Name, SchemaL[_])] = {
-    val uniques: collection.mutable.Set[SchemaL.Name]   = collection.mutable.Set()
-    val result:  ListBuffer[(SchemaL.Name, SchemaL[_])] = ListBuffer()
+  def unique(tuples: Iterable[(Schema.Name, Schema[_])]): Iterable[(Schema.Name, Schema[_])] = {
+    val uniques: collection.mutable.Set[Schema.Name]   = collection.mutable.Set()
+    val result:  ListBuffer[(Schema.Name, Schema[_])] = ListBuffer()
     tuples.foreach(tuple => {
       if (!uniques.contains(tuple._1)) {
         uniques.add(tuple._1)
