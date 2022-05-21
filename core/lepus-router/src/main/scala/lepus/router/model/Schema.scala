@@ -14,8 +14,8 @@ import SchemaType._
 final case class Schema[T](
   schemaType: SchemaType[T],
   name:       Option[Schema.Name] = None,
-  format:     Option[String]       = None,
-  isOptional: Boolean              = false
+  format:     Option[String]      = None,
+  isOptional: Boolean             = false
 ) {
 
   def thisType: String = s"schema is $schemaType"
@@ -79,7 +79,7 @@ object Schema {
   implicit val schemaBigInt:         Schema[BigInt]            = Schema(SInteger())
   implicit val schemaJBigInteger:    Schema[JBigInteger]       = Schema(SInteger())
 
-  implicit def schemaOption[T: Schema]: Schema[Option[T]] = implicitly[Schema[T]].asOption
-  implicit def schemaArray[T: Schema]:  Schema[Array[T]]  = implicitly[Schema[T]].asArray
-  implicit def schemaIterable[T: Schema, C[X] <: Iterable[X]]: Schema[C[T]] = implicitly[Schema[T]].asIterable[C]
+  implicit def schemaOption[T: Schema]:                        Schema[Option[T]] = implicitly[Schema[T]].asOption
+  implicit def schemaArray[T: Schema]:                         Schema[Array[T]]  = implicitly[Schema[T]].asArray
+  implicit def schemaIterable[T: Schema, C[X] <: Iterable[X]]: Schema[C[T]]      = implicitly[Schema[T]].asIterable[C]
 }

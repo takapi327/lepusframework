@@ -52,8 +52,7 @@ object SchemaType {
       s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
   }
 
-  case class Trait[T](subtypes: List[Schema[_]])(subtypeSchema: T => Option[SchemaWithValue[_]])
-    extends SchemaType[T] {
+  case class Trait[T](subtypes: List[Schema[_]])(subtypeSchema: T => Option[SchemaWithValue[_]]) extends SchemaType[T] {
     override def thisType: String = "oneOf:" + subtypes.map(_.thisType).mkString(",")
   }
 
@@ -73,7 +72,7 @@ object SchemaType {
       def apply[T, S](_name: Field.Name, _schema: Schema[S]): Field[T] =
         new Field[T] {
           override type FiledType = S
-          override val name:   Name       = _name
+          override val name:   Name      = _name
           override val schema: Schema[S] = _schema.asInstanceOf[Schema[FiledType]]
         }
     }

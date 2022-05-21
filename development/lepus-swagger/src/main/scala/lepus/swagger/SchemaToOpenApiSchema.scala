@@ -40,7 +40,7 @@ class SchemaToOpenApiSchema {
       .map(field => {
         field.schema match {
           case Schema(_, Some(name), _, _) => field.name.encodedName -> Left("")
-          case schema                       => field.name.encodedName -> apply(schema)
+          case schema                      => field.name.encodedName -> apply(schema)
         }
       })
       .toListMap

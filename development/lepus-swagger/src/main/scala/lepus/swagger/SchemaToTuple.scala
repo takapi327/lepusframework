@@ -17,7 +17,7 @@ class SchemaToTuple {
     val propertySchemas = schema match {
       case Schema(SchemaType.SArray(s), _, _, _)    => apply(s)
       case Schema(s: SchemaType.Entity[_], _, _, _) => s.fields.flatMap(v => apply(v.schema))
-      case _                                         => List.empty
+      case _                                        => List.empty
     }
     thisSchema ++ propertySchemas
   }
@@ -26,7 +26,7 @@ class SchemaToTuple {
 object SchemaToTuple {
 
   def unique(tuples: Iterable[(Schema.Name, Schema[_])]): Iterable[(Schema.Name, Schema[_])] = {
-    val uniques: collection.mutable.Set[Schema.Name]   = collection.mutable.Set()
+    val uniques: collection.mutable.Set[Schema.Name]  = collection.mutable.Set()
     val result:  ListBuffer[(Schema.Name, Schema[_])] = ListBuffer()
     tuples.foreach(tuple => {
       if (!uniques.contains(tuple._1)) {

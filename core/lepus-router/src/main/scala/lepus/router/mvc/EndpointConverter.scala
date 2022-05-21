@@ -34,7 +34,7 @@ object EndpointConverter {
 
   /** Variable for converting path and query parameter values to any type. */
   implicit val string: EndpointConverter[String, String] = new EndpointConverter[String, String] {
-    override def stringTo(str: String): String          = str
+    override def stringTo(str: String): String         = str
     override def schema:                Schema[String] = Schema.schemaString
   }
 
@@ -114,7 +114,7 @@ object EndpointConverter {
     */
   def convertT[S, T](st: S => T)(implicit s: Schema[T]): EndpointConverter[S, T] =
     new EndpointConverter[S, T] {
-      override def stringTo(str: S): T          = st(str)
+      override def stringTo(str: S): T         = st(str)
       override def schema:           Schema[T] = s
     }
 }
