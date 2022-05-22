@@ -50,15 +50,13 @@ object Generator extends ExtensionMethods {
           |
           |    val routerProvider: RouterProvider[IO] = lepus.swagger.Generator.loadRouterProvider(config)
           |
-          |    val groupEndpoint = routerProvider.routes.groupBy(_.endpoint.toPath)
-          |    val endpoints     = groupEndpoint.map(v => (v._1 -> v._2.toPathMap))
-          |    val swaggerUI     = SwaggerUI.build(Info("$title", "$version"), endpoints, routerProvider.tags)
+          |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), routerProvider)
           |
           |    if (!file.exists()) {
           |      file.getParentFile.mkdirs()
           |      file.createNewFile()
           |    }
-          |    Files.write(file.toPath, swaggerUI.toYaml.getBytes(implicitly[Codec].name))
+          |    Files.write(file.toPath, openAPIUI.toYaml.getBytes(implicitly[Codec].name))
           |  }
           |
           |}
@@ -87,7 +85,7 @@ object Generator extends ExtensionMethods {
      |import cats.effect.IO
      |import lepus.core.util.Configuration
      |import lepus.router.RouterProvider
-     |import lepus.swagger.OpenApiEncoder
+     |import lepus.swagger.{ RouterToOpenAPI, OpenApiEncoder }
      |import Exception.GenerateSwaggerException
      |""".stripMargin
 

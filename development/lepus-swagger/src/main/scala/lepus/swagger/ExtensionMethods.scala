@@ -6,29 +6,14 @@ package lepus.swagger
 
 import scala.collection.immutable.ListMap
 
-import cats.data.NonEmptyList
-
+import io.circe.Encoder
 import io.circe.syntax._
 import io.circe.yaml.Printer
 
-import lepus.router.RouterConstructor
-import lepus.swagger.model._
-
 trait ExtensionMethods {
 
-  implicit class SwaggerUIOps(swaggerUI: SwaggerUI)(implicit val encoder: io.circe.Encoder[SwaggerUI]) {
+  implicit class SwaggerUIOps(swaggerUI: SwaggerUI)(implicit encoder: Encoder[SwaggerUI]) {
     def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(swaggerUI.asJson)
-  }
-
-  implicit class RouterConstructorsOps[F[_]](routes: NonEmptyList[RouterConstructor[F]]) {
-    def toPathMap: Map[String, Path] = {
-      (for {
-        router <- routes.toList
-        method <- router.methods
-      } yield {
-        method.toString().toLowerCase -> Path.fromEndpoint(method, router)
-      }).toMap
-    }
   }
 
   implicit class IterableToListMap[A](xs: Iterable[A]) {

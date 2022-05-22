@@ -9,6 +9,8 @@ import scala.collection.immutable.ListMap
 import lepus.router.RouterConstructor
 import lepus.router.http.{ RequestMethod, RequestEndpoint }
 
+import lepus.swagger.SchemaToOpenApiSchema
+
 /** Model for generating Swagger documentation for a single endpoint path
   *
   * @param summary
@@ -35,7 +37,7 @@ final case class Path(
 
 object Path {
 
-  def fromEndpoint[F[_]](method: RequestMethod, router: RouterConstructor[F]): Path = {
+  def fromEndpoint[F[_]](method: RequestMethod, router: RouterConstructor[F], schemaToOpenApiSchema: SchemaToOpenApiSchema): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: RequestEndpoint.Path with RequestEndpoint.Param  => Some(Parameter.fromRequestEndpoint(e))
@@ -45,7 +47,7 @@ object Path {
 
     val responses = router.responses
       .lift(method)
-      .map(resList => resList.map(res => res.status.code.toString -> Response.build(res)))
+      .map(resList => resList.map(res => res.status.code.toString -> Response.build(res, schemaToOpenApiSchema)))
       .getOrElse(List("default" -> Response.empty))
 
     Path(
