@@ -62,6 +62,8 @@ After setting up dependencies, develop with reference to the contents of Example
 The following is the minimum configuration for routing in the Lepus Framework.
 
 ```scala
+package sample
+
 import cats.effect._
 
 import lepus.router._
@@ -81,6 +83,13 @@ object HelloApp extends RouterProvider[IO] {
   override def routes: NonEmptyList[RouterConstructor[IO, _]] =
     NonEmptyList.of(HelloRoute)
 }
+```
+
+You must set the path of the object that inherits RouterProvider in application.conf.
+
+※ We plan to eliminate the need for configuration in the near future.
+```text
+lepus.server.routes = "sample.HelloApp"
 ```
 
 ### Generate OpenAPI documentation
