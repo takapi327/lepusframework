@@ -44,7 +44,7 @@ object LepusGenerator {
       parent = baseClassloader.value
     )
 
-    val mainClass:  Class[_] = projectClassLoader.loadClass("lepus.swagger.Generator$")
+    val mainClass:  Class[_] = projectClassLoader.loadClass("lepus.swagger.OpenApiGenerator$")
     val mainObject: Swagger  = mainClass.getField("MODULE$").get(null).asInstanceOf[Swagger]
 
     Seq(

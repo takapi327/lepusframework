@@ -16,7 +16,7 @@ import lepus.router.RouterProvider
 
 import Exception.GenerateSwaggerException
 
-object Generator extends ExtensionMethods {
+object OpenApiGenerator extends ExtensionMethods {
 
   private val SERVER_ROUTES = "lepus.server.routes"
 
@@ -27,7 +27,7 @@ object Generator extends ExtensionMethods {
     baseDirectory: File
   ): File = {
 
-    val outputFile = new File(sourceManaged, "LepusSwagger.scala")
+    val outputFile = new File(sourceManaged, "LepusOpenApi.scala")
 
     val scalaSource =
       s"""|/**
@@ -39,7 +39,7 @@ object Generator extends ExtensionMethods {
           |${ indent(0)(`package`) }
           |${ indent(0)(imports) }
           |
-          |object LepusSwagger extends OpenApiEncoder with ExtensionMethods {
+          |object LepusOpenApi extends OpenApiEncoder with ExtensionMethods {
           |
           |  def main(args: Array[String]): Unit = generate()
           |
@@ -48,7 +48,7 @@ object Generator extends ExtensionMethods {
           |
           |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
-          |    val routerProvider: RouterProvider[IO] = lepus.swagger.Generator.loadRouterProvider(config)
+          |    val routerProvider: RouterProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
           |
           |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), routerProvider)
           |
@@ -85,6 +85,7 @@ object Generator extends ExtensionMethods {
      |import cats.effect.IO
      |import lepus.core.util.Configuration
      |import lepus.router.RouterProvider
+     |import lepus.swagger.model.Info
      |import lepus.swagger.{ RouterToOpenAPI, OpenApiEncoder }
      |import Exception.GenerateSwaggerException
      |""".stripMargin
