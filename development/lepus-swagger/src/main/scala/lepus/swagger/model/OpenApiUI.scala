@@ -4,9 +4,9 @@
 
 package lepus.swagger.model
 
-import lepus.router.model.Tag
-
 import scala.collection.immutable.ListMap
+
+import lepus.router.model.Tag
 
 /** @param openapi
   *   OpenAPI version
@@ -19,7 +19,7 @@ import scala.collection.immutable.ListMap
   * @param paths
   *   Paths and operations available as APIs
   * @param components
-  *   An array of objects to use in the API
+  *   An objects to use in the API
   */
 final case class OpenApiUI(
   openapi:    String                         = "3.0.3",
@@ -27,16 +27,22 @@ final case class OpenApiUI(
   servers:    List[Server]                   = List.empty,
   tags:       Set[Tag]                       = Set.empty,
   paths:      Map[String, Map[String, Path]] = Map.empty,
-  components: ListMap[String, Component]     = ListMap.empty
+  components: Option[Component]              = None
 )
 
 object OpenApiUI {
 
-  def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): OpenApiUI =
+  def build(
+    info:      Info,
+    paths:     Map[String, Map[String, Path]],
+    tags:      Set[Tag],
+    component: Option[Component]
+  ): OpenApiUI =
     OpenApiUI(
-      info  = info,
-      paths = paths,
-      tags  = tags
+      info       = info,
+      paths      = paths,
+      tags       = tags,
+      components = component
     )
 }
 
@@ -83,4 +89,6 @@ final case class Server(
   description: Option[String] = None
 )
 
-final case class Component()
+final case class Component(
+  schemas: ListMap[String, Either[Reference, OpenApiSchema]]
+)
