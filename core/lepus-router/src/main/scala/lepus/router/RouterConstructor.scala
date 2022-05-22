@@ -77,7 +77,7 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   def deprecated: Option[Boolean] = None
 
   /** An array of responses returned by each method. */
-  def responses: HttpResponse[List[Response]] = PartialFunction.empty
+  def responses: HttpResponse[List[Response[_]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: HttpRoutes[F, Param]

@@ -12,27 +12,30 @@ package lepus.router.http
   *   List of headers given to the response
   * @param description
   *   Response Description
-  * @param content
-  *   Response Body Value　
   */
-case class Response(
+case class Response[T: io.circe.Encoder](
   status:      ResponseStatus,
   headers:     List[Response.CustomHeader] = List.empty,
   description: String,
-  content:     List[Response.Content]      = List.empty
-)
+)(implicit val schema: lepus.router.model.Schema[T])
 
 object Response {
+
+  def build[T: io.circe.Encoder: lepus.router.model.Schema](
+    status: ResponseStatus,
+    headers: List[Response.CustomHeader],
+    description: String,
+  ): Response[T] =
+    Response[T](
+      status = status,
+      headers = headers,
+      description = description,
+    )
 
   case class CustomHeader(
     name:        String,
     schema:      Schema,
     description: String
-  )
-
-  case class Content(
-    mediaType: Header.ResponseHeader,
-    schema:    String
   )
 
   case class Schema(
