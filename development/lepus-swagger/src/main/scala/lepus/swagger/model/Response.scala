@@ -45,7 +45,7 @@ object Response {
   }
 
   case class Header(
-    schema:      Either[String, OpenApiSchema],
+    schema:      Either[Reference, OpenApiSchema],
     description: String
   )
 
@@ -57,7 +57,7 @@ object Response {
     *   contains an example, the example value SHALL override the example provided by the schema.
     */
   final case class Content(
-    schema:   Option[Either[String, OpenApiSchema]] = None,
+    schema:   Option[Either[Reference, OpenApiSchema]] = None,
     examples: ListMap[String, String]               = ListMap.empty
   )
 

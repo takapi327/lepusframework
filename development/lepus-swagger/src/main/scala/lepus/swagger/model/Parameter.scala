@@ -24,7 +24,7 @@ final case class Parameter(
   name:        String,
   in:          String,
   required:    Boolean,
-  schema:      Either[String, OpenApiSchema],
+  schema:      Either[Reference, OpenApiSchema],
   description: Option[String]
 )
 

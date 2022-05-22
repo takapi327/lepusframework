@@ -20,7 +20,7 @@ trait OpenApiEncoder {
   implicit lazy val parameterEncoder: Encoder[Parameter] = deriveEncoder
   implicit lazy val pathEncoder:      Encoder[Path]      = deriveEncoder
 
-  implicit lazy val encoder:         Encoder[Response.Header]  = deriveEncoder
+  implicit lazy val headerEncoder:   Encoder[Response.Header]  = deriveEncoder
   implicit lazy val contentEncoder:  Encoder[Response.Content] = deriveEncoder
   implicit lazy val responseEncoder: Encoder[Response]         = deriveEncoder
 

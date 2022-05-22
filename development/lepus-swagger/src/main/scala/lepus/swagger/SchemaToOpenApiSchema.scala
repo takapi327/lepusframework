@@ -6,11 +6,11 @@ package lepus.swagger
 
 import lepus.router.model.{ Schema, SchemaType }
 
-import lepus.swagger.model.OpenApiSchema
+import lepus.swagger.model.{ OpenApiSchema, Reference }
 import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
 
 class SchemaToOpenApiSchema {
-  def apply[T](schema: Schema[T], isOptional: Boolean = false): Either[String, OpenApiSchema] = {
+  def apply[T](schema: Schema[T], isOptional: Boolean = false): Either[Reference, OpenApiSchema] = {
     val result = schema.schemaType match {
       case SchemaType.SInteger() => Right(OpenApiSchema(OpenApiSchemaType.Integer))
       case SchemaType.SNumber()  => Right(OpenApiSchema(OpenApiSchemaType.Number))
@@ -39,7 +39,7 @@ class SchemaToOpenApiSchema {
     fields
       .map(field => {
         field.schema match {
-          case Schema(_, Some(name), _, _) => field.name.encodedName -> Left("")
+          case Schema(_, Some(name), _, _) => field.name.encodedName -> Left(Reference(s"#/components/schema/${name.shortName}"))
           case schema                      => field.name.encodedName -> apply(schema)
         }
       })

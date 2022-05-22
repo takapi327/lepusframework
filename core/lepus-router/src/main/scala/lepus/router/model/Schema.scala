@@ -51,7 +51,9 @@ final case class Schema[T](
 
 object Schema {
 
-  case class Name(fullName: String, typeParameters: List[String])
+  case class Name(fullName: String, typeParameters: List[String]) {
+    val shortName: String = fullName.split(".").last
+  }
 
   implicit val schemaString:         Schema[String]            = Schema(SString())
   implicit val schemaByte:           Schema[Byte]              = Schema(SInteger())

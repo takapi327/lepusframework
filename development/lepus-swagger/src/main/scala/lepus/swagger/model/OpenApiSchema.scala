@@ -10,10 +10,10 @@ import OpenApiSchema._
 case class OpenApiSchema(
   `type`:     Option[SchemaType]                             = None,
   required:   List[String]                                   = List.empty,
-  properties: ListMap[String, Either[String, OpenApiSchema]] = ListMap.empty,
+  properties: ListMap[String, Either[Reference, OpenApiSchema]] = ListMap.empty,
   format:     Option[String]                                 = None,
   nullable:   Option[Boolean]                                = None,
-  oneOf:      List[Either[String, OpenApiSchema]]            = List.empty
+  oneOf:      List[Either[Reference, OpenApiSchema]]            = List.empty
 )
 
 object OpenApiSchema {
@@ -21,7 +21,7 @@ object OpenApiSchema {
   def apply(`type`: SchemaType): OpenApiSchema =
     OpenApiSchema(`type` = Some(`type`))
 
-  def apply(references: List[Either[String, OpenApiSchema]]): OpenApiSchema =
+  def apply(references: List[Either[Reference, OpenApiSchema]]): OpenApiSchema =
     OpenApiSchema(oneOf = references)
 
   sealed abstract class SchemaType(val value: String)
