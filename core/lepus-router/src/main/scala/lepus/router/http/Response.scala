@@ -37,7 +37,7 @@ object Response {
     )
 
   case class CustomHeader[T](
-    name:        String,
-    description: String
+    name:                String,
+    description:         String
   )(implicit val schema: Schema[T])
 }
