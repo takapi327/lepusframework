@@ -27,12 +27,13 @@ import lepus.swagger.SchemaToOpenApiSchema
   *   List of response values per endpoint status
   */
 final case class Path(
-  summary:     Option[String]  = None,
-  description: Option[String]  = None,
-  tags:        Set[String]     = Set.empty,
-  deprecated:  Option[Boolean] = None,
-  parameters:  List[Parameter] = List.empty,
-  responses:   ListMap[String, Response]
+  summary:     Option[String]            = None,
+  description: Option[String]            = None,
+  tags:        Set[String]               = Set.empty,
+  deprecated:  Option[Boolean]           = None,
+  parameters:  List[Parameter]           = List.empty,
+  requestBody: Option[RequestBody]       = None,
+  responses:   ListMap[String, Response] = ListMap.empty
 )
 
 object Path {
@@ -51,6 +52,10 @@ object Path {
       case _ => None
     }.toList
 
+    val requestBody = router.requestBodies
+      .lift(method)
+      .map(req => RequestBody.build(req, schemaToOpenApiSchema))
+
     val responses = router.responses
       .lift(method)
       .map(resList => resList.map(res => res.status.code.toString -> Response.build(res, schemaToOpenApiSchema)))
@@ -62,6 +67,7 @@ object Path {
       tags        = router.tags.map(_.name),
       deprecated  = router.deprecated,
       parameters  = parameters,
+      requestBody = requestBody,
       responses   = responses.to(ListMap)
     )
   }
