@@ -71,7 +71,7 @@ object Path {
   */
 final case class Content(
   schema:   Option[Either[String, OpenApiSchema]] = None,
-  examples: ListMap[String, String] = ListMap.empty
+  examples: ListMap[String, String]               = ListMap.empty
 )
 
 object Content {
