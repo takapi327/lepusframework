@@ -31,11 +31,10 @@ import lepus.router.model.{ Tag, ServerResponse }
   *
   * @tparam F
   *   the effect type.
+  * @tparam P
+  *   the combined type of the Http request path and query parameters
   */
 abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync[F]) {
-
-  /** The combined type of the Http request path and query parameters. */
-  private type Param = P
 
   /** Alias of RequestMethod. */
   protected final val GET     = RequestMethod.Get
@@ -80,9 +79,9 @@ abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync
   def responses: HttpResponse[List[Response[_]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
-  def routes: HttpRoutes[F, Param]
+  def routes: HttpRoutes[F, P]
 
   /** Combine endpoints and logic to generate HttpRoutes. */
   final def toHttpRoutes: Http4sRoutes[F] =
-    ServerInterpreter[F]().bindFromRequest[Param](routes, endpoint)
+    ServerInterpreter[F]().bindFromRequest[P](routes, endpoint)
 }
