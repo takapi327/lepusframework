@@ -70,16 +70,18 @@ object Path {
   *   example, the example value SHALL override the example provided by the schema.
   */
 final case class Content(
-  schema:   Map[String, String],
-  examples: Map[String, String]
+  schema:   Option[Either[String, OpenApiSchema]] = None,
+  examples: ListMap[String, String] = ListMap.empty
 )
 
 object Content {
 
-  def build(content: lepus.router.http.Response.Content): (String, Content) =
-    content.mediaType.toSwaggerString -> Content(
-      schema   = Map.empty,
-      examples = Map.empty
+  val schemaToOpenApiSchema = new lepus.swagger.SchemaToOpenApiSchema()
+
+  def build(schema: lepus.router.model.Schema[_]): Content =
+    Content(
+      schema   = Some(schemaToOpenApiSchema(schema)),
+      examples = ListMap.empty
     )
 }
 
@@ -95,22 +97,24 @@ object Content {
   */
 final case class Response(
   headers:     ListMap[String, Response.Header],
-  content:     Map[String, Content],
+  content:     ListMap[String, Content],
   description: String
 )
 
 object Response {
 
-  val empty = Response(ListMap.empty, Map.empty, "Response is not specified")
+  val empty = Response(ListMap.empty, ListMap.empty, "Response is not specified")
 
-  def build(res: lepus.router.http.Response): Response =
+  def build(res: lepus.router.http.Response[_]): Response = {
+    val headers = res.headers
+      .map(header => header.name -> Header(Schema(header.schema.`type`, header.schema.format), header.description))
+      .to(ListMap)
     Response(
-      headers = res.headers
-        .map(header => header.name -> Header(Schema(header.schema.`type`, header.schema.format), header.description))
-        .to(ListMap),
-      content     = Map.empty,
+      headers     = headers,
+      content     = ListMap("application/json" -> Content.build(res.schema)),
       description = res.description
     )
+  }
 
   case class Schema(
     `type`: String,
