@@ -8,11 +8,11 @@ import scala.collection.immutable.ListMap
 
 import OpenApiSchema._
 case class OpenApiSchema(
-  `type`:     Option[SchemaType]                             = None,
-  required:   List[String]                                   = List.empty,
+  `type`:     Option[SchemaType]                                = None,
+  required:   List[String]                                      = List.empty,
   properties: ListMap[String, Either[Reference, OpenApiSchema]] = ListMap.empty,
-  format:     Option[String]                                 = None,
-  nullable:   Option[Boolean]                                = None,
+  format:     Option[String]                                    = None,
+  nullable:   Option[Boolean]                                   = None,
   oneOf:      List[Either[Reference, OpenApiSchema]]            = List.empty
 )
 

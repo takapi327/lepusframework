@@ -56,7 +56,7 @@ object Response {
     */
   final case class Content(
     schema:   Option[Either[Reference, OpenApiSchema]] = None,
-    examples: ListMap[String, String]               = ListMap.empty
+    examples: ListMap[String, String]                  = ListMap.empty
   )
 
   object Content {

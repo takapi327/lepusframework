@@ -37,7 +37,11 @@ final case class Path(
 
 object Path {
 
-  def fromEndpoint[F[_]](method: RequestMethod, router: RouterConstructor[F], schemaToOpenApiSchema: SchemaToOpenApiSchema): Path = {
+  def fromEndpoint[F[_]](
+    method:                RequestMethod,
+    router:                RouterConstructor[F],
+    schemaToOpenApiSchema: SchemaToOpenApiSchema
+  ): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: RequestEndpoint.Path with RequestEndpoint.Param  => Some(Parameter.fromRequestEndpoint(e))

@@ -39,8 +39,9 @@ class SchemaToOpenApiSchema {
     fields
       .map(field => {
         field.schema match {
-          case Schema(_, Some(name), _, _) => field.name.encodedName -> Left(Reference(s"#/components/schema/${name.shortName}"))
-          case schema                      => field.name.encodedName -> apply(schema)
+          case Schema(_, Some(name), _, _) =>
+            field.name.encodedName -> Left(Reference(s"#/components/schema/${ name.shortName }"))
+          case schema => field.name.encodedName -> apply(schema)
         }
       })
       .toListMap
