@@ -6,7 +6,6 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.model.Schema
 import lepus.router.http.{ Response => RouterResponse }
 
 import lepus.swagger.SchemaToOpenApiSchema
@@ -23,7 +22,7 @@ import lepus.swagger.SchemaToOpenApiSchema
   */
 final case class Response(
   headers:     ListMap[String, Response.Header],
-  content:     ListMap[String, Response.Content],
+  content:     ListMap[String, Content],
   description: String
 )
 
@@ -49,25 +48,4 @@ object Response {
     schema:      Either[Reference, OpenApiSchema],
     description: String
   )
-
-  /** @param schema
-    *   The schema defining the content of the request, response, or parameter.
-    * @param examples
-    *   Example of the media type. The example object SHOULD be in the correct format as specified by the media type.
-    *   The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which
-    *   contains an example, the example value SHALL override the example provided by the schema.
-    */
-  final case class Content(
-    schema:   Option[Either[Reference, OpenApiSchema]] = None,
-    examples: ListMap[String, String]                  = ListMap.empty
-  )
-
-  object Content {
-
-    def build(schema: Schema[_], schemaToOpenApiSchema: SchemaToOpenApiSchema): Content =
-      Content(
-        schema   = Some(schemaToOpenApiSchema(schema, false, false)),
-        examples = ListMap.empty
-      )
-  }
 }
