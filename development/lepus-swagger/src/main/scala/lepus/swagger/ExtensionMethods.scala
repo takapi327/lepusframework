@@ -5,15 +5,15 @@
 package lepus.swagger
 
 import scala.collection.immutable.ListMap
-
 import io.circe.Encoder
 import io.circe.syntax._
 import io.circe.yaml.Printer
+import lepus.swagger.model.OpenApiUI
 
 trait ExtensionMethods {
 
-  implicit class SwaggerUIOps(swaggerUI: SwaggerUI)(implicit encoder: Encoder[SwaggerUI]) {
-    def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(swaggerUI.asJson)
+  implicit class OpenApiUIOps(openApiUI: OpenApiUI)(implicit encoder: Encoder[OpenApiUI]) {
+    def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(openApiUI.asJson)
   }
 
   implicit class IterableToListMap[A](xs: Iterable[A]) {

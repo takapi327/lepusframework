@@ -2,12 +2,11 @@
   * file that was distributed with this source code.
   */
 
-package lepus.swagger
-
-import scala.collection.immutable.ListMap
+package lepus.swagger.model
 
 import lepus.router.model.Tag
-import lepus.swagger.model._
+
+import scala.collection.immutable.ListMap
 
 /** @param openapi
   *   OpenAPI version
@@ -22,7 +21,7 @@ import lepus.swagger.model._
   * @param components
   *   An array of objects to use in the API
   */
-final case class SwaggerUI(
+final case class OpenApiUI(
   openapi:    String                         = "3.0.3",
   info:       Info,
   servers:    List[Server]                   = List.empty,
@@ -31,10 +30,10 @@ final case class SwaggerUI(
   components: ListMap[String, Component]     = ListMap.empty
 )
 
-object SwaggerUI {
+object OpenApiUI {
 
-  def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): SwaggerUI =
-    SwaggerUI(
+  def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): OpenApiUI =
+    OpenApiUI(
       info  = info,
       paths = paths,
       tags  = tags

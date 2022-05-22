@@ -43,7 +43,7 @@ trait OpenApiEncoder {
       )).asJson
     )
   }
-  implicit lazy val swaggerUIEncoder: Encoder[SwaggerUI] = deriveEncoder
+  implicit lazy val openApiUIEncoder: Encoder[OpenApiUI] = deriveEncoder
 
   implicit def encoderEither[T: Encoder]: Encoder[Either[Reference, T]] = {
     case Left(_)  => Json.obj(("$ref", Json.fromString("component/schemas")))

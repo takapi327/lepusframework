@@ -5,10 +5,8 @@
 package lepus.swagger
 
 import cats.data.NonEmptyList
-
-import lepus.router.{ RouterConstructor, RouterProvider }
-
-import lepus.swagger.model.Path
+import lepus.router.{RouterConstructor, RouterProvider}
+import lepus.swagger.model.{Info, Path, OpenApiUI}
 
 object RouterToOpenAPI {
 
@@ -17,10 +15,10 @@ object RouterToOpenAPI {
   def generateOpenAPIDocs[F[_]](
     info:   Info,
     router: RouterProvider[F]
-  ): SwaggerUI = {
+  ): OpenApiUI = {
     val groupEndpoint = router.routes.groupBy(_.endpoint.toPath)
     val endpoints     = groupEndpoint.map(v => v._1 -> routerToPath(v._2))
-    SwaggerUI.build(info, endpoints, router.tags)
+    OpenApiUI.build(info, endpoints, router.tags)
   }
 
   private def routerToPath[F[_]](routes: NonEmptyList[RouterConstructor[F]]): Map[String, Path] = {
