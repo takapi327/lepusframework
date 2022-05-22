@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger
 
@@ -13,7 +13,7 @@ import lepus.swagger.model.Reference
 class SchemaToReference(nameMapList: Option[ListMap[Schema.Name, Schema[_]]]) {
   def map(name: Schema.Name): Option[Reference] =
     nameMapList.map(_.get(name)) match {
-      case Some(_) => Some(Reference(s"#/components/schemas/${name.shortName}"))
+      case Some(_) => Some(Reference(s"#/components/schemas/${ name.shortName }"))
       case None    => None
     }
 }

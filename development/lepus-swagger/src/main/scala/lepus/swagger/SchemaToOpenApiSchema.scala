@@ -12,15 +12,20 @@ import lepus.swagger.model.{ OpenApiSchema, Reference }
 import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
 
 class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
-  def apply[T](schema: Schema[T], isOptional: Boolean = false, forceCreate: Boolean = true): Either[Reference, OpenApiSchema] = {
+  def apply[T](
+    schema:      Schema[T],
+    isOptional:  Boolean = false,
+    forceCreate: Boolean = true
+  ): Either[Reference, OpenApiSchema] = {
     val result = if (forceCreate) {
       discriminateBySchemaType(schema.schemaType)
     } else {
       schema.name match {
-        case Some(name) => schemaToReference.map(name) match {
-          case Some(value) => Left(value)
-          case None => discriminateBySchemaType(schema.schemaType)
-        }
+        case Some(name) =>
+          schemaToReference.map(name) match {
+            case Some(value) => Left(value)
+            case None        => discriminateBySchemaType(schema.schemaType)
+          }
         case None => discriminateBySchemaType(schema.schemaType)
       }
     }
@@ -54,7 +59,9 @@ class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
       case SchemaType.Trait(schemas) => Right(OpenApiSchema(schemas.map(apply(_))))
     }
 
-  private def extractProperties[T](fields: List[SchemaType.Entity.Field[T]]): ListMap[String, Either[Reference, OpenApiSchema]] =
+  private def extractProperties[T](
+    fields: List[SchemaType.Entity.Field[T]]
+  ): ListMap[String, Either[Reference, OpenApiSchema]] =
     fields
       .map(field => {
         field.schema match {

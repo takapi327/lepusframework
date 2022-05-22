@@ -27,8 +27,8 @@ object RouterToOpenAPI {
     val schemaToReference     = new SchemaToReference(schemaTuple)
     val schemaToOpenApiSchema = new SchemaToOpenApiSchema(schemaToReference)
 
-    val component       = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
-    val endpoints       = groupEndpoint.map(v => v._1 -> routerToPath(v._2, schemaToOpenApiSchema))
+    val component = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
+    val endpoints = groupEndpoint.map(v => v._1 -> routerToPath(v._2, schemaToOpenApiSchema))
     OpenApiUI.build(info, endpoints, router.tags, component)
   }
 
