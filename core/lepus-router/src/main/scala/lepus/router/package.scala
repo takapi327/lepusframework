@@ -19,6 +19,7 @@ package object router extends LepusRouter with ExtensionMethods {
   type Http[T] = PartialFunction[RequestMethod, T]
 
   type HttpResponse[T]     = Http[T]
+  type HttpRequest[T]      = Http[T]
   type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
 
   implicit val routesSemigroup: Semigroup[Http4sRoutes[IO]] = _ combineK _
