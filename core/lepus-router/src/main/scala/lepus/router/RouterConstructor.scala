@@ -32,10 +32,10 @@ import lepus.router.model.{ Tag, ServerResponse }
   * @tparam F
   *   the effect type.
   */
-abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]) {
+abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync[F]) {
 
   /** The combined type of the Http request path and query parameters. */
-  type Param
+  private type Param = P
 
   /** Alias of RequestMethod. */
   protected final val GET     = RequestMethod.Get
@@ -63,16 +63,16 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   /** The value that will be the path of the Http request. */
   def endpoint: RequestEndpoint.Endpoint
 
-  /** Summary of this endpoint, used during Swagger (Open API) document generation. */
+  /** Summary of this endpoint, used during Open API document generation. */
   def summary: Option[String] = None
 
-  /** Description of this endpoint, used during Swagger (Open API) document generation. */
+  /** Description of this endpoint, used during Open API document generation. */
   def description: Option[String] = None
 
-  /** Tag of this endpoint, used during Swagger (Open API) document generation. */
+  /** Tag of this endpoint, used during Open API document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
-  /** A flag used during Swagger (Open API) document generation to indicate whether this endpoint is deprecated or not.
+  /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
     */
   def deprecated: Option[Boolean] = None
 

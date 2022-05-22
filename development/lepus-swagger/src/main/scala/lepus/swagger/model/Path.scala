@@ -39,7 +39,7 @@ object Path {
 
   def fromEndpoint[F[_]](
     method:                RequestMethod,
-    router:                RouterConstructor[F],
+    router:                RouterConstructor[F, _],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()

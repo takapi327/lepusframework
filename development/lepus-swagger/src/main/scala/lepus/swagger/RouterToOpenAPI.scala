@@ -33,7 +33,7 @@ object RouterToOpenAPI {
   }
 
   private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[String, NonEmptyList[RouterConstructor[F]]]
+    groupEndpoint: Map[String, NonEmptyList[RouterConstructor[F, _]]]
   ): Option[ListMap[Schema.Name, Schema[_]]] = {
     (for {
       (_, routes) <- groupEndpoint.toList
@@ -51,7 +51,7 @@ object RouterToOpenAPI {
   }
 
   private def routerToPath[F[_]](
-    routes:                NonEmptyList[RouterConstructor[F]],
+    routes:                NonEmptyList[RouterConstructor[F, _]],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): Map[String, Path] =
     (for {
