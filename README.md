@@ -143,7 +143,7 @@ After running Compile, the generateApi command generates OpenApi documentation.
 
 docs/OpenApi.yaml is generated directly under the root project.
 
-```console
+```shell
 $ sbt compile
 $ sbt generateApi
 ```
