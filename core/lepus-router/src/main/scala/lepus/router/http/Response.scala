@@ -4,6 +4,10 @@
 
 package lepus.router.http
 
+import io.circe.Encoder
+
+import lepus.router.model.Schema
+
 /** API Response Value
   *
   * @param status
@@ -13,17 +17,17 @@ package lepus.router.http
   * @param description
   *   Response Description
   */
-case class Response[T: io.circe.Encoder](
+case class Response[T: Encoder](
   status:              ResponseStatus,
-  headers:             List[Response.CustomHeader] = List.empty,
+  headers:             List[Response.CustomHeader[_]] = List.empty,
   description:         String
-)(implicit val schema: lepus.router.model.Schema[T])
+)(implicit val schema: Schema[T])
 
 object Response {
 
-  def build[T: io.circe.Encoder: lepus.router.model.Schema](
+  def build[T: Encoder: Schema](
     status:      ResponseStatus,
-    headers:     List[Response.CustomHeader],
+    headers:     List[Response.CustomHeader[_]],
     description: String
   ): Response[T] =
     Response[T](
@@ -32,14 +36,8 @@ object Response {
       description = description
     )
 
-  case class CustomHeader(
+  case class CustomHeader[T](
     name:        String,
-    schema:      Schema,
     description: String
-  )
-
-  case class Schema(
-    `type`: String,
-    format: Option[String] = None
-  )
+  )(implicit val schema: Schema[T])
 }
