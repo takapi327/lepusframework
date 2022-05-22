@@ -30,23 +30,27 @@ final case class Parameter(
 
 object Parameter {
 
-  val schemaToOpenApiSchema = new SchemaToOpenApiSchema()
-
-  def fromRequestEndpoint(endpoint: RequestEndpoint.Path with RequestEndpoint.Param): Parameter =
+  def fromRequestEndpoint(
+    endpoint:              RequestEndpoint.Path with RequestEndpoint.Param,
+    schemaToOpenApiSchema: SchemaToOpenApiSchema
+  ): Parameter =
     Parameter(
       name        = endpoint.name,
       in          = ParameterInType.PATH,
       required    = true,
-      schema      = schemaToOpenApiSchema(endpoint.converter.schema),
+      schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
       description = endpoint.description
     )
 
-  def fromRequestEndpoint(endpoint: RequestEndpoint.Query with RequestEndpoint.Param): Parameter =
+  def fromRequestEndpoint(
+    endpoint:              RequestEndpoint.Query with RequestEndpoint.Param,
+    schemaToOpenApiSchema: SchemaToOpenApiSchema
+  ): Parameter =
     Parameter(
       name        = endpoint.key,
       in          = ParameterInType.QUERY,
       required    = false,
-      schema      = schemaToOpenApiSchema(endpoint.converter.schema),
+      schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
       description = endpoint.description
     )
 

@@ -31,7 +31,10 @@ object Response {
 
   val empty = Response(ListMap.empty, ListMap.empty, "Response is not specified")
 
-  def build(res: RouterResponse[_], schemaToOpenApiSchema: SchemaToOpenApiSchema): Response = {
+  def build(
+    res:                   RouterResponse[_],
+    schemaToOpenApiSchema: SchemaToOpenApiSchema
+  ): Response = {
     val headers = res.headers
       .map(header => header.name -> Header(schemaToOpenApiSchema(header.schema), header.description))
       .to(ListMap)
@@ -63,7 +66,7 @@ object Response {
 
     def build(schema: Schema[_], schemaToOpenApiSchema: SchemaToOpenApiSchema): Content =
       Content(
-        schema   = Some(schemaToOpenApiSchema(schema)),
+        schema   = Some(schemaToOpenApiSchema(schema, false, false)),
         examples = ListMap.empty
       )
   }

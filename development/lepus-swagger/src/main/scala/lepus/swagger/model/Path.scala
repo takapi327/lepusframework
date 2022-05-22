@@ -44,8 +44,8 @@ object Path {
   ): Path = {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
-      case e: RequestEndpoint.Path with RequestEndpoint.Param  => Some(Parameter.fromRequestEndpoint(e))
-      case e: RequestEndpoint.Query with RequestEndpoint.Param => Some(Parameter.fromRequestEndpoint(e))
+      case e: RequestEndpoint.Path with RequestEndpoint.Param  => Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema))
+      case e: RequestEndpoint.Query with RequestEndpoint.Param => Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema))
       case _                                                   => None
     }.toList
 

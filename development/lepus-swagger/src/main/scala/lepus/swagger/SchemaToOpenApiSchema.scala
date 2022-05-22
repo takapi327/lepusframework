@@ -4,14 +4,35 @@
 
 package lepus.swagger
 
+import scala.collection.immutable.ListMap
+
 import lepus.router.model.{ Schema, SchemaType }
 
 import lepus.swagger.model.{ OpenApiSchema, Reference }
 import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
 
-class SchemaToOpenApiSchema {
-  def apply[T](schema: Schema[T], isOptional: Boolean = false): Either[Reference, OpenApiSchema] = {
-    val result = schema.schemaType match {
+class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
+  def apply[T](schema: Schema[T], isOptional: Boolean = false, forceCreate: Boolean = true): Either[Reference, OpenApiSchema] = {
+    val result = if (forceCreate) {
+      discriminateBySchemaType(schema.schemaType)
+    } else {
+      schema.name match {
+        case Some(name) => schemaToReference.map(name) match {
+          case Some(value) => Left(value)
+          case None => discriminateBySchemaType(schema.schemaType)
+        }
+        case None => discriminateBySchemaType(schema.schemaType)
+      }
+    }
+    if (isOptional) {
+      result.map(_.copy(nullable = Some(isOptional)))
+    } else {
+      result
+    }
+  }
+
+  private def discriminateBySchemaType(schemaType: SchemaType[_]): Either[Reference, OpenApiSchema] =
+    schemaType match {
       case SchemaType.SInteger() => Right(OpenApiSchema(OpenApiSchemaType.Integer))
       case SchemaType.SNumber()  => Right(OpenApiSchema(OpenApiSchemaType.Number))
       case SchemaType.SBoolean() => Right(OpenApiSchema(OpenApiSchemaType.Boolean))
@@ -32,15 +53,13 @@ class SchemaToOpenApiSchema {
         Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = OpenApiSchemaFormat.DateTime))
       case SchemaType.Trait(schemas) => Right(OpenApiSchema(schemas.map(apply(_))))
     }
-    result.map(_.copy(nullable = Some(isOptional)))
-  }
 
-  private def extractProperties[T](fields: List[SchemaType.Entity.Field[T]]) =
+  private def extractProperties[T](fields: List[SchemaType.Entity.Field[T]]): ListMap[String, Either[Reference, OpenApiSchema]] =
     fields
       .map(field => {
         field.schema match {
           case Schema(_, Some(name), _, _) =>
-            field.name.encodedName -> Left(Reference(s"#/components/schema/${ name.shortName }"))
+            field.name.encodedName -> Left(schemaToReference.map(name).getOrElse(Reference(name.fullName)))
           case schema => field.name.encodedName -> apply(schema)
         }
       })
