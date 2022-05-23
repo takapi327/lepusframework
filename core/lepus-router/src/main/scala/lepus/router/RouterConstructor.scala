@@ -6,10 +6,10 @@ package lepus.router
 
 import cats.effect.{ Async, Sync }
 
-import org.http4s.HttpRoutes
+import org.http4s.{ HttpRoutes => Http4sRoutes }
 
-import lepus.router.http.{ RequestEndpoint, RequestMethod }
-import lepus.router.model.Tag
+import lepus.router.http.{ RequestEndpoint, RequestMethod, Response, ResponseStatus, Header, RequestBody }
+import lepus.router.model.{ Tag, ServerResponse }
 
 /** A model that contains one routing information.
   *
@@ -31,11 +31,10 @@ import lepus.router.model.Tag
   *
   * @tparam F
   *   the effect type.
+  * @tparam P
+  *   the combined type of the Http request path and query parameters
   */
-abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]) {
-
-  /** The combined type of the Http request path and query parameters. */
-  type Param
+abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync[F]) {
 
   /** Alias of RequestMethod. */
   protected final val GET     = RequestMethod.Get
@@ -48,8 +47,14 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   protected final val CONNECT = RequestMethod.Connect
   protected final val TRACE   = RequestMethod.Trace
 
+  /** Alias of ResponseStatus. */
+  protected final val responseStatus = ResponseStatus
+
+  /** Alias of ResponseHeader. */
+  protected final val responseHeader = Header.ResponseHeader
+
   /** Alias of ServerResponse. */
-  protected final val ServerResponse = lepus.router.model.ServerResponse
+  protected final val serverResponse = ServerResponse
 
   /** List of methods that can be handled by this endpoint. */
   lazy val methods: List[RequestMethod] = RequestMethod.all.filter(routes.isDefinedAt)
@@ -57,23 +62,28 @@ abstract class RouterConstructor[F[_]](implicit asyncF: Async[F], syncF: Sync[F]
   /** The value that will be the path of the Http request. */
   def endpoint: RequestEndpoint.Endpoint
 
-  /** Summary of this endpoint, used during Swagger (Open API) document generation. */
+  /** Summary of this endpoint, used during Open API document generation. */
   def summary: Option[String] = None
 
-  /** Description of this endpoint, used during Swagger (Open API) document generation. */
+  /** Description of this endpoint, used during Open API document generation. */
   def description: Option[String] = None
 
-  /** Tag of this endpoint, used during Swagger (Open API) document generation. */
+  /** Tag of this endpoint, used during Open API document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
-  /** A flag used during Swagger (Open API) document generation to indicate whether this endpoint is deprecated or not.
+  /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
     */
   def deprecated: Option[Boolean] = None
 
+  def requestBodies: HttpRequest[RequestBody[_]] = PartialFunction.empty
+
+  /** An array of responses returned by each method. */
+  def responses: HttpResponse[List[Response[_]]] = PartialFunction.empty
+
   /** Corresponding logic for each method of this endpoint. */
-  def routes: Routes[F, Param]
+  def routes: HttpRoutes[F, P]
 
   /** Combine endpoints and logic to generate HttpRoutes. */
-  final def toHttpRoutes: HttpRoutes[F] =
-    ServerInterpreter[F]().bindFromRequest[Param](routes, endpoint)
+  final def toHttpRoutes: Http4sRoutes[F] =
+    ServerInterpreter[F]().bindFromRequest[P](routes, endpoint)
 }

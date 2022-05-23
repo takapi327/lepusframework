@@ -26,5 +26,5 @@ trait RouterProvider[F[_]] {
   /** Tag of this endpoint, used during Swagger (Open API) document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
-  def routes: NonEmptyList[RouterConstructor[F]]
+  def routes: NonEmptyList[RouterConstructor[F, _]]
 }

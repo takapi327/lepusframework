@@ -2,14 +2,11 @@
   * file that was distributed with this source code.
   */
 
-package lepus.swagger
+package lepus.swagger.model
 
-import io.circe._
-import io.circe.generic.semiauto._
-import io.circe.syntax.EncoderOps
+import scala.collection.immutable.ListMap
 
 import lepus.router.model.Tag
-import lepus.swagger.model._
 
 /** @param openapi
   *   OpenAPI version
@@ -22,39 +19,30 @@ import lepus.swagger.model._
   * @param paths
   *   Paths and operations available as APIs
   * @param components
-  *   An array of objects to use in the API
+  *   An objects to use in the API
   */
-final case class SwaggerUI(
+final case class OpenApiUI(
   openapi:    String                         = "3.0.3",
   info:       Info,
   servers:    List[Server]                   = List.empty,
   tags:       Set[Tag]                       = Set.empty,
   paths:      Map[String, Map[String, Path]] = Map.empty,
-  components: List[Component]                = List.empty
+  components: Option[Component]              = None
 )
 
-object SwaggerUI {
+object OpenApiUI {
 
-  implicit lazy val encodeTag: Encoder[Tag] = Encoder.instance { tag =>
-    Json.obj(
-      "name"        -> tag.name.asJson,
-      "description" -> tag.description.asJson,
-      "externalDocs" -> (for {
-        desc <- tag.externalDocsDescription
-        url  <- tag.externalDocsUrl
-      } yield Json.obj(
-        "description" -> desc.asJson,
-        "url"         -> url.asJson
-      )).asJson
-    )
-  }
-  implicit lazy val encoder: Encoder[SwaggerUI] = deriveEncoder
-
-  def build(info: Info, paths: Map[String, Map[String, Path]], tags: Set[Tag]): SwaggerUI =
-    SwaggerUI(
-      info  = info,
-      paths = paths,
-      tags  = tags
+  def build(
+    info:      Info,
+    paths:     Map[String, Map[String, Path]],
+    tags:      Set[Tag],
+    component: Option[Component]
+  ): OpenApiUI =
+    OpenApiUI(
+      info       = info,
+      paths      = paths,
+      tags       = tags,
+      components = component
     )
 }
 
@@ -77,28 +65,16 @@ final case class Info(
   license:        Option[License] = None
 )
 
-object Info {
-  implicit lazy val encoder: Encoder[Info] = deriveEncoder
-}
-
 final case class Contact(
   name:  Option[String] = None,
   email: Option[String] = None,
   url:   Option[String] = None
 )
 
-object Contact {
-  implicit lazy val encoder: Encoder[Contact] = deriveEncoder
-}
-
 final case class License(
   name: String,
   url:  String
 )
-
-object License {
-  implicit lazy val encoder: Encoder[License] = deriveEncoder
-}
 
 /** Define the server that is serving the API. For the development environment, define localhost, and for other
   * environments, define staging, production, etc.
@@ -113,11 +89,6 @@ final case class Server(
   description: Option[String] = None
 )
 
-object Server {
-  implicit lazy val encoder: Encoder[Server] = deriveEncoder
-}
-
-final case class Component()
-object Component {
-  implicit lazy val encoder: Encoder[Component] = deriveEncoder
-}
+final case class Component(
+  schemas: ListMap[String, Either[Reference, OpenApiSchema]]
+)

@@ -4,7 +4,7 @@
 
 package lepus.router
 
-import scala.collection.immutable.Vector
+import scala.collection.immutable.{ Vector, ListMap }
 
 import lepus.router.http._
 
@@ -59,6 +59,16 @@ trait ExtensionMethods {
         val clazz = Class.forName("scala.Tuple" + v.size)
         clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
       }
+    }
+  }
+
+  implicit class IterableToListMap[A](xs: Iterable[A]) {
+    def toListMap[T, U](implicit ev: A <:< (T, U)): ListMap[T, U] = {
+      val b = ListMap.newBuilder[T, U]
+      for (x <- xs)
+        b += x
+
+      b.result()
     }
   }
 }

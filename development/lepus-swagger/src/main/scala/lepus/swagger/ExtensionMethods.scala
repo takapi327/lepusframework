@@ -4,28 +4,25 @@
 
 package lepus.swagger
 
-import cats.data.NonEmptyList
-
+import scala.collection.immutable.ListMap
+import io.circe.Encoder
 import io.circe.syntax._
 import io.circe.yaml.Printer
-
-import lepus.router.RouterConstructor
-import lepus.swagger.model._
+import lepus.swagger.model.OpenApiUI
 
 trait ExtensionMethods {
 
-  implicit class SwaggerUIOps(swaggerUI: SwaggerUI) {
-    def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(swaggerUI.asJson)
+  implicit class OpenApiUIOps(openApiUI: OpenApiUI)(implicit encoder: Encoder[OpenApiUI]) {
+    def toYaml: String = Printer(dropNullKeys = true, preserveOrder = true).pretty(openApiUI.asJson)
   }
 
-  implicit class RouterConstructorsOps[F[_]](routes: NonEmptyList[RouterConstructor[F]]) {
-    def toPathMap: Map[String, Path] = {
-      (for {
-        router <- routes.toList
-        method <- router.methods
-      } yield {
-        method.toString().toLowerCase -> Path.fromEndpoint(router)
-      }).toMap
+  implicit class IterableToListMap[A](xs: Iterable[A]) {
+    def toListMap[T, U](implicit ev: A <:< (T, U)): ListMap[T, U] = {
+      val b = ListMap.newBuilder[T, U]
+      for (x <- xs)
+        b += x
+
+      b.result()
     }
   }
 }

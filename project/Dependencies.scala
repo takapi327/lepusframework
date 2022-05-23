@@ -12,6 +12,10 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.1"
 
+  val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
+
+  val magnolia = "com.softwaremill.magnolia1_2" %% "magnolia" % "1.1.2"
+
   val catsVersion = "2.6.1"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.3"
@@ -56,5 +60,5 @@ object Dependencies {
 
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
-  val routerDependencies = http4s ++ circe ++ testDependencies
+  val routerDependencies = Seq(magnolia, reflect) ++ http4s ++ circe ++ testDependencies
 }

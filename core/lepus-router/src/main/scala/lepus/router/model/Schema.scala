@@ -4,47 +4,84 @@
 
 package lepus.router.model
 
-import io.circe._
-import io.circe.generic.semiauto._
+import java.time._
+import java.util.{ Date, UUID }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
 
-final case class Schema(`type`: String, format: Option[String])
+import scala.concurrent.duration
+
+import SchemaType._
+final case class Schema[T](
+  schemaType: SchemaType[T],
+  name:       Option[Schema.Name] = None,
+  format:     Option[String]      = None,
+  isOptional: Boolean             = false
+) {
+
+  def thisType: String = s"schema is $schemaType"
+
+  def format(f: String): Schema[T] = copy(format = Some(f))
+
+  /** Returns an optional version of this schema, with `isOptional` set to true. */
+  def asOption: Schema[Option[T]] =
+    Schema(
+      schemaType = SOption(this),
+      isOptional = true,
+      format     = format
+    )
+
+  /** Returns an array version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets `isOptional`
+    * to true as the collection might be empty.
+    */
+  def asArray: Schema[Array[T]] =
+    Schema(
+      schemaType = SArray(this),
+      isOptional = true
+    )
+
+  /** Returns a collection version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets
+    * `isOptional` to true as the collection might be empty.
+    */
+  def asIterable[C[X] <: Iterable[X]]: Schema[C[T]] =
+    Schema(
+      schemaType = SArray(this),
+      isOptional = true
+    )
+}
+
 object Schema {
-  implicit lazy val encoder: Encoder[Schema] = deriveEncoder
 
-  val int32Integer   = Schema(SchemaType.INTEGER, SchemaFormat.INT32)
-  val int64Integer   = Schema(SchemaType.INTEGER, SchemaFormat.INT64)
-  val floatNumber    = Schema(SchemaType.NUMBER, SchemaFormat.FLOAT)
-  val doubleNumber   = Schema(SchemaType.NUMBER, SchemaFormat.DOUBLE)
-  val boolean        = Schema(SchemaType.BOOLEAN, None)
-  val string         = Schema(SchemaType.STRING, None)
-  val byteString     = Schema(SchemaType.STRING, SchemaFormat.BYTE)
-  val binaryString   = Schema(SchemaType.STRING, SchemaFormat.BINARY)
-  val dateString     = Schema(SchemaType.STRING, SchemaFormat.DATE)
-  val dateTimeString = Schema(SchemaType.STRING, SchemaFormat.DATETIME)
-  val emailString    = Schema(SchemaType.STRING, SchemaFormat.EMAIL)
-  val passwordString = Schema(SchemaType.STRING, SchemaFormat.PASSWORD)
-  val uuidString     = Schema(SchemaType.STRING, SchemaFormat.UUID)
-
-  object SchemaType {
-    val BOOLEAN = "boolean"
-    val OBJECT  = "object"
-    val ARRAY   = "array"
-    val NUMBER  = "number"
-    val STRING  = "string"
-    val INTEGER = "integer"
+  case class Name(fullName: String, typeParameters: List[String]) {
+    val shortName: String = fullName.split('.').lastOption.getOrElse(fullName)
   }
 
-  object SchemaFormat {
-    val INT32:    Option[String] = Some("int32")
-    val INT64:    Option[String] = Some("int64")
-    val FLOAT:    Option[String] = Some("float")
-    val DOUBLE:   Option[String] = Some("double")
-    val BYTE:     Option[String] = Some("byte")
-    val BINARY:   Option[String] = Some("binary")
-    val DATE:     Option[String] = Some("date")
-    val DATETIME: Option[String] = Some("date-time")
-    val EMAIL:    Option[String] = Some("email")
-    val PASSWORD: Option[String] = Some("password")
-    val UUID:     Option[String] = Some("uuid")
-  }
+  implicit val schemaString:         Schema[String]            = Schema(SString())
+  implicit val schemaByte:           Schema[Byte]              = Schema(SInteger())
+  implicit val schemaShort:          Schema[Short]             = Schema(SInteger())
+  implicit val schemaInt:            Schema[Int]               = Schema(SInteger[Int]()).format("int32")
+  implicit val SchemaLong:           Schema[Long]              = Schema(SInteger[Long]()).format("int64")
+  implicit val schemaFloat:          Schema[Float]             = Schema(SNumber[Float]()).format("float")
+  implicit val schemaDouble:         Schema[Double]            = Schema(SNumber[Double]()).format("double")
+  implicit val schemaBoolean:        Schema[Boolean]           = Schema(SBoolean())
+  implicit val schemaByteArray:      Schema[Array[Byte]]       = Schema(SBinary())
+  implicit val schemaInstant:        Schema[Instant]           = Schema(SBinary())
+  implicit val schemaZonedDateTime:  Schema[ZonedDateTime]     = Schema(SDateTime())
+  implicit val schemaOffsetDateTime: Schema[OffsetDateTime]    = Schema(SDateTime())
+  implicit val schemaDate:           Schema[Date]              = Schema(SDateTime())
+  implicit val SchemaLocalDateTime:  Schema[LocalDateTime]     = Schema(SString())
+  implicit val schemaLocalDate:      Schema[LocalDate]         = Schema(SDate())
+  implicit val schemaZoneOffset:     Schema[ZoneOffset]        = Schema(SString())
+  implicit val schemaJavaDuration:   Schema[Duration]          = Schema(SString())
+  implicit val SchemaLocalTime:      Schema[LocalTime]         = Schema(SString())
+  implicit val schemaOffsetTime:     Schema[OffsetTime]        = Schema(SString())
+  implicit val schemaScalaDuration:  Schema[duration.Duration] = Schema(SString())
+  implicit val schemaUUID:           Schema[UUID]              = Schema(SString[UUID]()).format("uuid")
+  implicit val schemaBigDecimal:     Schema[BigDecimal]        = Schema(SNumber())
+  implicit val schemaJBigDecimal:    Schema[JBigDecimal]       = Schema(SNumber())
+  implicit val schemaBigInt:         Schema[BigInt]            = Schema(SInteger())
+  implicit val schemaJBigInteger:    Schema[JBigInteger]       = Schema(SInteger())
+
+  implicit def schemaOption[T: Schema]:                        Schema[Option[T]] = implicitly[Schema[T]].asOption
+  implicit def schemaArray[T: Schema]:                         Schema[Array[T]]  = implicitly[Schema[T]].asArray
+  implicit def schemaIterable[T: Schema, C[X] <: Iterable[X]]: Schema[C[T]]      = implicitly[Schema[T]].asIterable[C]
 }

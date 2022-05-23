@@ -19,6 +19,6 @@ object LepusCommands {
   }
 
   val swaggerCommand = Command.command("generateApi") { (state: State) =>
-    MainLoop.processCommand(Exec("runMain lepus.swagger.LepusSwagger", None), state)
+    MainLoop.processCommand(Exec("runMain lepus.swagger.LepusOpenApi", None), state)
   }
 }
