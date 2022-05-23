@@ -156,3 +156,41 @@ docs/OpenApi.yaml is generated directly under the root project.
 $ sbt compile
 $ sbt generateApi
 ```
+
+### Mock server startup
+
+Mock servers are started using libraries such as prism.
+
+Settings must be made for each project.
+
+Below is an example of starting a mock server in Docker using prism.
+
+```yaml
+version: '3.9'
+
+services:
+  swagger-editor:
+    image: swaggerapi/swagger-editor
+    container_name: "swagger-editor"
+    ports:
+      - 8001:8080
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - 8002:8080
+    volumes:
+      - ./OpenApi.yaml:/usr/share/nginx/html/OpenApi.yaml
+    environment:
+      API_URL: ./OpenApi.yaml
+
+  swagger-api:
+    image: stoplight/prism:3
+    container_name: "swagger-api"
+    ports:
+      - 8003:4010
+    command: mock -h 0.0.0.0 /OpenApi.yaml
+    volumes:
+      - ./OpenApi.yaml:/OpenApi.yaml
+```
