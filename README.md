@@ -45,7 +45,7 @@ Coming soon...
 ## Quickstart with sbt
 Lepus Framework is not an official, publicly available plugin, but is privately maintained.
 
-Therefore, S3 is used as maven. To use Lepus Framework plug-ins from s3, the following plug-in must be configured under project/project/build.sbt of the project to be used.
+Therefore, S3 is used as maven. To use Lepus Framework plugins from s3, the following plugin must be configured under project/project/build.sbt of the project to be used.
 
 :warning: If it is project/build.sbt or plugin.sbt, I can't get the plugin properly and an error occurs. :warning:
 
@@ -114,8 +114,8 @@ Load the required project with build.sbt
 lazy val root = (project in file("."))
   .settings(
     ...
-    swaggerTitle   := (Docker / packageName).value,
-    swaggerVersion := (Docker / version).value
+    swaggerTitle   := "project name",
+    swaggerVersion := "project version"
   )
   .enablePlugins(Lepus)
   .enablePlugins(LepusSwagger)
