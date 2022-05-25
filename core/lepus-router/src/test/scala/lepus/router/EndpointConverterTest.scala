@@ -2,16 +2,15 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.mvc
+package lepus.router
 
 import java.time._
 import java.util.UUID
 
 import scala.reflect.ClassTag
 
-import org.scalacheck.{ Arbitrary, Gen }
 import org.scalacheck.Prop._
-
+import org.scalacheck.{ Arbitrary, Gen }
 import org.scalatest.Assertion
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
