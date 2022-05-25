@@ -43,10 +43,25 @@ This framework relies on several libraries (automatically installed by Lepus).
 Coming soon...
 
 ## Quickstart with sbt
+Lepus Framework is not an official, publicly available plugin, but is privately maintained.
+
+Therefore, S3 is used as maven. To use Lepus Framework plug-ins from s3, the following plug-in must be configured under project/project/build.sbt of the project to be used.
+
+:warning: If it is project/build.sbt or plugin.sbt, I can't get the plugin properly and an error occurs. :warning:
+
+※ Once officially released, the following settings will no longer be necessary.
+
+in: project/project/build.sbt
+```sbt
+addSbtPlugin("com.frugalmechanic" % "fm-sbt-s3-resolver" % "0.20.0")
+```
+
 Add the following dependencies to plugins.sbt
 
+in: project/plugins.sbt
 ```sbt
-addSbtPlugin("com.github.takapi327" % "sbt-plugin" % "0.1.0-SNAPSHOT")
+ThisBuild / resolvers += "Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/"
+addSbtPlugin("com.github.takapi327" % "sbt-plugin" % <version>)
 ```
 
 Load the required project with build.sbt
