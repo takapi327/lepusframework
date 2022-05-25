@@ -4,7 +4,10 @@
 
 package lepus.core.util
 
+import java.time.{ Duration => JavaDuration }
+
 import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.{ Duration, FiniteDuration, _ }
 
 import com.typesafe.config._
 
@@ -31,8 +34,13 @@ object Configuration {
   def load(): Configuration = Configuration(ConfigFactory.load())
 }
 
-trait ConfigLoader[A] {
+trait ConfigLoader[A] { self =>
   def load(config: Config, path: String): A
+  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader[B] {
+    def load(config: Config, path: String): B = {
+      f(self.load(config, path))
+    }
+  }
 }
 
 object ConfigLoader {
@@ -42,9 +50,43 @@ object ConfigLoader {
         f(config)(path)
     }
 
-  implicit val string: ConfigLoader[String] = ConfigLoader(_.getString)
-  implicit val int:    ConfigLoader[Int]    = ConfigLoader(_.getInt)
-  implicit val long:   ConfigLoader[Long]   = ConfigLoader(_.getLong)
+  implicit val string:         ConfigLoader[String]           = ConfigLoader(_.getString)
+  implicit val int:            ConfigLoader[Int]              = ConfigLoader(_.getInt)
+  implicit val long:           ConfigLoader[Long]             = ConfigLoader(_.getLong)
+  implicit val number:         ConfigLoader[Number]           = ConfigLoader(_.getNumber)
+  implicit val double:         ConfigLoader[Double]           = ConfigLoader(_.getDouble)
+  implicit val bytes:          ConfigLoader[ConfigMemorySize] = ConfigLoader(_.getMemorySize)
+  implicit val finiteDuration: ConfigLoader[FiniteDuration]   = ConfigLoader(_.getDuration).map(_.toNanos.nanos)
+  implicit val javaDuration:   ConfigLoader[JavaDuration]     = ConfigLoader(_.getDuration)
+  implicit val scalaDuration: ConfigLoader[Duration] = ConfigLoader(config =>
+    path =>
+      if (config.getIsNull(path)) {
+        Duration.Inf
+      } else {
+        config.getDuration(path).toNanos.nanos
+      }
+  )
+
+  implicit val seqBoolean: ConfigLoader[Seq[Boolean]] =
+    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue))
+  implicit val seqInt:    ConfigLoader[Seq[Int]]    = ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt))
+  implicit val seqLong:   ConfigLoader[Seq[Long]]   = ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue))
+  implicit val seqNumber: ConfigLoader[Seq[Number]] = ConfigLoader(_.getNumberList).map(_.asScala)
+  implicit val seqDouble: ConfigLoader[Seq[Double]] = ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue))
+  implicit val seqString: ConfigLoader[Seq[String]] = ConfigLoader(_.getStringList).map(_.asScala)
+  implicit val seqBytes: ConfigLoader[Seq[ConfigMemorySize]] = ConfigLoader(_.getMemorySizeList).map(_.asScala)
+  implicit val seqFinite: ConfigLoader[Seq[FiniteDuration]] =
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos))
+  implicit val seqJavaDuration: ConfigLoader[Seq[JavaDuration]] = ConfigLoader(_.getDurationList).map(_.asScala)
+  implicit val seqScalaDuration: ConfigLoader[Seq[Duration]] =
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos))
+
+  implicit val config:           ConfigLoader[Config]             = ConfigLoader(_.getConfig)
+  implicit val configObject:     ConfigLoader[ConfigObject]       = ConfigLoader(_.getObject)
+  implicit val configList:       ConfigLoader[ConfigList]         = ConfigLoader(_.getList)
+  implicit val seqConfig:        ConfigLoader[Seq[Config]]        = ConfigLoader(_.getConfigList).map(_.asScala)
+  implicit val configuration:    ConfigLoader[Configuration]      = config.map(Configuration(_))
+  implicit val seqConfiguration: ConfigLoader[Seq[Configuration]] = seqConfig.map(_.map(Configuration(_)))
 
   implicit def optionA[A](implicit loader: ConfigLoader[A]): ConfigLoader[Option[A]] =
     new ConfigLoader[Option[A]] {
