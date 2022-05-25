@@ -4,8 +4,7 @@
 
 package lepus.router.http
 
-import lepus.router.EndpointConverter
-import lepus.router.mvc._
+import lepus.router.{ EndpointConverter, Validator }
 
 object RequestEndpoint {
 
