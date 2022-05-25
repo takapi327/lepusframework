@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="./documentation/images/lepus_logo.png" style="width:180px">
+  <img src="images/lepus_logo.png" style="width:180px">
   <h1>Lepus Framework</h1>
   <img src="https://img.shields.io/badge/lepus-v0.1.0-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
