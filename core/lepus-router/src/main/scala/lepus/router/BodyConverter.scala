@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.mvc
+package lepus.router
 
 import java.nio.charset.StandardCharsets._
 
@@ -14,7 +14,7 @@ import io.circe.{ CursorOp, Decoder, DecodingFailure, Encoder, Errors, ParsingFa
 
 import fs2._
 
-import lepus.router.mvc.ConvertResult._
+import ConvertResult._
 
 trait BodyConverter[T] {
   def decode(s: String): ConvertResult

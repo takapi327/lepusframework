@@ -12,7 +12,7 @@ import org.http4s.{ Request => Http4sRequest, HttpRoutes => Http4sRoutes }
 
 import lepus.router.http._
 import lepus.router.model.{ ServerRequest, ServerResponse }
-import lepus.router.mvc.ConvertResult._
+import ConvertResult._
 
 /** Compare and verify Http requests and endpoints, and combine them with logic.
   *
