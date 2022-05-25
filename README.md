@@ -1,7 +1,6 @@
+![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="images/lepus_logo.png" style="width:180px">
-  <h1>Lepus Framework</h1>
   <img src="https://img.shields.io/badge/lepus-v0.1.0-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
@@ -45,7 +44,7 @@ Coming soon...
 ## Quickstart with sbt
 Lepus Framework is not an official, publicly available plugin, but is privately maintained.
 
-Therefore, S3 is used as maven. To use Lepus Framework plug-ins from s3, the following plug-in must be configured under project/project/build.sbt of the project to be used.
+Therefore, S3 is used as maven. To use Lepus Framework plugins from s3, the following plugin must be configured under project/project/build.sbt of the project to be used.
 
 :warning: If it is project/build.sbt or plugin.sbt, I can't get the plugin properly and an error occurs. :warning:
 
@@ -114,8 +113,8 @@ Load the required project with build.sbt
 lazy val root = (project in file("."))
   .settings(
     ...
-    swaggerTitle   := (Docker / packageName).value,
-    swaggerVersion := (Docker / version).value
+    swaggerTitle   := "project name",
+    swaggerVersion := "project version"
   )
   .enablePlugins(Lepus)
   .enablePlugins(LepusSwagger)
