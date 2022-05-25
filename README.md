@@ -2,7 +2,7 @@
 <div align="center">
   <img src="./documentation/images/lepus_logo.png" style="width:180px">
   <h1>Lepus Framework</h1>
-  <img src="https://img.shields.io/badge/lepus-v0.0.0-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.1.0-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -131,13 +131,13 @@ import io.circe.generic.semiauto._
 
 import lepus.router._
 import lepus.router.http._
+import lepus.router.syntax._
 import lepus.router.model.ServerResponse
-import lepus.router.generic.SchemaDerivation
 
 case class Sample(info: String)
-object Sample extends SchemaDerivation {
+object Sample {
   implicit lazy val encoder: Encoder[Sample] = deriveEncoder
-  implicit val schema  = gen[Sample]
+  implicit val schema  = schemaGen[Sample]
 }
 
 object HelloRoute extends RouterConstructor[IO, (String, Long)] {
