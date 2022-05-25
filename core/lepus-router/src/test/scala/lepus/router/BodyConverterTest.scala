@@ -1,4 +1,4 @@
-package lepus.router.mvc
+package lepus.router
 
 import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
 import io.circe.{ Decoder, Encoder }
@@ -14,7 +14,7 @@ object BodyConverterTest extends Specification {
     implicit lazy val decoder: Decoder[Person] = deriveDecoder
   }
 
-  val person       = Person("takapi", Some(26))
+  val person = Person("takapi", Some(26))
   val personString = "{\"name\":\"takapi\",\"age\":26}"
 
   "Testing the BodyConverter" should {
