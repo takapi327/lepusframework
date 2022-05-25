@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.mvc
+package lepus.router
 
 import lepus.router.model.DecodeResult
 

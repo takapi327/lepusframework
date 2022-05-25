@@ -4,6 +4,10 @@
 
 package lepus
 
+import language.experimental.macros
+
+import magnolia1._
+
 import cats.Semigroup
 import cats.syntax.semigroupk._
 
@@ -12,7 +16,7 @@ import cats.effect.IO
 import org.http4s.{ HttpRoutes => Http4sRoutes }
 
 import lepus.router.http.RequestMethod
-import lepus.router.model.{ ServerRequest, ServerResponse }
+import lepus.router.model.{ Schema, ServerRequest, ServerResponse }
 
 package object router extends LepusRouter with ExtensionMethods {
 
@@ -23,4 +27,8 @@ package object router extends LepusRouter with ExtensionMethods {
   type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
 
   implicit val routesSemigroup: Semigroup[Http4sRoutes[IO]] = _ combineK _
+
+  object syntax extends generic.SchemaDerivation {
+    implicit def schemaGen[T]: Schema[T] = macro Magnolia.gen[T]
+  }
 }

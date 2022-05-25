@@ -9,10 +9,9 @@ import fs2.Stream
 import org.http4s.{ Response, Uri, Headers => Http4sHeaders }
 import org.http4s.headers.Location
 
-import lepus.router.http.ResponseStatus
-import lepus.router.http.Header
-import lepus.router.http.Header.ResponseHeader
-import lepus.router.mvc.ConvertResult
+import lepus.router.http.{ ResponseStatus, Header }
+import lepus.router.ConvertResult
+import Header.ResponseHeader
 
 /** A model of the response to be returned in response to a received request.
   *
