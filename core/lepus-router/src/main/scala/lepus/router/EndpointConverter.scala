@@ -2,18 +2,17 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.mvc
+package lepus.router
 
 import java.time._
 import java.util.UUID
 
 import scala.annotation._
+import scala.reflect.ClassTag
 import scala.util._
 
 import lepus.router.model._
 import Schema._
-
-import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an implicit EndpointConverter[${S}, ${T}]")
 trait EndpointConverter[S, T] {

@@ -4,6 +4,7 @@
 
 package lepus.router.http
 
+import lepus.router.EndpointConverter
 import lepus.router.mvc._
 
 object RequestEndpoint {
