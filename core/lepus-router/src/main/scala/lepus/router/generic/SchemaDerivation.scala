@@ -51,8 +51,6 @@ trait SchemaDerivation {
     )
   }
 
-  implicit def gen[T]: Schema[T] = macro Magnolia.gen[T]
-
   private def typeNameToSchemaName(typeName: TypeName): Schema.Name =
     Schema.Name(
       fullName       = typeName.full,
