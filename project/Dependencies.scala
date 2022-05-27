@@ -14,7 +14,8 @@ object Dependencies {
 
   val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
 
-  val magnolia = "com.softwaremill.magnolia1_2" %% "magnolia" % "1.1.2"
+  val magnolia2 = "com.softwaremill.magnolia1_2" %% "magnolia" % "1.1.2"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.1.0"
 
   val catsVersion = "2.6.1"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
@@ -60,5 +61,5 @@ object Dependencies {
 
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
-  val routerDependencies = Seq(magnolia, reflect) ++ http4s ++ circe ++ testDependencies
+  val routerDependencies = http4s ++ circe ++ testDependencies
 }
