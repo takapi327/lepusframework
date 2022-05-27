@@ -7,6 +7,8 @@
 import sbt._
 import sbt.Keys._
 
+import ScalaVersions._
+
 object BuildSettings {
 
   val baseScalaSettings = Seq(
@@ -22,7 +24,7 @@ object BuildSettings {
   )
 
   /**
-   * Change SourceDir according to Scala version
+   * Change SourceDir according to Scala version.
    *
    * @param sourceDir
    * Directory under src of each project
@@ -46,5 +48,12 @@ object BuildSettings {
     Test / fork  := true,
     run  / fork  := true,
     scalacOptions ++= baseScalaSettings
+  )
+
+  /** Used for projects with multiple versions. */
+  def multiVersionSettings: Seq[Setting[_]] = commonSettings ++ Def.settings(
+    crossScalaVersions := Seq(scala3, scala213),
+    Compile / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
+    Test    / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
   )
 }
