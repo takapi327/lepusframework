@@ -21,6 +21,23 @@ object BuildSettings {
     "-language:implicitConversions"
   )
 
+  /**
+   * Change SourceDir according to Scala version
+   *
+   * @param sourceDir
+   * Directory under src of each project
+   * @param scalaVersion
+   * Scala version to be used in each project
+   * @return
+   * Returns the directory corresponding to the version
+   */
+  private def changeSourceDirByVersion(sourceDir: File, scalaVersion: String): List[File] =
+    CrossVersion.partialVersion(scalaVersion) match {
+      case Some((3, _)) => List(sourceDir / "scala3")
+      case Some((2, _)) => List(sourceDir / "scala2.13")
+      case _            => List(sourceDir / "scala2.13")
+    }
+
   /** These settings are used by all projects. */
   def commonSettings: Seq[Setting[_]] = Def.settings(
     organization := "com.github.takapi327",
