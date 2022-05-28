@@ -10,7 +10,7 @@ import BuildSettings._
 import Dependencies._
 
 // Global settings
-ThisBuild / crossScalaVersions         := Seq(scala213, scala212)
+ThisBuild / crossScalaVersions         := Seq(scala3, scala213, scala212)
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11), JavaSpec.temurin(java8))
 
 ThisBuild / githubWorkflowAddedJobs ++= Seq(
@@ -50,32 +50,31 @@ lazy val publishSettings = Seq(
 
 // Project settings
 lazy val LepusProject = Project("Lepus", file("core/lepus"))
+  .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala213))
   .settings(
-    scalaVersion       := sys.props.get("scala.version").getOrElse(ScalaVersions.scala213),
-    crossScalaVersions := Seq(scalaVersion.value),
-    scalacOptions += "-target:jvm-1.8",
     libraryDependencies ++= Seq(
       cats,
       typesafeConfig,
-    ) ++ specs2Deps.map(_ % Test)
+    ) ++ specs2Deps(scalaVersion.value)
   )
-  .settings(commonSettings: _*)
+  .settings(multiVersionSettings: _*)
   .settings(publishSettings: _*)
 
 lazy val LepusRouterProject = Project("Lepus-Router", file("core/lepus-router"))
-  .settings(
-    scalaVersion       := (LepusProject / scalaVersion).value,
-    crossScalaVersions := Seq(scalaVersion.value),
-    libraryDependencies ++= routerDependencies
-  )
-  .settings(commonSettings: _*)
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= routerDependencies ++ {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq(magnolia3)
+      case _            => Seq(magnolia2, reflect)
+    }
+  } ++ specs2Deps(scalaVersion.value))
+  .settings(multiVersionSettings: _*)
   .settings(publishSettings: _*)
 
 lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-server"))
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= serverDependencies)
   .settings(
-    scalaVersion       := (LepusProject / scalaVersion).value,
-    crossScalaVersions := Seq(scalaVersion.value),
-    libraryDependencies ++= serverDependencies,
     (Compile / unmanagedSourceDirectories) += {
       val suffix = CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((x, y)) => s"$x.$y"
@@ -84,17 +83,14 @@ lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-se
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .settings(commonSettings: _*)
+  .settings(multiVersionSettings: _*)
   .settings(publishSettings: _*)
   .dependsOn(LepusProject, LepusRouterProject)
 
 lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-swagger"))
-  .settings(
-    scalaVersion       := (LepusProject / scalaVersion).value,
-    crossScalaVersions := Seq(scalaVersion.value),
-    libraryDependencies ++= swaggerDependencies
-  )
-  .settings(commonSettings: _*)
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps(scalaVersion.value))
+  .settings(multiVersionSettings: _*)
   .settings(publishSettings: _*)
   .dependsOn(LepusProject, LepusRouterProject)
 
