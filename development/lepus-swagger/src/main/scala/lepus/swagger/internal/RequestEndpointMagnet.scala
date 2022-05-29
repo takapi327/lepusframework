@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger.internal
 
@@ -18,7 +18,7 @@ trait RequestEndpointMagnet {
 object RequestEndpointMagnet {
 
   implicit def pathMagnet(
-    endpoint: RequestEndpoint.Path with RequestEndpoint.Param,
+    endpoint: RequestEndpoint.Path with RequestEndpoint.Param
   ): RequestEndpointMagnet = new RequestEndpointMagnet {
     override type ThisType = Parameter
 
@@ -32,7 +32,7 @@ object RequestEndpointMagnet {
   }
 
   implicit def queryMagnet(
-    endpoint: RequestEndpoint.Query with RequestEndpoint.Param,
+    endpoint: RequestEndpoint.Query with RequestEndpoint.Param
   ): RequestEndpointMagnet = new RequestEndpointMagnet {
     override type ThisType = Parameter
 
