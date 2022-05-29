@@ -6,6 +6,7 @@ package lepus.swagger.model
 
 import lepus.router.http.RequestEndpoint
 import lepus.swagger.SchemaToOpenApiSchema
+import lepus.swagger.internal.RequestEndpointMagnet
 
 /** Model representing parameters given to Http requests.
   *
@@ -31,28 +32,9 @@ final case class Parameter(
 object Parameter {
 
   def fromRequestEndpoint(
-    endpoint:              RequestEndpoint.Path with RequestEndpoint.Param,
+    magnet:                RequestEndpointMagnet,
     schemaToOpenApiSchema: SchemaToOpenApiSchema
-  ): Parameter =
-    Parameter(
-      name        = endpoint.name,
-      in          = ParameterInType.PATH,
-      required    = true,
-      schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
-      description = endpoint.description
-    )
-
-  def fromRequestEndpoint(
-    endpoint:              RequestEndpoint.Query with RequestEndpoint.Param,
-    schemaToOpenApiSchema: SchemaToOpenApiSchema
-  ): Parameter =
-    Parameter(
-      name        = endpoint.key,
-      in          = ParameterInType.QUERY,
-      required    = false,
-      schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
-      description = endpoint.description
-    )
+  ): magnet.ThisType = magnet.toParameter(schemaToOpenApiSchema)
 
   object ParameterInType {
     val PATH   = "path"
