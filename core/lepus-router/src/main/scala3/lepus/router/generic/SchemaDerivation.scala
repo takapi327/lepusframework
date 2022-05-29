@@ -34,9 +34,10 @@ trait SchemaDerivation:
 
       override def split[T](ctx: SealedTrait[Schema, T]): Schema[T] =
         val subtypesByName = ctx.subtypes
-          .map(subtype => {
+          .toList
+          .map(subtype =>
             typeNameToSchemaName(subtype.typeInfo) -> subtype.typeclass.asInstanceOf[Typeclass[T]]
-          })
+          )
           .toListMap
         val traitType = Trait(subtypesByName.values.toList)((t: T) =>
           ctx.choose(t) { v =>
