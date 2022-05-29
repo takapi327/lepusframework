@@ -53,7 +53,7 @@ trait ExtensionMethods:
         clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
 
 
-  extension [A](xs: IArray[A])
+  extension [A](xs: Iterable[A])
     def toListMap[T, U](using ev: A <:< (T, U)): ListMap[T, U] =
       val b = ListMap.newBuilder[T, U]
       for (x <- xs)

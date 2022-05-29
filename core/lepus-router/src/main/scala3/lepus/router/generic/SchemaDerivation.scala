@@ -73,5 +73,4 @@ trait SchemaDerivation:
 
     derivation.derived[T]
 
-  inline given schemaGen[T](using Mirror.Of[T]): Schema[T] = derived[T]
 end SchemaDerivation

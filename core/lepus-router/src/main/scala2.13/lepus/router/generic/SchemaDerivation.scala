@@ -70,5 +70,4 @@ trait SchemaDerivation {
   private def allTypeArguments(typeName: TypeName): Seq[TypeName] =
     typeName.typeArguments.flatMap(v => v +: allTypeArguments(v))
 
-  implicit def schemaGen[T]: Schema[T] = macro Magnolia.gen[T]
 }
