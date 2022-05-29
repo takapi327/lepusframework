@@ -8,6 +8,7 @@ import scala.annotation.tailrec
 
 import http._
 import lepus.router.model._
+import lepus.router.internal._
 
 object DecodeEndpoint {
 

@@ -11,6 +11,7 @@ import magnolia1.*
 import lepus.router.*
 import model.{ Schema, SchemaType }
 import SchemaType.*
+import lepus.router.internal.*
 
 trait SchemaDerivation:
 

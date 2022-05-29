@@ -10,6 +10,7 @@ import cats.data.NonEmptyList
 
 import lepus.router._
 import model.Schema
+import lepus.router.internal._
 import lepus.router.{ RouterConstructor, RouterProvider }
 import lepus.swagger.model._
 

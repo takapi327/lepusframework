@@ -16,7 +16,7 @@ import org.http4s.{ HttpRoutes => Http4sRoutes }
 import lepus.router.http.RequestMethod
 import lepus.router.model.{ ServerRequest, ServerResponse }
 
-package object router extends LepusRouter with ExtensionMethods {
+package object router extends LepusRouter {
 
   type Http[T] = PartialFunction[RequestMethod, T]
 

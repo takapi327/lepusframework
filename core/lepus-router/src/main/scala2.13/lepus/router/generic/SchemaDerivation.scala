@@ -9,6 +9,7 @@ import language.experimental.macros
 import magnolia1._
 
 import lepus.router.model.{ Schema, SchemaType }
+import lepus.router.internal._
 
 import SchemaType._
 trait SchemaDerivation {
