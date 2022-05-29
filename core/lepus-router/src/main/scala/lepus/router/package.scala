@@ -28,7 +28,5 @@ package object router extends LepusRouter with ExtensionMethods {
 
   implicit val routesSemigroup: Semigroup[Http4sRoutes[IO]] = _ combineK _
 
-  object syntax extends generic.SchemaDerivation {
-    implicit def schemaGen[T]: Schema[T] = macro Magnolia.gen[T]
-  }
+  object syntax extends generic.SchemaDerivation
 }
