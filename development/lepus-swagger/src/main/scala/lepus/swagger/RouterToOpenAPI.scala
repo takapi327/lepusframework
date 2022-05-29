@@ -8,7 +8,8 @@ import scala.collection.immutable.ListMap
 
 import cats.data.NonEmptyList
 
-import lepus.router.model.Schema
+import lepus.router._
+import model.Schema
 import lepus.router.{ RouterConstructor, RouterProvider }
 import lepus.swagger.model._
 
