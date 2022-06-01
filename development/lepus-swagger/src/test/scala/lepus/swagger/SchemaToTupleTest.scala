@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger
 
@@ -11,12 +11,12 @@ import lepus.router.generic.semiauto._
 
 case class Address(zipCode: String, country: String, prefecture: String)
 object Address {
-  implicit val schema: Schema[Address]  = deriveSchemer
+  implicit val schema: Schema[Address] = deriveSchemer
 }
 
 case class User(name: String, address: Address)
 object User {
-  implicit val schema: Schema[User]  = deriveSchemer
+  implicit val schema: Schema[User] = deriveSchemer
 }
 
 object SchemaToTupleTest extends Specification {
