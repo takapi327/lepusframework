@@ -58,7 +58,8 @@ class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
       case SchemaType.SOption(schema) => apply(schema, true)
       case SchemaType.SBinary() =>
         Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.Binary)))
-      case SchemaType.SDate() => Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.Date)))
+      case SchemaType.SDate() =>
+        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.Date)))
       case SchemaType.SDateTime() =>
         Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.DateTime)))
       case SchemaType.Trait(schemas) => Right(OpenApiSchema(schemas.map(apply(_))))
