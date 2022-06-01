@@ -35,14 +35,14 @@ object OpenApiSchema {
   }
 
   object SchemaFormat {
-    val Int32:    Option[String] = Some("int32")
-    val Int64:    Option[String] = Some("int64")
-    val Float:    Option[String] = Some("float")
-    val Double:   Option[String] = Some("double")
-    val Byte:     Option[String] = Some("byte")
-    val Binary:   Option[String] = Some("binary")
-    val Date:     Option[String] = Some("date")
-    val DateTime: Option[String] = Some("date-time")
-    val Password: Option[String] = Some("password")
+    val Int32:    String = "int32"
+    val Int64:    String = "int64"
+    val Float:    String = "float"
+    val Double:   String = "double"
+    val Byte:     String = "byte"
+    val Binary:   String = "binary"
+    val Date:     String = "date"
+    val DateTime: String = "date-time"
+    val Password: String = "password"
   }
 }
