@@ -8,6 +8,9 @@
   <a href="https://github.com/scala/scala">
     <img src="https://img.shields.io/badge/scala-v2.13.x-red">
   </a>
+  <a href="https://github.com/lampepfl/dotty">
+    <img src="https://img.shields.io/badge/scala-v3.x-red">
+  </a>
 </div>
 
 ---
