@@ -67,7 +67,7 @@ object Schema {
   implicit val schemaInstant:        Schema[Instant]           = Schema(SBinary())
   implicit val schemaZonedDateTime:  Schema[ZonedDateTime]     = Schema(SDateTime())
   implicit val schemaOffsetDateTime: Schema[OffsetDateTime]    = Schema(SDateTime())
-  implicit val schemaDate:           Schema[Date]              = Schema(SDateTime())
+  implicit val schemaDate:           Schema[Date]              = Schema(SDate())
   implicit val SchemaLocalDateTime:  Schema[LocalDateTime]     = Schema(SString())
   implicit val schemaLocalDate:      Schema[LocalDate]         = Schema(SDate())
   implicit val schemaZoneOffset:     Schema[ZoneOffset]        = Schema(SString())
