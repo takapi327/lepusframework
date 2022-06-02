@@ -102,8 +102,8 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
-        CrossVersion.binarySbtVersion("1.5.5"),
-        CrossVersion.binaryScalaVersion(scala212)
+        CrossVersion.binarySbtVersion((pluginCrossBuild / sbtVersion).value),
+        CrossVersion.binaryScalaVersion(scalaVersion.value)
       )
     ),
     (Compile / sourceGenerators) += Def.task {
