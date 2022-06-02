@@ -36,7 +36,6 @@ object BuildSettings {
   private def changeSourceDirByVersion(sourceDir: File, scalaVersion: String): List[File] =
     CrossVersion.partialVersion(scalaVersion) match {
       case Some((3, _)) => List(sourceDir / "scala3")
-      case Some((2, _)) => List(sourceDir / "scala2.13")
       case _            => List(sourceDir / "scala2.13")
     }
 
