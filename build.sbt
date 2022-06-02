@@ -131,6 +131,6 @@ lazy val nonUserProjects = Seq[ProjectReference](
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala213))
-  .settings(commonSettings: _*)
+  .settings(multiVersionSettings: _*)
   .settings(publishSettings: _*)
   .aggregate((userProjects ++ nonUserProjects): _*)
