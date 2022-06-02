@@ -9,7 +9,7 @@ import scala.deriving.Mirror
 import magnolia1.*
 
 import lepus.router.*
-import model.Schema
+import lepus.router.model.Schema
 
 /**
  * Semi-automatic Schema derivation.
