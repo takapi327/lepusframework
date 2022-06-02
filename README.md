@@ -82,6 +82,7 @@ The following is the minimum configuration for routing in the Lepus Framework.
 package sample
 
 import cats.effect._
+import cats.data.NonEmptyList
 
 import lepus.router._
 import lepus.router.model.ServerResponse
@@ -133,13 +134,14 @@ import io.circe.generic.semiauto._
 
 import lepus.router._
 import lepus.router.http._
-import lepus.router.syntax._
+import lepus.router.model.Schema
+import lepus.router.generic.semiauto._
 import lepus.router.model.ServerResponse
 
 case class Sample(info: String)
 object Sample {
-  implicit lazy val encoder: Encoder[Sample] = deriveEncoder
-  implicit val schema  = schemaGen[Sample]
+  implicit val encoder: Encoder[Sample] = deriveEncoder
+  implicit val schema:  Schema[Sample]  = deriveSchemer
 }
 
 object HelloRoute extends RouterConstructor[IO, (String, Long)] {
