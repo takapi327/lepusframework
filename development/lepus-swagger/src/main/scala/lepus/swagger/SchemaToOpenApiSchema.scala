@@ -11,6 +11,11 @@ import lepus.router.model.{ Schema, SchemaType }
 import lepus.swagger.model.{ OpenApiSchema, Reference }
 import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
 
+/** Class for converting Schema of Router to Schema for OpenAPI.
+  *
+  * @param schemaToReference
+  *   Class for converting to Reference model
+  */
 class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
   def apply[T](
     schema:      Schema[T],
@@ -52,10 +57,11 @@ class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
       case SchemaType.SArray(_)       => Right(OpenApiSchema(OpenApiSchemaType.Array))
       case SchemaType.SOption(schema) => apply(schema, true)
       case SchemaType.SBinary() =>
-        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = OpenApiSchemaFormat.Binary))
-      case SchemaType.SDate() => Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = OpenApiSchemaFormat.Date))
+        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.Binary)))
+      case SchemaType.SDate() =>
+        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.Date)))
       case SchemaType.SDateTime() =>
-        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = OpenApiSchemaFormat.DateTime))
+        Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.DateTime)))
       case SchemaType.Trait(schemas) => Right(OpenApiSchema(schemas.map(apply(_))))
     }
 

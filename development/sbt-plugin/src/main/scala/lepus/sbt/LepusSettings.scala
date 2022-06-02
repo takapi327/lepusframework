@@ -21,22 +21,19 @@ object LepusSettings {
   lazy val serverSettings = Def.settings(
     onLoadMessage := {
       """|
-         |       __      _______  _____   __   __ _______
-         |      / /     / ___  / / ___ \ / /  / // _____/
-         |     / /     / /__/ / / /  / // /  / // /____
-         |    / /     / _____/ / /  / // /  / //____  /
-         |   / /____ / /____  / /__/ // /__/ / ____/ /
-         |  /______/ \___,_/ / .____/ \___,_//______/
-         |                  / /
-         |                 /_/
+         |      __      _______  ____    __  __  ______
+         |     / /     / ___  / / __ \  / / / / / ___ /
+         |    / /     / /__/ / / / / / / / / / / /___
+         |   / /____ /  ____/ / /_/ / / /_/ /  ___/ /
+         |  /______/ \___,_/ / .___/  \__,_/ /_____/
+         |                  /_/
+         |
          |""".stripMargin.linesIterator.map(v => BLUE + v + RESET).mkString("\n") +
         s"""
            |
            |  Version Information
            |    - Lepus ${ LepusVersion.current }
            |    - Java  ${ System.getProperty("java.version") }
-           |    - Scala ${ LepusVersion.scalaVersion }
-           |    - Sbt   ${ LepusVersion.sbtVersion }
            |
            |""".stripMargin
     },

@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router
+package lepus.router.internal
 
 import scala.collection.immutable.{ Vector, ListMap }
 

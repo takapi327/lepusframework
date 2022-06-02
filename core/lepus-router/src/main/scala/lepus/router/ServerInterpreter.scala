@@ -11,6 +11,7 @@ import cats.effect.{ Async, Sync }
 import org.http4s.{ Request => Http4sRequest, HttpRoutes => Http4sRoutes }
 
 import lepus.router.http._
+import lepus.router.internal._
 import lepus.router.model.{ ServerRequest, ServerResponse }
 import ConvertResult._
 

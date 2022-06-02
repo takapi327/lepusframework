@@ -9,6 +9,7 @@ import language.experimental.macros
 import magnolia1._
 
 import lepus.router.model.{ Schema, SchemaType }
+import lepus.router.internal._
 
 import SchemaType._
 trait SchemaDerivation {
@@ -69,4 +70,5 @@ trait SchemaDerivation {
 
   private def allTypeArguments(typeName: TypeName): Seq[TypeName] =
     typeName.typeArguments.flatMap(v => v +: allTypeArguments(v))
+
 }

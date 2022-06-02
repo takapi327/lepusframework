@@ -14,7 +14,8 @@ object Dependencies {
 
   val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
 
-  val magnolia = "com.softwaremill.magnolia1_2" %% "magnolia" % "1.1.2"
+  val magnolia2 = "com.softwaremill.magnolia1_2" %% "magnolia" % "1.1.2"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.1.0"
 
   val catsVersion = "2.6.1"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
@@ -41,24 +42,28 @@ object Dependencies {
     "doobie-hikari"
   ).map("org.tpolecat" %% _ % doobieVersion)
 
-  val specs2Version = "4.12.12"
-  val specs2Deps = Seq(
-    "specs2-core",
-    "specs2-junit",
-    "specs2-mock"
-  ).map("org.specs2" %% _ % specs2Version)
+  val specs2VersionForScala2 = "4.12.12"
+  val specs2VersionForScala3 = "5.0.0"
+  def specs2Deps(scalaVersion: String): Seq[ModuleID] = {
+    val version = CrossVersion.partialVersion(scalaVersion) match {
+      case Some((3, _)) => specs2VersionForScala3
+      case _            => specs2VersionForScala2
+    }
+    Seq(
+      "specs2-core",
+      "specs2-junit",
+    ).map("org.specs2" %% _ % version % Test)
+  }
 
   val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.11"   % Test
   val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.15.4"   % Test
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
-  val testDependencies = specs2Deps.map(_ % Test) ++ Seq(scalaTest, scalaCheck, scalaPlus)
+  val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
 
-  val serverDependencies = specs2Deps.map(_ % Test) ++ Seq(
-    logback % Test
-  )
+  val serverDependencies = Seq(logback % Test)
 
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
-  val routerDependencies = Seq(magnolia, reflect) ++ http4s ++ circe ++ testDependencies
+  val routerDependencies = http4s ++ circe ++ testDependencies
 }

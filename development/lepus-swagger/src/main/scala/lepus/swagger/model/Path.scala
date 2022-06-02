@@ -6,7 +6,8 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.RouterConstructor
+import lepus.router._
+import lepus.router.internal._
 import lepus.router.http.{ RequestMethod, RequestEndpoint }
 
 import lepus.swagger.SchemaToOpenApiSchema
@@ -46,9 +47,9 @@ object Path {
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: RequestEndpoint.Path with RequestEndpoint.Param =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema))
+        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
       case e: RequestEndpoint.Query with RequestEndpoint.Param =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema))
+        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
       case _ => None
     }.toList
 
