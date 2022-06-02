@@ -11,10 +11,9 @@ import lepus.router.model.Schema
 import lepus.swagger.model.Reference
 
 class SchemaToReference(nameMapList: Option[ListMap[Schema.Name, Schema[_]]]) {
-  def map(name: Schema.Name): Option[Reference] = {
+  def map(name: Schema.Name): Option[Reference] =
     nameMapList.flatMap(_.get(name)) match {
       case Some(_) => Some(Reference(s"#/components/schemas/${ name.shortName }"))
       case None    => None
     }
-  }
 }
