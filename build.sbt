@@ -131,6 +131,10 @@ lazy val nonUserProjects = Seq[ProjectReference](
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(multiVersionSettings: _*)
+  .settings(
+    publish / skip := true,
+    crossScalaVersions := Seq(scala3, scala213, scala212)
+  )
+  .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .aggregate((userProjects ++ nonUserProjects): _*)
