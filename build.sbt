@@ -98,7 +98,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .enablePlugins(SbtPlugin)
   .settings(
     scalaVersion       := scala212,
-    crossScalaVersions := Seq(scala212),
+    crossScalaVersions := Nil,
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
@@ -124,7 +124,7 @@ lazy val userProjects = Seq[ProjectReference](
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
-  //SbtPluginProject,
+  SbtPluginProject,
   LepusServerProject,
   LepusSwaggerProject
 )
