@@ -34,6 +34,7 @@ lazy val publishSettings = Seq(
   (Compile / packageDoc) / publishArtifact := false,
   (Compile / packageSrc) / publishArtifact := false,
   releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
     inquireVersions,
     runClean,
     runTest,
@@ -129,8 +130,10 @@ lazy val nonUserProjects = Seq[ProjectReference](
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
-  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(
+    scalaVersion       := (LepusProject / scalaVersion).value,
+    crossScalaVersions := Nil
+  )
   .settings(publish / skip := true)
   .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
   .aggregate((userProjects ++ nonUserProjects): _*)
