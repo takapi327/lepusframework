@@ -23,8 +23,8 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
         name = Some("Scalafmt check"),
       )
     ),
-    scalas = List(scala213, scala212),
-    javas  = List(JavaSpec.temurin(java11), JavaSpec.temurin(java8)),
+    scalas = List(scala3, scala213, scala212),
+    javas  = List(JavaSpec.temurin(java11)),
   )
 )
 
@@ -102,7 +102,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
-        CrossVersion.binarySbtVersion("1.5.5"),
+        CrossVersion.binarySbtVersion(sbtVersion.value),
         CrossVersion.binaryScalaVersion(scala212)
       )
     ),
@@ -130,7 +130,10 @@ lazy val nonUserProjects = Seq[ProjectReference](
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
-  .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala213))
+  .settings(
+    scalaVersion       := (LepusProject / scalaVersion).value,
+    crossScalaVersions := Nil
+  )
+  .settings(publish / skip := true)
   .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
   .aggregate((userProjects ++ nonUserProjects): _*)
