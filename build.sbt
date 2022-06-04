@@ -124,7 +124,7 @@ lazy val userProjects = Seq[ProjectReference](
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
-  SbtPluginProject,
+  //SbtPluginProject,
   LepusServerProject,
   LepusSwaggerProject
 )
