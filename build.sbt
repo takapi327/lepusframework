@@ -98,7 +98,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .enablePlugins(SbtPlugin)
   .settings(
     scalaVersion       := scala212,
-    crossScalaVersions := Nil,
+    crossScalaVersions := Seq(scala212),
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
@@ -131,10 +131,7 @@ lazy val nonUserProjects = Seq[ProjectReference](
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(
-    publish / skip := true,
-    crossScalaVersions := Seq(scala3, scala213, scala212)
-  )
+  .settings(publish / skip := true)
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .aggregate((userProjects ++ nonUserProjects): _*)
