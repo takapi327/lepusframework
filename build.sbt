@@ -99,6 +99,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .settings(
     scalaVersion       := scala212,
     crossScalaVersions := Seq(scala212),
+    releaseCrossBuild  := false,
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
