@@ -64,7 +64,7 @@ jobs:
         run: sbt ++${{ matrix.scala }} test
 
       - name: Compress target directories
-        run: tar cf targets.tar core/lepus-router/target development/lepus-swagger/target target development/lepus-server/target development/sbt-plugin/target core/lepus/target project/target
+        run: tar cf targets.tar core/lepus-router/target development/lepus-swagger/target target development/lepus-server/target development/sbt-plugin/target core/lepus/target development/sbt-scripted-tools/target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v2
