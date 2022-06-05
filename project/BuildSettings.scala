@@ -6,6 +6,7 @@
 
 import sbt._
 import sbt.Keys._
+import sbt.plugins.SbtPlugin
 import sbt.ScriptedPlugin.autoImport._
 
 import sbtrelease.ReleasePlugin.autoImport._
@@ -99,5 +100,19 @@ object BuildSettings {
       Project(name, file(dir))
         .settings(multiVersionSettings: _*)
         .settings(publishSettings: _*)
+  }
+
+  /** A project that is an sbt plugin. */
+  object LepusSbtPluginProject {
+    def apply(name: String, dir: String): Project =
+      Project(name, file(dir))
+        .enablePlugins(SbtPlugin)
+        .settings(
+          scalaVersion       := scala212,
+          crossScalaVersions := Seq(scala212),
+        )
+        .settings(commonSettings: _*)
+        .settings(publishSettings: _*)
+        .settings(scriptedSettings: _*)
   }
 }
