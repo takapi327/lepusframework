@@ -92,4 +92,10 @@ object BuildSettings {
     Compile / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
     Test    / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
   )
+
+  /** A project that runs in the sbt runtime. */
+  def LepusSbtProject(name: String, dir: String): Project =
+    Project(name, file(dir))
+      .settings(multiVersionSettings: _*)
+      .settings(publishSettings: _*)
 }
