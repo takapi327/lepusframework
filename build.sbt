@@ -117,6 +117,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   )
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
+  .settings(scriptedSettings: _*)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
