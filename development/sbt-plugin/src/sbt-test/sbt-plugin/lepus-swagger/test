@@ -1,0 +1,20 @@
+# This file is part of the Lepus Framework.
+# For the full copyright and license information,
+# please view the LICENSE file that was distributed with this source code.
+
+# Structure of this test:
+# =======================
+
+# Generate OpenApiGenerator tests
+# -------------
+
+# Generate OpenApiGenerator source file
+> compile
+$ exists target/scala-2.13/src_managed/main/LepusOpenApi.scala
+
+# Generate Open API tests
+# -------------
+
+# Generate Open API documentation
+> generateApi
+$ exists docs/OpenApi.yaml

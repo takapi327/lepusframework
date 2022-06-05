@@ -6,6 +6,7 @@
 
 import sbt._
 import sbt.Keys._
+import sbt.ScriptedPlugin.autoImport._
 
 import ScalaVersions._
 
@@ -21,6 +22,17 @@ object BuildSettings {
     "-language:existentials",
     "-language:higherKinds",
     "-language:implicitConversions"
+  )
+
+
+  /**
+   * Set up a scripted framework to test the plugin.
+   */
+  def scriptedSettings: Seq[Setting[_]] = Seq(
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
   )
 
   /**
