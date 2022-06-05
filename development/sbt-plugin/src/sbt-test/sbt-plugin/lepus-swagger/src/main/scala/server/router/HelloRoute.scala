@@ -23,7 +23,7 @@ object Sample {
   implicit val schema:  Schema[Sample]  = deriveSchemer
 }
 
-object HelloRoute extends RouterConstructor[IO, (String, Long)] {
+object HelloRoute extends RouterConstructor[IO, String] {
 
   override def endpoint = "hello" / bindPath[String]("name")
 
