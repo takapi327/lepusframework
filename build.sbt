@@ -119,6 +119,17 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .settings(publishSettings: _*)
   .settings(scriptedSettings: _*)
 
+lazy val SbtScriptedToolsProject = Project("Sbt-Scripted-Tools-Project", file("development/sbt-scripted-tools"))
+  .enablePlugins(SbtPlugin)
+  .settings(
+    scalaVersion       := scala212,
+    crossScalaVersions := Seq(scala212),
+  )
+  .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(scriptedSettings: _*)
+  .dependsOn(SbtPluginProject)
+
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
   LepusRouterProject
@@ -126,6 +137,7 @@ lazy val userProjects = Seq[ProjectReference](
 
 lazy val nonUserProjects = Seq[ProjectReference](
   SbtPluginProject,
+  SbtScriptedToolsProject,
   LepusServerProject,
   LepusSwaggerProject
 )
