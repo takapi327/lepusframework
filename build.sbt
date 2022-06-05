@@ -119,7 +119,7 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
   .settings(publishSettings: _*)
   .settings(scriptedSettings: _*)
 
-lazy val SbtScriptedToolsProject = Project("Sbt-Scripted-Tools-Project", file("development/sbt-scripted-tools"))
+lazy val SbtScriptedToolsProject = Project("Sbt-Scripted-Tools", file("development/sbt-scripted-tools"))
   .enablePlugins(SbtPlugin)
   .settings(
     scalaVersion       := scala212,
