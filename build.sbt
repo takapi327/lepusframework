@@ -28,26 +28,6 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
   )
 )
 
-import ReleaseTransformations._
-lazy val publishSettings = Seq(
-  publishTo := Some("Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/"),
-  (Compile / packageDoc) / publishArtifact := false,
-  (Compile / packageSrc) / publishArtifact := false,
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    publishArtifacts,
-    setNextVersion,
-    commitNextVersion,
-    pushChanges
-  )
-)
-
 // Project settings
 lazy val LepusProject = Project("Lepus", file("core/lepus"))
   .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala213))

@@ -8,6 +8,9 @@ import sbt._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport._
 
+import sbtrelease.ReleasePlugin.autoImport._
+import ReleaseTransformations._
+
 import ScalaVersions._
 
 object BuildSettings {
@@ -33,6 +36,28 @@ object BuildSettings {
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false
+  )
+
+  /**
+   * Set up to publish the project.
+   */
+  def publishSettings: Seq[Setting[_]] = Seq(
+    publishTo := Some("Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/"),
+    (Compile / packageDoc) / publishArtifact := false,
+    (Compile / packageSrc) / publishArtifact := false,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts,
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
   )
 
   /**
