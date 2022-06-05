@@ -94,8 +94,10 @@ object BuildSettings {
   )
 
   /** A project that runs in the sbt runtime. */
-  def LepusSbtProject(name: String, dir: String): Project =
-    Project(name, file(dir))
-      .settings(multiVersionSettings: _*)
-      .settings(publishSettings: _*)
+  object LepusSbtProject {
+    def apply(name: String, dir: String): Project =
+      Project(name, file(dir))
+        .settings(multiVersionSettings: _*)
+        .settings(publishSettings: _*)
+  }
 }
