@@ -16,7 +16,7 @@ import ScalaVersions._
 
 object BuildSettings {
 
-  val baseScalaSettings = Seq(
+  val baseScalaSettings: Seq[String] = Seq(
     "-Xfatal-warnings",
     "-deprecation",
     "-feature",
@@ -27,7 +27,6 @@ object BuildSettings {
     "-language:higherKinds",
     "-language:implicitConversions"
   )
-
 
   /**
    * Set up a scripted framework to test the plugin.
