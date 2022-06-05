@@ -66,11 +66,8 @@ lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lep
   .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps(scalaVersion.value))
   .dependsOn(LepusProject, LepusRouterProject)
 
-lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin"))
-  .enablePlugins(SbtPlugin)
+lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt-plugin")
   .settings(
-    scalaVersion       := scala212,
-    crossScalaVersions := Seq(scala212),
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
@@ -87,19 +84,8 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
       )
     }.taskValue
   )
-  .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(scriptedSettings: _*)
 
-lazy val SbtScriptedToolsProject = Project("Sbt-Scripted-Tools", file("development/sbt-scripted-tools"))
-  .enablePlugins(SbtPlugin)
-  .settings(
-    scalaVersion       := scala212,
-    crossScalaVersions := Seq(scala212),
-  )
-  .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(scriptedSettings: _*)
+lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
   .dependsOn(SbtPluginProject)
 
 lazy val userProjects = Seq[ProjectReference](
