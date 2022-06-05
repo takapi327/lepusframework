@@ -5,6 +5,9 @@
 # Structure of this test:
 # =======================
 
-# Start application
+# Generate Open API tests
+# -------------
+
+# Generate Open API documentation
 > generateApi
 $ exists docs/OpenApi.yaml
