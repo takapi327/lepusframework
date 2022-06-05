@@ -5,6 +5,13 @@
 # Structure of this test:
 # =======================
 
+# Generate OpenApiGenerator tests
+# -------------
+
+# Generate OpenApiGenerator source file
+> compile
+$ exists target/scala-2.13/src_managed/main/LepusOpenApi.scala
+
 # Generate Open API tests
 # -------------
 
