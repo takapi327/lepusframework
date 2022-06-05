@@ -1,0 +1,10 @@
+# This file is part of the Lepus Framework.
+# For the full copyright and license information,
+# please view the LICENSE file that was distributed with this source code.
+
+# Structure of this test:
+# =======================
+
+# Start application
+> generateApi
+$ exists docs/OpenApi.yaml
