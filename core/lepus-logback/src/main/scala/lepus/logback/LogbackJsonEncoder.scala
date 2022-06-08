@@ -29,7 +29,7 @@ import io.circe.syntax._
   *   </<configuration>
   * }}}
   */
-object LogbackJsonEncoder extends LayoutBase[ILoggingEvent] {
+class LogbackJsonEncoder extends LayoutBase[ILoggingEvent] {
   override def doLayout(event: ILoggingEvent): String =
     Json
       .obj(

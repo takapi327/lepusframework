@@ -39,43 +39,47 @@ trait Logging {
   * @param slf4jLogger
   *   Logger of slf4j to write logs
   */
-sealed class Logger(val slf4jLogger: Slf4jLogger) {
+private[lepus] sealed class Logger(val slf4jLogger: Slf4jLogger) {
 
-  @inline final def isDebugEnabled: Boolean = slf4jLogger.isDebugEnabled()
+  @inline final def traceEnabled: Boolean = slf4jLogger.isTraceEnabled
+  @inline final def debugEnabled: Boolean = slf4jLogger.isDebugEnabled
+  @inline final def infoEnabled:  Boolean = slf4jLogger.isInfoEnabled
+  @inline final def warnEnabled:  Boolean = slf4jLogger.isWarnEnabled
+  @inline final def errorEnabled: Boolean = slf4jLogger.isErrorEnabled
 
   /** Message only log
     */
-  @inline final def error(msg: => String): Unit = if (slf4jLogger.isErrorEnabled) slf4jLogger.error(msg)
-  @inline final def warn(msg: => String):  Unit = if (slf4jLogger.isWarnEnabled) slf4jLogger.warn(msg)
-  @inline final def info(msg: => String):  Unit = if (slf4jLogger.isInfoEnabled) slf4jLogger.info(msg)
-  @inline final def debug(msg: => String): Unit = if (slf4jLogger.isDebugEnabled) slf4jLogger.debug(msg)
-  @inline final def trace(msg: => String): Unit = if (slf4jLogger.isTraceEnabled) slf4jLogger.trace(msg)
+  @inline final def error(msg: => String): Unit = if (errorEnabled) slf4jLogger.error(msg)
+  @inline final def warn(msg: => String):  Unit = if (warnEnabled) slf4jLogger.warn(msg)
+  @inline final def info(msg: => String):  Unit = if (infoEnabled) slf4jLogger.info(msg)
+  @inline final def debug(msg: => String): Unit = if (debugEnabled) slf4jLogger.debug(msg)
+  @inline final def trace(msg: => String): Unit = if (traceEnabled) slf4jLogger.trace(msg)
 
   /** Handle messages and exceptions
     */
   @inline final def error(msg: => String, throwable: Throwable): Unit =
-    if (slf4jLogger.isErrorEnabled) slf4jLogger.error(msg, throwable)
+    if (errorEnabled) slf4jLogger.error(msg, throwable)
   @inline final def warn(msg: => String, throwable: Throwable): Unit =
-    if (slf4jLogger.isWarnEnabled) slf4jLogger.warn(msg, throwable)
+    if (warnEnabled) slf4jLogger.warn(msg, throwable)
   @inline final def info(msg: => String, throwable: Throwable): Unit =
-    if (slf4jLogger.isInfoEnabled) slf4jLogger.info(msg, throwable)
+    if (infoEnabled) slf4jLogger.info(msg, throwable)
   @inline final def debug(msg: => String, throwable: Throwable): Unit =
-    if (slf4jLogger.isDebugEnabled) slf4jLogger.debug(msg, throwable)
+    if (debugEnabled) slf4jLogger.debug(msg, throwable)
   @inline final def trace(msg: => String, throwable: Throwable): Unit =
-    if (slf4jLogger.isTraceEnabled) slf4jLogger.trace(msg, throwable)
+    if (traceEnabled) slf4jLogger.trace(msg, throwable)
 
   /** Handle messages and Array Object
     */
   @inline final def error(msg: => String, argArray: Array[Object]): Unit =
-    if (slf4jLogger.isErrorEnabled) slf4jLogger.error(msg, argArray)
+    if (errorEnabled) slf4jLogger.error(msg, argArray)
   @inline final def warn(msg: => String, argArray: Array[Object]): Unit =
-    if (slf4jLogger.isWarnEnabled) slf4jLogger.warn(msg, argArray)
+    if (warnEnabled) slf4jLogger.warn(msg, argArray)
   @inline final def info(msg: => String, argArray: Array[Object]): Unit =
-    if (slf4jLogger.isInfoEnabled) slf4jLogger.info(msg, argArray)
+    if (infoEnabled) slf4jLogger.info(msg, argArray)
   @inline final def debug(msg: => String, argArray: Array[Object]): Unit =
-    if (slf4jLogger.isDebugEnabled) slf4jLogger.debug(msg, argArray)
+    if (debugEnabled) slf4jLogger.debug(msg, argArray)
   @inline final def trace(msg: => String, argArray: Array[Object]): Unit =
-    if (slf4jLogger.isTraceEnabled) slf4jLogger.trace(msg, argArray)
+    if (traceEnabled) slf4jLogger.trace(msg, argArray)
 }
 
 /** The TrackingLogger object is used to record messages and track logs for a particular system or application
@@ -86,11 +90,17 @@ sealed class Logger(val slf4jLogger: Slf4jLogger) {
   * @param className
   *   Name of the class calling the log
   */
-sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
+private[lepus] sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
+
+  @inline final def traceEnabled: Boolean = logger.isTraceEnabled
+  @inline final def debugEnabled: Boolean = logger.isDebugEnabled
+  @inline final def infoEnabled:  Boolean = logger.isInfoEnabled
+  @inline final def warnEnabled:  Boolean = logger.isWarnEnabled
+  @inline final def errorEnabled: Boolean = logger.isErrorEnabled
 
   /** Message only log
     */
-  @inline final def info(message: => String): Unit = if (logger.isInfoEnabled)
+  @inline final def info(message: => String): Unit = if (infoEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -99,7 +109,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       null
     )
-  @inline final def warn(message: => String): Unit = if (logger.isWarnEnabled)
+  @inline final def warn(message: => String): Unit = if (warnEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -108,7 +118,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       null
     )
-  @inline final def error(message: => String): Unit = if (logger.isErrorEnabled)
+  @inline final def error(message: => String): Unit = if (errorEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -117,7 +127,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       null
     )
-  @inline final def debug(message: => String): Unit = if (logger.isDebugEnabled)
+  @inline final def debug(message: => String): Unit = if (debugEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -126,7 +136,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       null
     )
-  @inline final def trace(message: => String): Unit = if (logger.isTraceEnabled)
+  @inline final def trace(message: => String): Unit = if (traceEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       getClass.getName,
@@ -138,7 +148,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
 
   /** Handle messages and exceptions
     */
-  @inline final def info(message: => String, throwable: Throwable): Unit = if (logger.isInfoEnabled)
+  @inline final def info(message: => String, throwable: Throwable): Unit = if (infoEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -147,7 +157,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       throwable
     )
-  @inline final def warn(message: => String, throwable: Throwable): Unit = if (logger.isWarnEnabled)
+  @inline final def warn(message: => String, throwable: Throwable): Unit = if (warnEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       getClass.getName,
@@ -156,7 +166,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       throwable
     )
-  @inline final def error(message: => String, throwable: Throwable): Unit = if (logger.isErrorEnabled)
+  @inline final def error(message: => String, throwable: Throwable): Unit = if (errorEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -165,7 +175,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       throwable
     )
-  @inline final def debug(message: => String, throwable: Throwable): Unit = if (logger.isDebugEnabled)
+  @inline final def debug(message: => String, throwable: Throwable): Unit = if (debugEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -174,7 +184,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       null,
       throwable
     )
-  @inline final def trace(message: => String, throwable: Throwable): Unit = if (logger.isTraceEnabled)
+  @inline final def trace(message: => String, throwable: Throwable): Unit = if (traceEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -186,7 +196,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
 
   /** Handle messages and Array Object
     */
-  @inline final def info(message: => String, argArray: Array[Object]): Unit = if (logger.isInfoEnabled)
+  @inline final def info(message: => String, argArray: Array[Object]): Unit = if (infoEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -195,7 +205,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       argArray,
       null
     )
-  @inline final def warn(message: => String, argArray: Array[Object]): Unit = if (logger.isWarnEnabled)
+  @inline final def warn(message: => String, argArray: Array[Object]): Unit = if (warnEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -204,7 +214,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       argArray,
       null
     )
-  @inline final def error(message: => String, argArray: Array[Object]): Unit = if (logger.isErrorEnabled)
+  @inline final def error(message: => String, argArray: Array[Object]): Unit = if (errorEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -213,7 +223,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       argArray,
       null
     )
-  @inline final def debug(message: => String, argArray: Array[Object]): Unit = if (logger.isDebugEnabled)
+  @inline final def debug(message: => String, argArray: Array[Object]): Unit = if (debugEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
@@ -222,7 +232,7 @@ sealed class TrackingLogger(logger: LocationAwareLogger, className: String) {
       argArray,
       null
     )
-  @inline final def trace(message: => String, argArray: Array[Object]): Unit = if (logger.isTraceEnabled)
+  @inline final def trace(message: => String, argArray: Array[Object]): Unit = if (traceEnabled)
     logger.log(
       MarkerFactory.getMarker(UUID.randomUUID.toString.replace("-", "")),
       className,
