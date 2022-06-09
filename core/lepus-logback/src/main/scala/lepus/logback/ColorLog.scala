@@ -6,10 +6,7 @@ package lepus.logback
 
 import scala.Console._
 
-import ch.qos.logback.classic._
-import ch.qos.logback.classic.spi._
-
-trait ColoredLevel {
+trait ColorLog {
 
   private lazy val isANSISupported = {
     sys.props
@@ -33,14 +30,4 @@ trait ColoredLevel {
   def white(str: String): String   = if (isANSISupported) WHITE + str + RESET else str
   def black(str: String): String   = if (isANSISupported) BLACK + str + RESET else str
   def yellow(str: String): String  = if (isANSISupported) YELLOW + str + RESET else str
-
-  def colorLevel(event: ILoggingEvent): String = {
-    event.getLevel match {
-      case Level.TRACE => blue("trace")
-      case Level.DEBUG => cyan("debug")
-      case Level.INFO  => white("info")
-      case Level.WARN  => yellow("warn")
-      case Level.ERROR => red("error")
-    }
-  }
 }
