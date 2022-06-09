@@ -48,7 +48,7 @@ class LogbackJsonEncoder extends BaseEncoder {
 
     sbuf.append("{ ")
     map.forEach((key, value) => {
-     sbuf.append(s"$key: $value," )
+      sbuf.append(s"$key: $value,")
     })
     sbuf.append(" }")
     sbuf.toString
