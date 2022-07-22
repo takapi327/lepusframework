@@ -87,7 +87,7 @@ import cats.data.NonEmptyList
 import lepus.router._
 import lepus.router.model.ServerResponse
 
-object HelloRoute extends RouterConstructor[IO, (String, Long)] {
+object HelloRoute extends RouterConstructor[IO, (String)] {
 
   override def endpoint = "hello" / bindPath[String]("name")
 

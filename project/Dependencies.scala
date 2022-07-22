@@ -8,7 +8,7 @@ import sbt._
 
 object Dependencies {
 
-  val logback = "ch.qos.logback" % "logback-classic" % "1.3.0-alpha4"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.2.1"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.1"
 
