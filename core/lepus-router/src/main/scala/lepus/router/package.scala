@@ -7,22 +7,21 @@ package lepus
 import language.experimental.macros
 
 import cats.Semigroup
-import cats.syntax.semigroupk._
+import cats.syntax.semigroupk.*
 
 import cats.effect.IO
 
 import org.http4s.{ HttpRoutes => Http4sRoutes }
 
-import lepus.router.http.RequestMethod
+import lepus.router.http.Method
 import lepus.router.model.{ ServerRequest, ServerResponse }
 
-package object router extends LepusRouter {
+package object router extends LepusRouter:
 
-  type Http[T] = PartialFunction[RequestMethod, T]
+  type Http[T] = PartialFunction[Method, T]
 
   type HttpResponse[T]     = Http[T]
   type HttpRequest[T]      = Http[T]
   type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
 
-  implicit val routesSemigroup: Semigroup[Http4sRoutes[IO]] = _ combineK _
-}
+  given Semigroup[Http4sRoutes[IO]] = _ combineK _
