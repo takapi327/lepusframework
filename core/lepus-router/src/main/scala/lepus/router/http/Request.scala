@@ -6,6 +6,8 @@ package lepus.router.http
 
 import org.http4s.{ Request => Http4sRequest, Uri }
 
+import lepus.router.model.Schema
+
 trait HttpRequest:
   def method:          Method
   def pathSegments:    List[String]
@@ -34,3 +36,19 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
   }
 
   lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
+
+object Request:
+
+  case class Body[T](
+    description: String
+  )(using val schema: Schema[T])
+
+  object Body:
+  
+    def build[T: Schema](
+      description: String
+    ): Body[T] = Body(description)
+  end Body
+
+end Request
+
