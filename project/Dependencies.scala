@@ -43,17 +43,11 @@ object Dependencies {
   ).map("org.tpolecat" %% _ % doobieVersion)
 
   val specs2VersionForScala2 = "4.12.12"
-  val specs2VersionForScala3 = "5.0.0"
-  def specs2Deps(scalaVersion: String): Seq[ModuleID] = {
-    val version = CrossVersion.partialVersion(scalaVersion) match {
-      case Some((3, _)) => specs2VersionForScala3
-      case _            => specs2VersionForScala2
-    }
-    Seq(
-      "specs2-core",
-      "specs2-junit",
-    ).map("org.specs2" %% _ % version % Test)
-  }
+  val specs2Version = "5.0.0"
+  val specs2Deps: Seq[ModuleID] = Seq(
+    "specs2-core",
+    "specs2-junit",
+  ).map("org.specs2" %% _ % specs2Version % Test)
 
   val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.11"   % Test
   val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.15.4"   % Test
