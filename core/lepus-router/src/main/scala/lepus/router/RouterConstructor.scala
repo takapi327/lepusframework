@@ -8,7 +8,7 @@ import cats.effect.{ Async, Sync }
 
 import org.http4s.{ HttpRoutes => Http4sRoutes }
 
-import lepus.router.http.{ RequestEndpoint, RequestMethod, Response, ResponseStatus, Header, RequestBody }
+import lepus.router.http.{ RequestEndpoint, Request, Response, Header, Method }
 import lepus.router.model.{ Tag, ServerResponse }
 
 /** A model that contains one routing information.
@@ -16,7 +16,7 @@ import lepus.router.model.{ Tag, ServerResponse }
   * For example:
   * {{{
   *   // http:localhost:5555/hello/world/lepus
-  *   object HelloRoute extends RouterConstructor[IO] {
+  *   object HelloRoute extends RouterConstructor[IO]:
   *     override type Param = (String, Long)
   *     override def endpoint: RequestEndpoint[_] =
   *       "hello" / bindPath[String]("world") / bindPath[String]("name")
@@ -26,7 +26,6 @@ import lepus.router.model.{ Tag, ServerResponse }
   *     override def routes: Routes[IO, Param] = {
   *       case GET => _ => IO(ServerResponse.NoContent)
   *     }
-  *   }
   * }}}
   *
   * @tparam F
@@ -34,30 +33,30 @@ import lepus.router.model.{ Tag, ServerResponse }
   * @tparam P
   *   the combined type of the Http request path and query parameters
   */
-abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync[F]) {
+abstract class RouterConstructor[F[_], P](using asyncF: Async[F], syncF: Sync[F]):
 
   /** Alias of RequestMethod. */
-  protected final val GET     = RequestMethod.Get
-  protected final val HEAD    = RequestMethod.Head
-  protected final val POST    = RequestMethod.Post
-  protected final val PUT     = RequestMethod.Put
-  protected final val DELETE  = RequestMethod.Delete
-  protected final val OPTIONS = RequestMethod.Options
-  protected final val PATCH   = RequestMethod.Patch
-  protected final val CONNECT = RequestMethod.Connect
-  protected final val TRACE   = RequestMethod.Trace
+  protected final val GET     = Method.Get
+  protected final val HEAD    = Method.Head
+  protected final val POST    = Method.Post
+  protected final val PUT     = Method.Put
+  protected final val DELETE  = Method.Delete
+  protected final val OPTIONS = Method.Options
+  protected final val PATCH   = Method.Patch
+  protected final val CONNECT = Method.Connect
+  protected final val TRACE   = Method.Trace
 
   /** Alias of ResponseStatus. */
-  protected final val responseStatus = ResponseStatus
+  protected final val responseStatus = Response.Status
 
   /** Alias of ResponseHeader. */
-  protected final val responseHeader = Header.ResponseHeader
+  protected final val responseHeader = Header
 
   /** Alias of ServerResponse. */
   protected final val serverResponse = ServerResponse
 
   /** List of methods that can be handled by this endpoint. */
-  lazy val methods: List[RequestMethod] = RequestMethod.all.filter(routes.isDefinedAt)
+  lazy val methods: List[Method] = Method.values.filter(routes.isDefinedAt).toList
 
   /** The value that will be the path of the Http request. */
   def endpoint: RequestEndpoint.Endpoint
@@ -75,10 +74,10 @@ abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync
     */
   def deprecated: Option[Boolean] = None
 
-  def requestBodies: HttpRequest[RequestBody[_]] = PartialFunction.empty
+  def requestBodies: HttpRequest[Request.Body[?]] = PartialFunction.empty
 
   /** An array of responses returned by each method. */
-  def responses: HttpResponse[List[Response[_]]] = PartialFunction.empty
+  def responses: HttpResponse[List[Response[?]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: HttpRoutes[F, P]
@@ -86,4 +85,3 @@ abstract class RouterConstructor[F[_], P](implicit asyncF: Async[F], syncF: Sync
   /** Combine endpoints and logic to generate HttpRoutes. */
   final def toHttpRoutes: Http4sRoutes[F] =
     ServerInterpreter[F]().bindFromRequest[P](routes, endpoint)
-}
