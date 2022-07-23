@@ -16,17 +16,14 @@ trait DecodeServerRequest
   * @param pathSegments
   *   The value of the Http request path divided by / and stored in an array.
   */
-case class DecodePathRequest(request: HttpRequest, pathSegments: List[String]) extends DecodeServerRequest {
+case class DecodePathRequest(request: HttpRequest, pathSegments: List[String]) extends DecodeServerRequest:
   def nextPathSegment: (Option[String], DecodePathRequest) =
-    pathSegments match {
+    pathSegments match
       case Nil          => (None, this)
       case head :: tail => (Some(head), DecodePathRequest(request, tail))
-    }
-}
 
-object DecodePathRequest {
+object DecodePathRequest:
   def apply(request: HttpRequest): DecodePathRequest = DecodePathRequest(request, request.pathSegments)
-}
 
 /** A model for comparison and verification of the values of query parameters in Http requests and query parameters that
   * endpoints have.
@@ -37,15 +34,11 @@ object DecodePathRequest {
   *   The value of the query parameter of the Http request stored in Map.
   */
 case class DecodeQueryRequest(request: HttpRequest, querySegments: Map[String, Seq[String]])
-  extends DecodeServerRequest {
-  def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) = {
-    querySegments.get(key) match {
+  extends DecodeServerRequest:
+  def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) =
+    querySegments.get(key) match
       case Some(value) => (Some(value.flatMap(_.split(","))), DecodeQueryRequest(request, querySegments - key))
       case None        => (None, this)
-    }
-  }
-}
 
-object DecodeQueryRequest {
+object DecodeQueryRequest:
   def apply(request: HttpRequest): DecodeQueryRequest = DecodeQueryRequest(request, request.queryParameters)
-}
