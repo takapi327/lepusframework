@@ -24,7 +24,7 @@ import lepus.router.model.{ Tag, ServerResponse }
   *     override def summary = Some("Hello World!")
   *
   *     override def routes: Routes[IO, Param] = {
-  *       case GET => _ => IO(ServerResponse.NoContent)
+  *       case GET => IO(ServerResponse.NoContent)
   *     }
   * }}}
   *
@@ -81,7 +81,3 @@ abstract class RouterConstructor[F[_], P](using asyncF: Async[F], syncF: Sync[F]
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: HttpRoutes[F, P]
-
-  /** Combine endpoints and logic to generate HttpRoutes. */
-  final def toHttpRoutes: Http4sRoutes[F] =
-    ServerInterpreter[F]().bindFromRequest[P](routes, endpoint)
