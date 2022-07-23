@@ -9,16 +9,16 @@ import lepus.router.http.*
 trait LepusRouter:
 
   given Conversion[String, RequestEndpoint.FixedPath[String]] =
-    v => RequestEndpoint.FixedPath(v, EndpointConverter.string)
+    v => RequestEndpoint.FixedPath(v, summon)
 
   given Conversion[Int, RequestEndpoint.FixedPath[String]] =
-    v => RequestEndpoint.FixedPath(v.toString, EndpointConverter.string)
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
   given Conversion[Long, RequestEndpoint.FixedPath[String]] =
-    v => RequestEndpoint.FixedPath(v.toString, EndpointConverter.string)
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
   given Conversion[Short, RequestEndpoint.FixedPath[String]] =
-    v => RequestEndpoint.FixedPath(v.toString, EndpointConverter.string)
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
   def bindPath[T](name: String)(using EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
     RequestEndpoint.PathParam(name, summon)
