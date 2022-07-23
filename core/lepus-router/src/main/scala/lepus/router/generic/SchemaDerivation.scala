@@ -17,10 +17,10 @@ trait SchemaDerivation:
 
   inline def derived[T](using Mirror.Of[T]): Schema[T] =
     val derivation = new Derivation[Schema]:
-      type Typeclass[T] = Schema[T]
+      type TypeClass[T] = Schema[T]
 
       override def join[T](ctx: CaseClass[Schema, T]): Schema[T] =
-        if (ctx.isValueClass)
+        if ctx.isValueClass then
           require(ctx.params.nonEmpty, s"Cannot derive schema for generic value class: ${ ctx.typeInfo.owner }")
           val valueSchema = ctx.params.head.typeclass
           Schema[T](
@@ -62,7 +62,7 @@ trait SchemaDerivation:
       private def entitySchemaType[T](ctx: CaseClass[Schema, T]): Entity[T] =
         Entity(
           ctx.params.map { param =>
-            Entity.Field[T, param.PType](
+            Entity.Field[param.PType](
               _name   = Entity.Field.Name(param.label, param.label),
               _schema = param.typeclass
             )
