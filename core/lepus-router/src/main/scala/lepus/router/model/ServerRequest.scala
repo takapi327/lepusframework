@@ -8,12 +8,12 @@ import org.http4s.Request
 
 import lepus.router.http.Header
 
-class ServerRequest[F[_], T](request: Request[F], val param: T) {
+class ServerRequest[F[_], T](request: Request[F], val param: T):
 
   lazy val protocol: String = request.httpVersion.toString()
 
-  lazy val headers: Seq[Header.RequestHeader] =
-    request.headers.headers.map(header => Header.RequestHeader(header.name.toString, header.value))
+  lazy val headers: Seq[Header] =
+    request.headers.headers.map(header => Header(header.name.toString, header.value))
 
   lazy val contentType:   Option[String] = findHeaderValue(Header.CONTENT_TYPE)
   lazy val contentLength: Option[Long]   = findHeaderValue(Header.CONTENT_LENGTH).flatMap(_.toLongOption)
@@ -26,6 +26,5 @@ class ServerRequest[F[_], T](request: Request[F], val param: T) {
     */
   def findHeaderValue(name: String): Option[String] = headers.find(_.is(name)).map(_.value)
 
-  def as[A](implicit F: cats.MonadThrow[F], decoder: org.http4s.EntityDecoder[F, A]): F[A] =
+  def as[A](using F: cats.MonadThrow[F], decoder: org.http4s.EntityDecoder[F, A]): F[A] =
     request.as[A]
-}

@@ -14,6 +14,8 @@ object LepusImport {
 
   val lepusRouter = component("lepus-router")
 
+  val lepusLogback = component("lepus-logback")
+
   val lepusServer = component("lepus-server")
 
   val lepusSwagger = component("lepus-swagger")

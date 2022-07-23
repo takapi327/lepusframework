@@ -10,7 +10,7 @@ import BuildSettings._
 import Dependencies._
 
 // Global settings
-ThisBuild / crossScalaVersions         := Seq(scala3, scala213, scala212)
+ThisBuild / crossScalaVersions         := Seq(scala3, scala212)
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11), JavaSpec.temurin(java8))
 
 ThisBuild / githubWorkflowAddedJobs ++= Seq(
@@ -23,55 +23,32 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
         name = Some("Scalafmt check"),
       )
     ),
-    scalas = List(scala3, scala213, scala212),
+    scalas = List(scala3, scala212),
     javas  = List(JavaSpec.temurin(java11)),
   )
 )
 
-import ReleaseTransformations._
-lazy val publishSettings = Seq(
-  publishTo := Some("Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/"),
-  (Compile / packageDoc) / publishArtifact := false,
-  (Compile / packageSrc) / publishArtifact := false,
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    publishArtifacts,
-    setNextVersion,
-    commitNextVersion,
-    pushChanges
-  )
-)
-
 // Project settings
-lazy val LepusProject = Project("Lepus", file("core/lepus"))
-  .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala213))
+lazy val LepusProject = LepusSbtProject("Lepus", "core/lepus")
+  .settings(scalaVersion := sys.props.get("scala.version").getOrElse(scala3))
   .settings(
     libraryDependencies ++= Seq(
       cats,
       typesafeConfig,
-    ) ++ specs2Deps(scalaVersion.value)
+    ) ++ specs2Deps
   )
-  .settings(multiVersionSettings: _*)
-  .settings(publishSettings: _*)
 
-lazy val LepusRouterProject = Project("Lepus-Router", file("core/lepus-router"))
+lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= routerDependencies ++ {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq(magnolia3)
-      case _            => Seq(magnolia2, reflect)
-    }
-  } ++ specs2Deps(scalaVersion.value))
-  .settings(multiVersionSettings: _*)
-  .settings(publishSettings: _*)
+  .settings(libraryDependencies ++= routerDependencies ++ specs2Deps ++ Seq(
+    magnolia3
+  ))
 
-lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-server"))
+lazy val LepusLogback = LepusSbtProject("Lepus-Logback", "core/lepus-logback")
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies += logback)
+
+lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= serverDependencies)
   .settings(
@@ -83,22 +60,15 @@ lazy val LepusServerProject = Project("Lepus-Server", file("development/lepus-se
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .settings(multiVersionSettings: _*)
-  .settings(publishSettings: _*)
   .dependsOn(LepusProject, LepusRouterProject)
 
-lazy val LepusSwaggerProject = Project("Lepus-Swagger", file("development/lepus-swagger"))
+lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps(scalaVersion.value))
-  .settings(multiVersionSettings: _*)
-  .settings(publishSettings: _*)
+  .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps)
   .dependsOn(LepusProject, LepusRouterProject)
 
-lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin"))
-  .enablePlugins(SbtPlugin)
+lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt-plugin")
   .settings(
-    scalaVersion       := scala212,
-    crossScalaVersions := Seq(scala212),
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
         "com.github.sbt" % "sbt-native-packager" % "1.9.7",
@@ -115,16 +85,19 @@ lazy val SbtPluginProject = Project("Sbt-Plugin", file("development/sbt-plugin")
       )
     }.taskValue
   )
-  .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
+
+lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
+  .dependsOn(SbtPluginProject)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
-  LepusRouterProject
+  LepusRouterProject,
+  LepusLogback
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
   SbtPluginProject,
+  SbtScriptedToolsProject,
   LepusServerProject,
   LepusSwaggerProject
 )

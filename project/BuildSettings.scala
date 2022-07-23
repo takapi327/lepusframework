@@ -6,12 +6,17 @@
 
 import sbt._
 import sbt.Keys._
+import sbt.plugins.SbtPlugin
+import sbt.ScriptedPlugin.autoImport._
+
+import sbtrelease.ReleasePlugin.autoImport._
+import ReleaseTransformations._
 
 import ScalaVersions._
 
 object BuildSettings {
 
-  val baseScalaSettings = Seq(
+  val baseScalaSettings: Seq[String] = Seq(
     "-Xfatal-warnings",
     "-deprecation",
     "-feature",
@@ -24,35 +29,67 @@ object BuildSettings {
   )
 
   /**
-   * Change SourceDir according to Scala version.
-   *
-   * @param sourceDir
-   * Directory under src of each project
-   * @param scalaVersion
-   * Scala version to be used in each project
-   * @return
-   * Returns the directory corresponding to the version
+   * Set up a scripted framework to test the plugin.
    */
-  private def changeSourceDirByVersion(sourceDir: File, scalaVersion: String): List[File] =
-    CrossVersion.partialVersion(scalaVersion) match {
-      case Some((3, _)) => List(sourceDir / "scala-3")
-      case _            => List(sourceDir / "scala-2.13")
-    }
+  def scriptedSettings: Seq[Setting[_]] = Seq(
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
+  )
+
+  /**
+   * Set up to publish the project.
+   */
+  def publishSettings: Seq[Setting[_]] = Seq(
+    publishTo := Some("Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/"),
+    (Compile / packageDoc) / publishArtifact := false,
+    (Compile / packageSrc) / publishArtifact := false,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts,
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
+  )
 
   /** These settings are used by all projects. */
   def commonSettings: Seq[Setting[_]] = Def.settings(
     organization := "com.github.takapi327",
     startYear    := Some(2022),
+    homepage     := Some(url(s"https://github.com/takapi327/lepusframework")),
     licenses     := Seq("MIT" -> url("https://img.shields.io/badge/license-MIT-green")),
     Test / fork  := true,
     run  / fork  := true,
     scalacOptions ++= baseScalaSettings
   )
 
-  /** Used for projects with multiple versions. */
-  def multiVersionSettings: Seq[Setting[_]] = commonSettings ++ Def.settings(
-    crossScalaVersions := Seq(scala3, scala213),
-    Compile / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
-    Test    / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
-  )
+  /** A project that runs in the sbt runtime. */
+  object LepusSbtProject {
+    def apply(name: String, dir: String): Project =
+      Project(name, file(dir))
+        .settings(commonSettings: _*)
+        .settings(publishSettings: _*)
+  }
+
+  /** A project that is an sbt plugin. */
+  object LepusSbtPluginProject {
+    def apply(name: String, dir: String): Project =
+      Project(name, file(dir))
+        .enablePlugins(SbtPlugin)
+        .settings(
+          scalaVersion       := scala212,
+          crossScalaVersions := Seq(scala212),
+        )
+        .settings(commonSettings: _*)
+        .settings(publishSettings: _*)
+        .settings(scriptedSettings: _*)
+  }
 }

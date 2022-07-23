@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [3.1.2, 2.13.7, 2.12.15]
+        scala: [3.1.2, 2.12.15]
         java: [temurin@11, temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
@@ -64,7 +64,7 @@ jobs:
         run: sbt ++${{ matrix.scala }} test
 
       - name: Compress target directories
-        run: tar cf targets.tar core/lepus-router/target development/lepus-swagger/target target development/lepus-server/target development/sbt-plugin/target core/lepus/target project/target
+        run: tar cf targets.tar core/lepus-router/target core/lepus-logback/target development/lepus-swagger/target target development/lepus-server/target development/sbt-plugin/target core/lepus/target development/sbt-scripted-tools/target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v2
@@ -124,16 +124,6 @@ jobs:
           tar xf targets.tar
           rm targets.tar
 
-      - name: Download target directories (2.13.7)
-        uses: actions/download-artifact@v2
-        with:
-          name: target-${{ matrix.os }}-2.13.7-${{ matrix.java }}
-
-      - name: Inflate target directories (2.13.7)
-        run: |
-          tar xf targets.tar
-          rm targets.tar
-
       - name: Download target directories (2.12.15)
         uses: actions/download-artifact@v2
         with:
@@ -152,7 +142,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [3.1.2, 2.13.7, 2.12.15]
+        scala: [3.1.2, 2.12.15]
         java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:

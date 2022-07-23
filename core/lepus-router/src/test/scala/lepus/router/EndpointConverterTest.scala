@@ -4,12 +4,12 @@
 
 package lepus.router
 
-import java.time._
+import java.time.*
 import java.util.UUID
 
 import scala.reflect.ClassTag
 
-import org.scalacheck.Prop._
+import org.scalacheck.Prop.*
 import org.scalacheck.{ Arbitrary, Gen }
 
 import org.scalatest.Assertion
@@ -17,9 +17,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-import lepus.router.model.DecodeResult._
+import lepus.router.model.DecodeResult.*
 
-class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
+class EndpointConverterTest extends AnyFlatSpec, Matchers, Checkers:
 
   it should "decode simple types using .toString" in {
     checkDecodeFromString[String]
@@ -99,27 +99,26 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
   }
    */
 
-  def checkDecodeFromString[T: Arbitrary](implicit
+  def checkDecodeFromString[T: Arbitrary](using
     converter: EndpointConverter[String, T],
     classTag:  ClassTag[T]
   ): Assertion =
     withClue(s"Test for ${ classTag.runtimeClass.getName }") {
       check((v: T) => {
-        val decoded = converter.decode(v.toString) match {
+        val decoded = converter.decode(v.toString) match
           case Success(value) => value
           case unexpected     => fail(s"Value $v got decoded to unexpected $unexpected")
-        }
         decoded === v
       })
     }
 
-  def checkDecodeFromArray[F[_], T: Arbitrary]()(implicit
+  def checkDecodeFromArray[F[_], T: Arbitrary]()(using
     converter: EndpointConverter[String, F[T]],
     classTag:  ClassTag[F[T]]
-  ): Assertion = {
+  ): Assertion =
     val gen  = Gen.containerOf[Iterable, T](Arbitrary.arbitrary[T])
     val list = gen.sample.getOrElse(Iterable.empty[T])
-    converter.decode(list.iterator.mkString(",")) match {
+    converter.decode(list.iterator.mkString(",")) match
       case Success(value) =>
         val decoded = value.asInstanceOf[Iterable[T]]
         assert(
@@ -131,16 +130,14 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
         )
       case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
       case unexpected => fail(s"Value ${ list.iterator.mkString(",") } got decoded to unexpected $unexpected")
-    }
-  }
 
-  def checkDecodeFromSet[T: Arbitrary]()(implicit
+  def checkDecodeFromSet[T: Arbitrary]()(using
     converter: EndpointConverter[String, Set[T]],
     classTag:  ClassTag[Set[T]]
-  ): Assertion = {
+  ): Assertion =
     val gen  = Gen.containerOf[Set, T](Arbitrary.arbitrary[T])
     val list = gen.sample.getOrElse(Set.empty[T])
-    converter.decode(list.mkString(",")) match {
+    converter.decode(list.mkString(",")) match
       case Success(decoded) =>
         assert(
           classTag.runtimeClass.isInstance(decoded) &&
@@ -151,6 +148,3 @@ class EndpointConverterTest extends AnyFlatSpec with Matchers with Checkers {
         )
       case InvalidValue(value, _) => assert(value === list.iterator.mkString(","))
       case unexpected => fail(s"Value ${ list.iterator.mkString(",") } got decoded to unexpected $unexpected")
-    }
-  }
-}
