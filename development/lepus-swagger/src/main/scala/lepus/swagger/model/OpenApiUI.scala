@@ -30,7 +30,7 @@ final case class OpenApiUI(
   components: Option[Component]              = None
 )
 
-object OpenApiUI {
+object OpenApiUI:
 
   def build(
     info:      Info,
@@ -44,7 +44,6 @@ object OpenApiUI {
       tags       = tags,
       components = component
     )
-}
 
 /** @param title
   *   API Title
