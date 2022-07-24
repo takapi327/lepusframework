@@ -88,6 +88,7 @@ lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt
 
 lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
   .dependsOn(SbtPluginProject)
+  .settings(publish / skip := true)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
