@@ -1,0 +1,17 @@
+# This file is part of the Lepus Framework.
+# For the full copyright and license information,
+# please view the LICENSE file that was distributed with this source code.
+
+# Structure of this test:
+# =======================
+
+# Start api server
+# TODO: After the Run command is executed, subsequent commands are not executed.
+# Verify again after the Server run and stop process is implemented in Lepus.
+#> run
+
+# Call Request API
+#$ callRequestAPI hello/lepus 200
+#$ touch success.txt
+
+#$ exec kill -9 $(lsof -t -i:5555)
