@@ -14,7 +14,7 @@ trait HttpRequest:
   def queryParameters: Map[String, Seq[String]]
 
 class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
-  lazy val method: Method = request.method.name.toUpperCase match {
+  lazy val method: Method = request.method.name.toUpperCase match
     case "GET"     => Method.Get
     case "HEAD"    => Method.Head
     case "POST"    => Method.Post
@@ -25,15 +25,13 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
     case "CONNECT" => Method.Connect
     case "TRACE"   => Method.Trace
     case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
-  }
 
-  lazy val pathSegments: List[String] = {
+  lazy val pathSegments: List[String] =
     request.pathInfo.renderString
       .dropWhile(_ == '/')
       .split("/")
       .toList
       .map(Uri.decode(_))
-  }
 
   lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
 
