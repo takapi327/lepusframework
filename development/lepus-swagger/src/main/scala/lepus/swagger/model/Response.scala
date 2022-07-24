@@ -26,14 +26,14 @@ final case class Response(
   description: String
 )
 
-object Response {
+object Response:
 
   val empty = Response(ListMap.empty, ListMap.empty, "Response is not specified")
 
   def build(
     res:                   RouterResponse[_],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
-  ): Response = {
+  ): Response =
     val headers = res.headers
       .map(header => header.name -> Header(schemaToOpenApiSchema(header.schema), header.description))
       .to(ListMap)
@@ -42,10 +42,8 @@ object Response {
       content     = ListMap("application/json" -> Content.build(res.schema, schemaToOpenApiSchema)),
       description = res.description
     )
-  }
 
   case class Header(
     schema:      Either[Reference, OpenApiSchema],
     description: String
   )
-}
