@@ -8,32 +8,27 @@ import scala.collection.mutable.ListBuffer
 
 import lepus.router.model.{ Schema, SchemaType }
 
-class SchemaToTuple {
-  def apply(schema: Schema[_]): List[(Schema.Name, Schema[_])] = {
-    val thisSchema = schema.name match {
+class SchemaToTuple:
+  def apply(schema: Schema[?]): List[(Schema.Name, Schema[?])] =
+    val thisSchema = schema.name match
       case Some(name) => List(name -> schema)
       case None       => Nil
-    }
-    val propertySchemas = schema match {
+
+    val propertySchemas = schema match
       case Schema(SchemaType.SArray(s), _, _, _)    => apply(s)
       case Schema(s: SchemaType.Entity[_], _, _, _) => s.fields.flatMap(v => apply(v.schema))
       case _                                        => List.empty
-    }
+
     thisSchema ++ propertySchemas
-  }
-}
 
-object SchemaToTuple {
+object SchemaToTuple:
 
-  def unique(tuples: Iterable[(Schema.Name, Schema[_])]): Iterable[(Schema.Name, Schema[_])] = {
+  def unique(tuples: Iterable[(Schema.Name, Schema[?])]): Iterable[(Schema.Name, Schema[?])] =
     val uniques: collection.mutable.Set[Schema.Name]  = collection.mutable.Set()
-    val result:  ListBuffer[(Schema.Name, Schema[_])] = ListBuffer()
+    val result:  ListBuffer[(Schema.Name, Schema[?])] = ListBuffer()
     tuples.foreach(tuple => {
-      if (!uniques.contains(tuple._1)) {
+      if !uniques.contains(tuple._1) then
         uniques.add(tuple._1)
         result += tuple
-      }
     })
     result.toList
-  }
-}
