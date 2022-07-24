@@ -6,9 +6,9 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router._
-import lepus.router.internal._
-import lepus.router.http.{ RequestMethod, RequestEndpoint }
+import lepus.router.*
+import lepus.router.internal.*
+import lepus.router.http.{ Method, RequestEndpoint }
 
 import lepus.swagger.SchemaToOpenApiSchema
 
@@ -37,18 +37,18 @@ final case class Path(
   responses:   ListMap[String, Response] = ListMap.empty
 )
 
-object Path {
+object Path:
 
   def fromEndpoint[F[_]](
-    method:                RequestMethod,
+    method:                Method,
     router:                RouterConstructor[F, _],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
-  ): Path = {
+  ): Path =
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
-      case e: RequestEndpoint.Path with RequestEndpoint.Param =>
+      case e: (RequestEndpoint.Path & RequestEndpoint.Param) =>
         Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
-      case e: RequestEndpoint.Query with RequestEndpoint.Param =>
+      case e: (RequestEndpoint.Query & RequestEndpoint.Param) =>
         Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
       case _ => None
     }.toList
@@ -59,7 +59,7 @@ object Path {
 
     val responses = router.responses
       .lift(method)
-      .map(resList => resList.map(res => res.status.code.toString -> Response.build(res, schemaToOpenApiSchema)))
+      .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schemaToOpenApiSchema)))
       .getOrElse(List("default" -> Response.empty))
 
     Path(
@@ -71,5 +71,3 @@ object Path {
       requestBody = requestBody,
       responses   = responses.to(ListMap)
     )
-  }
-}

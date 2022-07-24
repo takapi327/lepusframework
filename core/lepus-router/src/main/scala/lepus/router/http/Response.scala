@@ -120,7 +120,9 @@ object Response:
 end Response
 
 enum StatusCode(code: Int):
+  override def toString: String = code.toString
   def toCode: Int = code
+
   case CONTINUE                        extends StatusCode(100)
   case SWITCHING_PROTOCOLS             extends StatusCode(101)
   case OK                              extends StatusCode(200)
