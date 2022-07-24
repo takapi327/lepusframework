@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.core.util
 
@@ -25,8 +25,7 @@ object Configuration:
       val directConfig: Config = ConfigFactory.parseMap(directSettings.asJava)
       val config:       Config = ConfigFactory.load(classLoader, directConfig)
       Configuration(config)
-    catch
-      case e: ConfigException => throw new Exception(e.getMessage)
+    catch case e: ConfigException => throw new Exception(e.getMessage)
 
   def load(): Configuration = Configuration(ConfigFactory.load())
 
@@ -59,11 +58,10 @@ object ConfigLoader:
   given ConfigLoader[ConfigMemorySize] = ConfigLoader(_.getMemorySize)
   given ConfigLoader[FiniteDuration]   = ConfigLoader(_.getDuration).map(_.toNanos.nanos)
   given ConfigLoader[JavaDuration]     = ConfigLoader(_.getDuration)
-  given ConfigLoader[Duration]         = ConfigLoader(config => path =>
-    if config.getIsNull(path) then
-      Duration.Inf
-    else
-      config.getDuration(path).toNanos.nanos
+  given ConfigLoader[Duration] = ConfigLoader(config =>
+    path =>
+      if config.getIsNull(path) then Duration.Inf
+      else config.getDuration(path).toNanos.nanos
   )
 
   given seqBoolean: ConfigLoader[Seq[Boolean]] =
@@ -98,17 +96,19 @@ object ConfigLoader:
 
   given [A](using loader: ConfigLoader[A]): ConfigLoader[Option[A]] with
     override def load(config: Config, path: String): Option[A] =
-      if config.hasPath(path) && !config.getIsNull(path) then
-        Some(loader.load(config, path))
-      else
-        None
+      if config.hasPath(path) && !config.getIsNull(path) then Some(loader.load(config, path))
+      else None
 
   given [A](using loader: ConfigLoader[A]): ConfigLoader[Map[String, A]] with
     override def load(config: Config, path: String): Map[String, A] =
       val obj  = config.getObject(path)
       val conf = obj.toConfig
-      obj.keySet().asScala.map { key =>
-        key -> loader.load(conf, key)
-      }.toMap
+      obj
+        .keySet()
+        .asScala
+        .map { key =>
+          key -> loader.load(conf, key)
+        }
+        .toMap
 
 end ConfigLoader

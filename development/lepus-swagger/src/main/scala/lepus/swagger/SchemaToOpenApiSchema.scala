@@ -22,19 +22,18 @@ class SchemaToOpenApiSchema(schemaToReference: SchemaToReference):
     isOptional:  Boolean = false,
     forceCreate: Boolean = true
   ): Either[Reference, OpenApiSchema] =
-    val result = if forceCreate then
-      discriminateBySchemaType(schema.schemaType)
-    else
-      schema.name match
-        case Some(name) =>
-          schemaToReference.map(name) match
-            case Some(value) => Left(value)
-            case None        => discriminateBySchemaType(schema.schemaType)
+    val result =
+      if forceCreate then discriminateBySchemaType(schema.schemaType)
+      else
+        schema.name match
+          case Some(name) =>
+            schemaToReference.map(name) match
+              case Some(value) => Left(value)
+              case None        => discriminateBySchemaType(schema.schemaType)
 
-        case None => discriminateBySchemaType(schema.schemaType)
+          case None => discriminateBySchemaType(schema.schemaType)
 
-    if isOptional then
-      result.map(_.copy(nullable = Some(isOptional)))
+    if isOptional then result.map(_.copy(nullable = Some(isOptional)))
     else result
 
   private def discriminateBySchemaType(schemaType: SchemaType[_]): Either[Reference, OpenApiSchema] =

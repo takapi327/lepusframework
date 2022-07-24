@@ -59,8 +59,7 @@ object DecodeEndpoint:
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
-                if segment == name then
-                  tailrecMatchPath(decodeServerRequest, tail, result, decoded)
+                if segment == name then tailrecMatchPath(decodeServerRequest, tail, result, decoded)
                 else
                   val failure = DecodeEndpointResult.MissMatch(head, DecodeResult.Mismatch(segment, name))
                   (failure, decoded)

@@ -15,7 +15,7 @@ object RequestEndpoint:
     def and(other: Endpoint): Endpoint =
       RequestEndpoint.Pair(this, other)
 
-    @targetName("/")  def /(other: Path):   Endpoint = and(other)
+    @targetName("/") def /(other: Path):    Endpoint = and(other)
     @targetName(":?") def :?(other: Query): Endpoint = and(other)
     @targetName(":&") def :&(other: Query): Endpoint = and(other)
 
@@ -51,7 +51,8 @@ object RequestEndpoint:
     *   Parameters of the type you want to convert String to
     */
   case class PathParam[T](name: String, converter: EndpointConverter[String, T], description: Option[String] = None)
-    extends Path, Param:
+    extends Path,
+      Param:
     override private[lepus] type thisType = PathParam[T]
     override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Path = ValidatePathParam(name, converter, validator, description)
@@ -66,7 +67,8 @@ object RequestEndpoint:
     *   Parameters of the type you want to convert String to
     */
   case class QueryParam[T](key: String, converter: EndpointConverter[String, T], description: Option[String] = None)
-    extends Query, Param:
+    extends Query,
+      Param:
     override private[lepus] type thisType = QueryParam[T]
     override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Query = ValidateQueryParam(key, converter, validator, description)
@@ -87,7 +89,8 @@ object RequestEndpoint:
     converter:   EndpointConverter[String, T],
     validator:   Validator,
     description: Option[String] = None
-  ) extends Path, Param:
+  ) extends Path,
+      Param:
     override private[lepus] type thisType = ValidatePathParam[T]
     override def setDescription(content: String): ValidatePathParam[T] = this.copy(description = Some(content))
 
@@ -107,7 +110,8 @@ object RequestEndpoint:
     converter:   EndpointConverter[String, T],
     validator:   Validator,
     description: Option[String] = None
-  ) extends Query, Param:
+  ) extends Query,
+      Param:
     override private[lepus] type thisType = ValidateQueryParam[T]
     override def setDescription(content: String): ValidateQueryParam[T] = this.copy(description = Some(content))
 

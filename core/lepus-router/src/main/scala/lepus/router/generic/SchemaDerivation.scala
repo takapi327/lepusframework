@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.generic
 
@@ -34,11 +34,8 @@ trait SchemaDerivation:
           )
 
       override def split[T](ctx: SealedTrait[Schema, T]): Schema[T] =
-        val subtypesByName = ctx.subtypes
-          .toList
-          .map(subtype =>
-            typeNameToSchemaName(subtype.typeInfo) -> subtype.typeclass.asInstanceOf[Typeclass[T]]
-          )
+        val subtypesByName = ctx.subtypes.toList
+          .map(subtype => typeNameToSchemaName(subtype.typeInfo) -> subtype.typeclass.asInstanceOf[Typeclass[T]])
           .toListMap
         val traitType = Trait(subtypesByName.values.toList)((t: T) =>
           ctx.choose(t) { v =>

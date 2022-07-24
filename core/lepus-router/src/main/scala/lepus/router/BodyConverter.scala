@@ -22,7 +22,8 @@ trait BodyConverter[T]:
 
 object BodyConverter:
 
-  case class Json[T: Encoder: Decoder](_decode: String => ConvertResult)(_encode: T => ConvertResult) extends BodyConverter[T]:
+  case class Json[T: Encoder: Decoder](_decode: String => ConvertResult)(_encode: T => ConvertResult)
+    extends BodyConverter[T]:
     override def decode(s: String): ConvertResult = _decode(s)
     override def encode(t: T):      ConvertResult = _encode(t)
 
@@ -32,24 +33,25 @@ object BodyConverter:
     def toJson[T: Encoder: Decoder](t: T):      ConvertResult = toJson[T].encode(t)
 
   given [T: Encoder: Decoder]: Json[T] =
-    Json[T] {
-      v => summon[String => ConvertResult](v)
-    } {
-      v => summon[T => ConvertResult](v)
+    Json[T] { v =>
+      summon[String => ConvertResult](v)
+    } { v =>
+      summon[T => ConvertResult](v)
     }
 
   given [T: Encoder: Decoder]: Conversion[String, ConvertResult] =
-    v => decodeAccumulating[T](v) match
-      case Validated.Valid(value) => JsValue(value)
-      case Validated.Invalid(circeFailures) =>
-        val jsonFailures = circeFailures.map {
-          case ParsingFailure(message, _) => Error.JsonError(message, List.empty)
-          case failure: DecodingFailure =>
-            val path   = CursorOp.opsToPath(failure.history)
-            val fields = path.split("\\.").toList.filter(_.nonEmpty)
-            Error.JsonError(failure.message, fields)
-        }
-        Error(v, Error.JsonDecodeException(jsonFailures.toList, Errors(circeFailures)))
+    v =>
+      decodeAccumulating[T](v) match
+        case Validated.Valid(value) => JsValue(value)
+        case Validated.Invalid(circeFailures) =>
+          val jsonFailures = circeFailures.map {
+            case ParsingFailure(message, _) => Error.JsonError(message, List.empty)
+            case failure: DecodingFailure =>
+              val path   = CursorOp.opsToPath(failure.history)
+              val fields = path.split("\\.").toList.filter(_.nonEmpty)
+              Error.JsonError(failure.message, fields)
+          }
+          Error(v, Error.JsonDecodeException(jsonFailures.toList, Errors(circeFailures)))
 
   given [T: Encoder: Decoder]: Conversion[T, ConvertResult] =
     v => JsValue(Printer.noSpaces.print(v.asJson))

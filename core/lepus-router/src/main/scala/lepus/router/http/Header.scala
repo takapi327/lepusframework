@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.http
 
@@ -11,7 +11,7 @@ import org.http4s.{ Uri, Header => Http4sHeader }
 import Header.*
 trait Header(name: String, val value: String, val uri: Option[Uri] = None):
 
-  override def toString: String = s"$name: $value"
+  override def toString:             String = s"$name: $value"
   def toString(split: String = "/"): String = s"$name$split$value"
 
   def is(headerName: String): Boolean = name.equalsIgnoreCase(headerName)
@@ -64,8 +64,8 @@ object Header:
     case TextPlain                     extends HeaderType, Header("text", "plain")
 
   /** The values listed in the following sites are defined as variables. see
-   * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-   */
+    * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+    */
   val ACCEPT                           = "Accept"
   val ACCEPT_CHARSET                   = "Accept-Charset"
   val ACCEPT_ENCODING                  = "Accept-Encoding"

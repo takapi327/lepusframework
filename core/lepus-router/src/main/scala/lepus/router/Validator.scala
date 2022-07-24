@@ -31,8 +31,7 @@ object Validator:
       try
         if t.toInt > value then None
         else Some(DecodeResult.InvalidValue(s"$t has exceeded the threshold value of $value", None))
-      catch
-        case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
+      catch case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
 
   /** Checks if the path parameter exceeds the specified threshold
     *
@@ -44,8 +43,7 @@ object Validator:
       try
         if t.toInt < value then None
         else Some(DecodeResult.InvalidValue(s"$t has exceeded the threshold value of $value", None))
-      catch
-        case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
+      catch case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
 
   /** Checks if the path parameter is in the specified range of values
     *
@@ -60,5 +58,4 @@ object Validator:
       try
         if min <= t.toInt && t.toInt <= max then None
         else Some(DecodeResult.InvalidValue(s"$t is not in the $min and $max range", None))
-      catch
-        case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))
+      catch case e: Throwable => Some(DecodeResult.InvalidValue(e.getMessage, Some(e)))

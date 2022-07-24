@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.model
 
@@ -21,15 +21,16 @@ object SchemaType:
 
   case class SArray[T, S](element: Schema[S]) extends SchemaType[T](s"array(${ element.thisType })")
 
-  case class Entity[T](fields: List[Entity.Field]) extends SchemaType[T](
-    s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
-  ) {
+  case class Entity[T](fields: List[Entity.Field])
+    extends SchemaType[T](
+      s"object(${ fields.map(field => s"${ field.name }->${ field.schema.thisType }").mkString(",") })"
+    ):
     def required: List[Entity.Field.Name] = fields.collect { case f if !f.schema.isOptional => f.name }
-  }
 
-  case class Trait[T](subtypes: List[Schema[_]])(subtypeSchema: T => Option[SchemaWithValue[_]]) extends SchemaType[T](
-    "oneOf:" + subtypes.map(_.thisType).mkString(",")
-  )
+  case class Trait[T](subtypes: List[Schema[_]])(subtypeSchema: T => Option[SchemaWithValue[_]])
+    extends SchemaType[T](
+      "oneOf:" + subtypes.map(_.thisType).mkString(",")
+    )
 
   case class SchemaWithValue[T](schema: Schema[T], value: T)
 

@@ -16,10 +16,10 @@ import lepus.router.model.{ ServerRequest, ServerResponse }
 import ConvertResult._
 
 /** Compare and verify Http requests and endpoints, and combine them with logic.
- *
- * @tparam F
- *   the effect type.
- */
+  *
+  * @tparam F
+  *   the effect type.
+  */
 trait ServerInterpreter[F[_]](using syncF: Sync[F], asyncF: Async[F]):
 
   /** Receives HTTP requests, compares and verifies them with endpoints, and binds them to server logic.
@@ -79,7 +79,9 @@ trait ServerInterpreter[F[_]](using syncF: Sync[F], asyncF: Async[F]):
     decodeEndpointResult match
       case _: DecodeEndpointResult.Failure => None
       case DecodeEndpointResult.Success(values) =>
-        Some((values.nonEmpty match
-          case true => values.toTuple
-          case false => // TODO: If there is no value to pass to the logic, Unit is returned, but Nothing can be returned.
-        ).asInstanceOf[T])
+        Some(
+          (if values.nonEmpty then values.toTuple
+           else {
+             // TODO: If there is no value to pass to the logic, Unit is returned, but Nothing can be returned.
+           }).asInstanceOf[T]
+        )

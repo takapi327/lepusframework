@@ -40,15 +40,14 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
 object Request:
 
   case class Body[T](
-    description: String
+    description:      String
   )(using val schema: Schema[T])
 
   object Body:
-  
+
     def build[T: Schema](
       description: String
     ): Body[T] = Body(description)
   end Body
 
 end Request
-

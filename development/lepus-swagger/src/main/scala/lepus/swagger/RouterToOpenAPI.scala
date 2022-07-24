@@ -40,10 +40,9 @@ object RouterToOpenAPI:
       (_, routes) <- groupEndpoint.toList
       router      <- routes.toList
       method      <- router.methods
-    yield
-      router.responses
-        .lift(method)
-        .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
+    yield router.responses
+      .lift(method)
+      .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
 
     encoded.flatten.foldLeft[Option[ListMap[Schema.Name, Schema[?]]]](Some(ListMap.empty)) { (o, ol) =>
       PartialFunction.condOpt(o, ol) {
@@ -58,6 +57,4 @@ object RouterToOpenAPI:
     (for
       router <- routes.toList
       method <- router.methods
-    yield
-      method.toString().toLowerCase -> Path.fromEndpoint(method, router, schemaToOpenApiSchema)
-    ).toMap
+    yield method.toString().toLowerCase -> Path.fromEndpoint(method, router, schemaToOpenApiSchema)).toMap

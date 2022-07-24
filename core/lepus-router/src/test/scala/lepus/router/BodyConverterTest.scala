@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router
 
@@ -17,7 +17,7 @@ object BodyConverterTest extends Specification:
     given Encoder[Person] = deriveEncoder
     given Decoder[Person] = deriveDecoder
 
-  val person = Person("takapi", Some(26))
+  val person       = Person("takapi", Some(26))
   val personString = "{\"name\":\"takapi\",\"age\":26}"
 
   "Testing the BodyConverter" should {

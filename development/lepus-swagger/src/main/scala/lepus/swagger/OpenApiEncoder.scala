@@ -57,12 +57,12 @@ trait OpenApiEncoder:
     case Right(t)             => summon[Encoder[T]].apply(t)
   }
 
-  given[T: Encoder]: Encoder[List[T]] = {
+  given [T: Encoder]: Encoder[List[T]] = {
     case Nil           => Json.Null
     case list: List[T] => Json.arr(list.map(i => summon[Encoder[T]].apply(i)): _*)
   }
 
-  given[V: Encoder]: Encoder[ListMap[String, V]] = encodeListMap(nullWhenEmpty = true)
+  given [V: Encoder]: Encoder[ListMap[String, V]] = encodeListMap(nullWhenEmpty = true)
 
   private def encodeListMap[V: Encoder](nullWhenEmpty: Boolean): Encoder[ListMap[String, V]] = {
     case m: ListMap[String, V] if m.isEmpty && nullWhenEmpty => Json.Null

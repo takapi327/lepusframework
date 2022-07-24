@@ -30,8 +30,8 @@ object EndpointConverter:
 
   /** Variable for converting path and query parameter values to any type. */
   given EndpointConverter[String, String] with
-    override def stringTo(from: String): String = from
-    override def schema: Schema[String] = summon[Schema[String]]
+    override def stringTo(from: String): String         = from
+    override def schema:                 Schema[String] = summon[Schema[String]]
 
   given EndpointConverter[String, Byte]           = convertT[String, Byte](_.toByte)
   given EndpointConverter[String, Short]          = convertT[String, Short](_.toShort)

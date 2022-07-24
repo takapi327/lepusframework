@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.http
 
@@ -11,18 +11,18 @@ import org.http4s.{ Status => Http4sStatus }
 import lepus.router.model.Schema
 
 /** API Response Value
- *
- * @param status
- *   Response Status Code
- * @param headers
- *   List of headers given to the response
- * @param description
- *   Response Description
- */
+  *
+  * @param status
+  *   Response Status Code
+  * @param headers
+  *   List of headers given to the response
+  * @param description
+  *   Response Description
+  */
 case class Response[T: Encoder](
-  status:      Response.Status,
-  headers:     List[Response.CustomHeader[?]] = List.empty,
-  description: String
+  status:           Response.Status,
+  headers:          List[Response.CustomHeader[?]] = List.empty,
+  description:      String
 )(using val schema: Schema[T])
 
 object Response:
@@ -39,8 +39,8 @@ object Response:
     )
 
   case class CustomHeader[T](
-    name:        String,
-    description: String
+    name:             String,
+    description:      String
   )(using val schema: Schema[T])
 
   case class Status(enumStatus: StatusCode):
@@ -57,7 +57,9 @@ object Response:
     val isServerError:   Boolean = enumStatus.toCode / 100 == SERVER_ERROR_CODE
 
     def toHttp4sStatus(): Http4sStatus =
-      Http4sStatus.fromInt(enumStatus.toCode).getOrElse(throw new IllegalArgumentException(s"Invalid status code: ${enumStatus.toCode}"))
+      Http4sStatus
+        .fromInt(enumStatus.toCode)
+        .getOrElse(throw new IllegalArgumentException(s"Invalid status code: ${ enumStatus.toCode }"))
   end Status
 
   object Status:
@@ -121,7 +123,7 @@ end Response
 
 enum StatusCode(code: Int):
   override def toString: String = code.toString
-  def toCode: Int = code
+  def toCode:            Int    = code
 
   case CONTINUE                        extends StatusCode(100)
   case SWITCHING_PROTOCOLS             extends StatusCode(101)
