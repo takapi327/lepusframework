@@ -14,8 +14,9 @@ import lepus.router.model.Tag
 import lepus.swagger.model.*
 
 trait OpenApiEncoder:
-  given Encoder[OpenApiSchema.SchemaType] = { e => Encoder.encodeString(e.`type`) }
-  given Encoder[OpenApiSchema]            = deriveEncoder[OpenApiSchema]
+  given Encoder[OpenApiSchema.SchemaType]   = { e => Encoder.encodeString(e.toString) }
+  given Encoder[OpenApiSchema.SchemaFormat] = { e => Encoder.encodeString(e.toString) }
+  given Encoder[OpenApiSchema]              = deriveEncoder[OpenApiSchema]
 
   given Encoder[Parameter.ParameterInType] =
     Encoder.instance { p => p.toString.asJson }

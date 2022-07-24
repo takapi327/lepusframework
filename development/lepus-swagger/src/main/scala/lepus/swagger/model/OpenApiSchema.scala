@@ -11,7 +11,7 @@ case class OpenApiSchema(
   `type`:     Option[SchemaType]                                = None,
   required:   List[String]                                      = List.empty,
   properties: ListMap[String, Either[Reference, OpenApiSchema]] = ListMap.empty,
-  format:     Option[String]                                    = None,
+  format:     Option[SchemaFormat]                              = None,
   nullable:   Option[Boolean]                                   = None,
   oneOf:      List[Either[Reference, OpenApiSchema]]            = List.empty
 )
@@ -24,8 +24,8 @@ object OpenApiSchema:
   def apply(references: List[Either[Reference, OpenApiSchema]]): OpenApiSchema =
     OpenApiSchema(oneOf = references)
 
-  enum SchemaType(value: String):
-    def `type`: String = value
+  enum SchemaType(`type`: String):
+    override def toString: String = `type`
     case Boolean extends SchemaType("boolean")
     case Object  extends SchemaType("object")
     case Array   extends SchemaType("array")
@@ -34,7 +34,7 @@ object OpenApiSchema:
     case Integer extends SchemaType("integer")
 
   enum SchemaFormat(`type`: String):
-    def value: String = `type`
+    override def toString: String = `type`
     case Int32    extends SchemaFormat("int32")
     case Int64    extends SchemaFormat("int64")
     case Float    extends SchemaFormat("float")
