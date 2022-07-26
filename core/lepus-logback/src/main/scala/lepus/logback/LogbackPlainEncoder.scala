@@ -25,9 +25,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent
   *   </<configuration>
   * }}}
   */
-class LogbackPlainEncoder extends BaseEncoder {
-  override def doLayout(event: ILoggingEvent): String = {
-    val sbuf: StringBuffer = new StringBuffer(128)
+class LogbackPlainEncoder extends BaseEncoder:
+  override def doLayout(event: ILoggingEvent): String =
+    val sbuf: StringBuffer = StringBuffer(128)
     sbuf.append(timeStampToLocalDateTime(event.getTimeStamp).toString)
     sbuf.append(" ")
     sbuf.append(colorLevel(event))
@@ -48,5 +48,3 @@ class LogbackPlainEncoder extends BaseEncoder {
     }
     sbuf.append(CoreConstants.LINE_SEPARATOR)
     sbuf.toString
-  }
-}

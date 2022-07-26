@@ -27,31 +27,27 @@ import ch.qos.logback.classic.spi.ILoggingEvent
   *   </<configuration>
   * }}}
   */
-class LogbackTrackingEncoder extends BaseEncoder {
-  override def doLayout(event: ILoggingEvent): String = {
-    val sbuf: StringBuffer = new StringBuffer(128)
+class LogbackTrackingEncoder extends BaseEncoder:
+  override def doLayout(event: ILoggingEvent): String =
+    val sbuf: StringBuffer = StringBuffer(128)
     sbuf.append(timeStampToLocalDateTime(event.getTimeStamp).toString)
     sbuf.append(" ")
     sbuf.append(colorLevel(event))
     sbuf.append(" [")
     sbuf.append(event.getThreadName)
     sbuf.append("] ")
-    if (event.getMarker != null) {
+    if event.getMarker != null then
       sbuf.append(" ")
       sbuf.append(event.getMarker)
       sbuf.append(" ")
-    }
     sbuf.append(" [")
     sbuf.append(UUID.randomUUID.toString.replace("-", ""))
     sbuf.append("] ")
     sbuf.append(event.getLoggerName)
     sbuf.append(" - ")
     sbuf.append(event.getFormattedMessage)
-    if (event.getThrowableProxy != null) {
+    if event.getThrowableProxy != null then
       sbuf.append(" - ")
       sbuf.append(event.getThrowableProxy)
-    }
     sbuf.append(CoreConstants.LINE_SEPARATOR)
     sbuf.toString
-  }
-}
