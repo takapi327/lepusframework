@@ -4,7 +4,7 @@
 
 package lepus.core.util
 
-import java.time.{ Duration => JavaDuration }
+import java.time.Duration as JavaDuration
 
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.duration.{ Duration, FiniteDuration, * }
@@ -65,27 +65,27 @@ object ConfigLoader:
   )
 
   given seqBoolean: ConfigLoader[Seq[Boolean]] =
-    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).asInstanceOf[Seq[Boolean]])
+    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).toSeq)
   given seqInt: ConfigLoader[Seq[Int]] =
-    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt).asInstanceOf[Seq[Int]])
+    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt).toSeq)
   given seqLong: ConfigLoader[Seq[Long]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue).asInstanceOf[Seq[Long]])
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue).toSeq)
   given seqNumber: ConfigLoader[Seq[Number]] =
-    ConfigLoader(_.getNumberList).map(_.asScala.asInstanceOf[Seq[Number]])
+    ConfigLoader(_.getNumberList).map(_.asScala.toSeq)
   given seqDouble: ConfigLoader[Seq[Double]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue).asInstanceOf[Seq[Double]])
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue).toSeq)
   given seqString: ConfigLoader[Seq[String]] =
-    ConfigLoader(_.getStringList).map(_.asScala.asInstanceOf[Seq[String]])
+    ConfigLoader(_.getStringList).map(_.asScala.toSeq)
   given seqBytes: ConfigLoader[Seq[ConfigMemorySize]] =
-    ConfigLoader(_.getMemorySizeList).map(_.asScala.asInstanceOf[Seq[ConfigMemorySize]])
+    ConfigLoader(_.getMemorySizeList).map(_.asScala.toSeq)
   given seqFinite: ConfigLoader[Seq[FiniteDuration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).asInstanceOf[Seq[FiniteDuration]])
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toSeq)
   given seqJavaDuration: ConfigLoader[Seq[JavaDuration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.asInstanceOf[Seq[JavaDuration]])
+    ConfigLoader(_.getDurationList).map(_.asScala.toSeq)
   given seqScalaDuration: ConfigLoader[Seq[Duration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).asInstanceOf[Seq[Duration]])
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toSeq)
   given seqConfig: ConfigLoader[Seq[Config]] =
-    ConfigLoader(_.getConfigList).map(_.asScala.asInstanceOf[Seq[Config]])
+    ConfigLoader(_.getConfigList).map(_.asScala.toSeq)
   given seqConfiguration: ConfigLoader[Seq[Configuration]] =
     summon[ConfigLoader[Seq[Config]]].map(_.map(Configuration(_)))
 
