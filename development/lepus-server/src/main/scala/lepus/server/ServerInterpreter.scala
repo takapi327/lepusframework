@@ -42,7 +42,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
       for
         logic        <- OptionT.fromOption[F] { routes.lift(request.method) }
         decodeResult <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
-        response     <- OptionT { logic(using ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
+        response     <- OptionT { logic(ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
       yield addResponseHeader(response).toHttp4sResponse()
     }
 

@@ -20,6 +20,6 @@ package object router extends LepusRouter:
 
   type Http[T] = PartialFunction[Method, T]
 
-  type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] ?=> F[ServerResponse]]
+  type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
 
   given Semigroup[Http4sRoutes[IO]] = _ combineK _
