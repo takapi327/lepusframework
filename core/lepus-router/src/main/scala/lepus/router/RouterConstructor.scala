@@ -33,7 +33,7 @@ import lepus.router.model.{ Tag, ServerResponse }
   * @tparam P
   *   the combined type of the Http request path and query parameters
   */
-abstract class RouterConstructor[F[_], P](using asyncF: Async[F], syncF: Sync[F]):
+abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
 
   /** Alias of RequestMethod. */
   protected final val GET     = Method.Get
@@ -47,13 +47,13 @@ abstract class RouterConstructor[F[_], P](using asyncF: Async[F], syncF: Sync[F]
   protected final val TRACE   = Method.Trace
 
   /** Alias of ResponseStatus. */
-  protected final val responseStatus = Response.Status
+  protected final val status = Response.Status
 
   /** Alias of ResponseHeader. */
-  protected final val responseHeader = Header
+  protected final val header = Header
 
   /** Alias of ServerResponse. */
-  protected final val serverResponse = ServerResponse
+  protected final val response = ServerResponse
 
   /** List of methods that can be handled by this endpoint. */
   lazy val methods: List[Method] = Method.values.filter(routes.isDefinedAt).toList
@@ -74,10 +74,10 @@ abstract class RouterConstructor[F[_], P](using asyncF: Async[F], syncF: Sync[F]
     */
   def deprecated: Option[Boolean] = None
 
-  def requestBodies: HttpRequest[Request.Body[?]] = PartialFunction.empty
+  def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
 
   /** An array of responses returned by each method. */
-  def responses: HttpResponse[List[Response[?]]] = PartialFunction.empty
+  def responses: Http[List[Response[?]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: HttpRoutes[F, P]
