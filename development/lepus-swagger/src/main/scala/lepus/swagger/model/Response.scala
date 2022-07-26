@@ -6,7 +6,7 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.http.{ Response => RouterResponse }
+import lepus.router.http.Response as RouterResponse
 
 import lepus.swagger.SchemaToOpenApiSchema
 

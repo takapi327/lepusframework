@@ -8,7 +8,7 @@ import cats.data.{ Kleisli, OptionT }
 import cats.implicits.*
 import cats.effect.{ Async, Sync }
 
-import org.http4s.{ Request => Http4sRequest, HttpRoutes => Http4sRoutes, Response => Http4sResponse }
+import org.http4s.{ Request as Http4sRequest, HttpRoutes as Http4sRoutes, Response as Http4sResponse }
 
 import lepus.router.*
 import lepus.router.http.*
@@ -42,7 +42,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
       for
         logic        <- OptionT.fromOption[F] { routes.lift(request.method) }
         decodeResult <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
-        response     <- OptionT { logic(ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
+        response     <- OptionT { logic(using ServerRequest[F, T](http4sRequest, decodeResult)).map(_.some) }
       yield addResponseHeader(response).toHttp4sResponse()
     }
 

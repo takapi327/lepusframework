@@ -11,7 +11,7 @@ import cats.syntax.semigroupk.*
 
 import cats.effect.IO
 
-import org.http4s.{ HttpRoutes => Http4sRoutes }
+import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.http.Method
 import lepus.router.model.{ ServerRequest, ServerResponse }

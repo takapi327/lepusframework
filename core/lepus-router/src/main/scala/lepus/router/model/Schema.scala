@@ -6,9 +6,9 @@ package lepus.router.model
 
 import java.time.*
 import java.util.{ Date, UUID }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
-import scala.concurrent.duration.{ Duration => ScalaDuration }
+import scala.concurrent.duration.Duration as ScalaDuration
 
 import SchemaType.*
 

@@ -6,7 +6,7 @@ package lepus.router.http
 
 import org.specs2.mutable.Specification
 
-import org.http4s.{ Status => Http4sStatus }
+import org.http4s.Status as Http4sStatus
 
 object ResponseStatusTest extends Specification:
 

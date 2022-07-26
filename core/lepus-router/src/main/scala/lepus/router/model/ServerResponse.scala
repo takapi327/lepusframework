@@ -6,7 +6,7 @@ package lepus.router.model
 
 import fs2.Stream
 
-import org.http4s.{ Response => Http4sResponse, Uri, Headers => Http4sHeaders }
+import org.http4s.{ Response as Http4sResponse, Uri, Headers as Http4sHeaders }
 import org.http4s.headers.Location
 
 import lepus.router.http.{ Response, Header }

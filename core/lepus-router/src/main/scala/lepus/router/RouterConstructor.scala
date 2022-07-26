@@ -6,7 +6,7 @@ package lepus.router
 
 import cats.effect.{ Async, Sync }
 
-import org.http4s.{ HttpRoutes => Http4sRoutes }
+import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.http.{ RequestEndpoint, Request, Response, Header, Method }
 import lepus.router.model.{ Tag, ServerResponse }

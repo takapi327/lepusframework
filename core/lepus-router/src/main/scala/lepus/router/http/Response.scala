@@ -6,7 +6,7 @@ package lepus.router.http
 
 import io.circe.Encoder
 
-import org.http4s.{ Status => Http4sStatus }
+import org.http4s.Status as Http4sStatus
 
 import lepus.router.model.Schema
 

@@ -9,7 +9,7 @@ import scala.collection.immutable.ListMap
 import lepus.router.model.{ Schema, SchemaType }
 
 import lepus.swagger.model.{ OpenApiSchema, Reference }
-import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
+import OpenApiSchema.{ SchemaType as OpenApiSchemaType, SchemaFormat as OpenApiSchemaFormat }
 
 /** Class for converting Schema of Router to Schema for OpenAPI.
   *

@@ -6,7 +6,7 @@ package lepus.router.http
 
 import org.typelevel.ci.CIString
 
-import org.http4s.{ Uri, Header => Http4sHeader }
+import org.http4s.{ Uri, Header as Http4sHeader }
 
 import Header.*
 trait Header(name: String, val value: String, val uri: Option[Uri] = None):

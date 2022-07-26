@@ -4,7 +4,7 @@
 
 package lepus.router.http
 
-import org.http4s.{ Request => Http4sRequest, Uri }
+import org.http4s.{ Request as Http4sRequest, Uri }
 
 import lepus.router.model.Schema
 
