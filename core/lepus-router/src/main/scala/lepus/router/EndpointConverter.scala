@@ -8,7 +8,6 @@ import java.time.*
 import java.util.UUID
 
 import scala.annotation.*
-import scala.reflect.ClassTag
 import scala.util.*
 
 import lepus.router.model.*
@@ -52,23 +51,19 @@ object EndpointConverter:
 
   /** Variables for converting path and query parameter values to arrays of any type. */
   given [T](using
-    classTag: ClassTag[T],
-    schema:   Schema[T]
+    schema: Schema[T]
   ): EndpointConverter[String, Array[T]] =
-    convertT(_.split(",").map(_.asInstanceOf[T]))
+    convertT(_.split(",").asInstanceOf)
   given [T](using
-    classTag: ClassTag[T],
-    schema:   Schema[T]
+    schema: Schema[T]
   ): EndpointConverter[String, List[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toList)
   given [T](using
-    classTag: ClassTag[T],
-    schema:   Schema[T]
+    schema: Schema[T]
   ): EndpointConverter[String, Seq[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSeq)
   given [T](using
-    classTag: ClassTag[T],
-    schema:   Schema[T]
+    schema: Schema[T]
   ): EndpointConverter[String, Set[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSet)
 
