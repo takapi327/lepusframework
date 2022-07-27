@@ -15,16 +15,13 @@ import lepus.router.http.Header
 class ServerRequest[F[_], T](request: Request[F], val param: T):
 
   opaque type Protocol = String
-  extension (prot: Protocol)
-    @targetName("protocolAsString") def asString: String = prot
+  extension (prot: Protocol) @targetName("protocolAsString") def asString: String = prot
 
   opaque type ContentType = String
-  extension (content: ContentType)
-    @targetName("contentTypeAsString") def asString: String = content
+  extension (content: ContentType) @targetName("contentTypeAsString") def asString: String = content
 
   opaque type ContentLength = Long
-  extension (content: ContentLength)
-    def asLong: Long = content
+  extension (content: ContentLength) def asLong: Long = content
 
   lazy val protocol: Protocol = request.httpVersion.toString()
 
