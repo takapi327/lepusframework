@@ -12,6 +12,7 @@ import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
 import lepus.router.{ RouterConstructor, RouterProvider }
+import lepus.router.http.RequestEndpoint
 import lepus.swagger.model.*
 
 object RouterToOpenAPI:
@@ -22,7 +23,7 @@ object RouterToOpenAPI:
     info:   Info,
     router: RouterProvider[F]
   ): OpenApiUI =
-    val groupEndpoint = router.routes.groupBy(_.endpoint.toPath)
+    val groupEndpoint = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 
@@ -30,15 +31,16 @@ object RouterToOpenAPI:
     val schemaToOpenApiSchema = SchemaToOpenApiSchema(schemaToReference)
 
     val component = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
-    val endpoints = groupEndpoint.map(v => v._1 -> routerToPath(v._2, schemaToOpenApiSchema))
+    val endpoints = groupEndpoint.map {
+      case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint -> route, schemaToOpenApiSchema)
+    }
     OpenApiUI.build(info, endpoints, router.tags, component)
 
   private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[String, NonEmptyList[RouterConstructor[F, ?]]]
+    groupEndpoint: Map[RequestEndpoint.Endpoint, RouterConstructor[F, ?]]
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
-      (_, routes) <- groupEndpoint.toList
-      router      <- routes.toList
+      (_, router) <- groupEndpoint.toList
       method      <- router.methods
     yield router.responses
       .lift(method)
@@ -51,10 +53,9 @@ object RouterToOpenAPI:
     }
 
   private def routerToPath[F[_]](
-    routes:                NonEmptyList[RouterConstructor[F, ?]],
-    schemaToOpenApiSchema: SchemaToOpenApiSchema
+    router: Route[F],
+    schema: SchemaToOpenApiSchema
   ): Map[String, Path] =
-    (for
-      router <- routes.toList
-      method <- router.methods
-    yield method.toString.toLowerCase -> Path.fromEndpoint(method, router, schemaToOpenApiSchema)).toMap
+    val (endpoint, route) = router
+    (for method <- route.methods
+    yield method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)).toMap
