@@ -13,7 +13,7 @@ import lepus.router.model.Tag
   * For example:
   * {{{
   *  object HttpApp extends RouterProvider[IO]:
-  *    override def routes = union(
+  *    override def routes = combine(
   *      "hello" / name -> HelloRoute,
   *      "world" / country -> WorldRoute
   *    )
