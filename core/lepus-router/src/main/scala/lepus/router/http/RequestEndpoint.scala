@@ -6,7 +6,7 @@ package lepus.router.http
 
 import scala.annotation.targetName
 
-import lepus.router.{ EndpointConverter, Validator }
+import lepus.router.{ EndpointConverter, Validator, RouterConstructor }
 
 object RequestEndpoint:
 
@@ -19,6 +19,10 @@ object RequestEndpoint:
 
     @targetName("queryQ") def :?(other: Query): Endpoint = and(other)
     @targetName("query&") def :&(other: Query): Endpoint = and(other)
+
+    @targetName("endpointToTuple") def ->[F[_]](
+      const: RouterConstructor[F, ?]
+    ): lepus.router.Route[F] = (this, const)
 
   sealed trait Param extends Endpoint:
     def converter:   EndpointConverter[String, ?]
