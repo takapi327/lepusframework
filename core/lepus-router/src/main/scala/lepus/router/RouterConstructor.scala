@@ -17,7 +17,7 @@ import lepus.router.model.{ Tag, ServerResponse }
   * {{{
   *   // http:localhost:5555/hello/world/lepus
   *   object HelloRoute extends RouterConstructor[IO]:
-  *     override def routes: Routes[IO, Param] = {
+  *     def routes: Routes[IO, Param] = {
   *       case GET => IO(ServerResponse.NoContent)
   *     }
   * }}}

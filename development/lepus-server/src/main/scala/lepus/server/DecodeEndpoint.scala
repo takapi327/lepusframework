@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.server
 
@@ -33,19 +33,19 @@ object DecodeEndpoint:
       case (result, decoded)                               => (result, decoded)
 
   /** Compares and verifies the path of the Http request with the path of the endpoint, and performs all tail recursion
-   * of decoding.
-   *
-   * @param request
-   *   Request to pass Http request to wrapped Server
-   * @param endpoints
-   *   Array of Vectors with endpoints divided by path parameters
-   * @param result
-   *   The result of decoding the endpoint is stored.
-   * @param decoded
-   *   Parameter to store the decoded value of the endpoint
-   * @return
-   *   Decode all endpoints and return the Http request corresponding to the endpoint
-   */
+    * of decoding.
+    *
+    * @param request
+    *   Request to pass Http request to wrapped Server
+    * @param endpoints
+    *   Array of Vectors with endpoints divided by path parameters
+    * @param result
+    *   The result of decoding the endpoint is stored.
+    * @param decoded
+    *   Parameter to store the decoded value of the endpoint
+    * @return
+    *   Decode all endpoints and return the Http request corresponding to the endpoint
+    */
   @tailrec private def tailrecMatchPath(
     request:   DecodePathRequest,
     endpoints: Vector[RequestEndpoint.Endpoint],
@@ -97,19 +97,19 @@ object DecodeEndpoint:
           case None    => (result, decoded)
 
   /** Compares and verifies the path of the Http request with the query param of the endpoint, and performs all tail
-   * recursion of decoding.
-   *
-   * @param request
-   *   Request to pass Http request to wrapped Server
-   * @param endpoints
-   *   Array of Vectors with endpoints divided by path parameters
-   * @param result
-   *   The result of decoding the endpoint is stored.
-   * @param decoded
-   *   Parameter to store the decoded value of the endpoint
-   * @return
-   *   Decode all endpoints and return the Http request corresponding to the endpoint
-   */
+    * recursion of decoding.
+    *
+    * @param request
+    *   Request to pass Http request to wrapped Server
+    * @param endpoints
+    *   Array of Vectors with endpoints divided by path parameters
+    * @param result
+    *   The result of decoding the endpoint is stored.
+    * @param decoded
+    *   Parameter to store the decoded value of the endpoint
+    * @return
+    *   Decode all endpoints and return the Http request corresponding to the endpoint
+    */
   @tailrec private def tailrecMatchQuery(
     request:   DecodeQueryRequest,
     endpoints: Vector[RequestEndpoint.Endpoint],
@@ -140,14 +140,14 @@ object DecodeEndpoint:
       case None => (result, decoded)
 
   /** Process with tail recursion so that only Success decoded endpoints are processed.
-   *
-   * @param decodedEndpoints
-   *   Array of decoded endpoints and Http request tuples
-   * @param decodeResult
-   *   Initial value of the result of decoding the endpoint
-   * @return
-   *   Value resulting from decoding the endpoint
-   */
+    *
+    * @param decodedEndpoints
+    *   Array of decoded endpoints and Http request tuples
+    * @param decodeResult
+    *   Initial value of the result of decoding the endpoint
+    * @return
+    *   Value resulting from decoding the endpoint
+    */
   @tailrec private def tailrecDecode(
     decodedEndpoints: Vector[(RequestEndpoint.Endpoint, DecodeResult[_])],
     decodeResult:     DecodeEndpointResult.Success
@@ -161,13 +161,13 @@ object DecodeEndpoint:
   }
 
   /** Receive and in turn process decoding endpoints. The path and query parameter decoding processes can be combined by
-   * having each decoded result take over and be processed.
-   *
-   * @param results
-   *   The process of decoding path and query parameter endpoints.
-   * @return
-   *   Result of decoding the path, query parameter endpoints.
-   */
+    * having each decoded result take over and be processed.
+    *
+    * @param results
+    *   The process of decoding path and query parameter endpoints.
+    * @return
+    *   Result of decoding the path, query parameter endpoints.
+    */
   private def decodingConvolution(results: Result*): Result = (result, decoded) =>
     results match
       case head +: tail =>

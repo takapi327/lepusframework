@@ -29,6 +29,11 @@ trait RouterProvider[F[_]]:
 
   def routes: NonEmptyList[Route[F]]
 
-  def union(route: Route[F]*): NonEmptyList[Route[F]] =
+  /** Combine routing into a single array for use in the application.
+    *
+    * @param route
+    *   Receive all combinations of Endpoints and Routers used in the application.
+    */
+  def combine(route: Route[F]*): NonEmptyList[Route[F]] =
     require(route.nonEmpty, "There must always be at least one Route.")
     NonEmptyList.fromListUnsafe(route.toList)
