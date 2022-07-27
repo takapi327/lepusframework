@@ -40,26 +40,27 @@ final case class Path(
 object Path:
 
   def fromEndpoint[F[_]](
-    method:                Method,
-    router:                RouterConstructor[F, _],
-    schemaToOpenApiSchema: SchemaToOpenApiSchema
+    method:   Method,
+    endpoint: RequestEndpoint.Endpoint,
+    router:   RouterConstructor[F, ?],
+    schema:   SchemaToOpenApiSchema
   ): Path =
-    val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
+    val endpoints: Vector[RequestEndpoint.Endpoint] = endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: (RequestEndpoint.Path & RequestEndpoint.Param) =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case e: (RequestEndpoint.Query & RequestEndpoint.Param) =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case _ => None
     }.toList
 
     val requestBody = router.requestBodies
       .lift(method)
-      .map(req => RequestBody.build(req, schemaToOpenApiSchema))
+      .map(req => RequestBody.build(req, schema))
 
     val responses = router.responses
       .lift(method)
-      .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schemaToOpenApiSchema)))
+      .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schema)))
       .getOrElse(List("default" -> Response.empty))
 
     Path(
