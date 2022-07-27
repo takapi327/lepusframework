@@ -4,98 +4,68 @@
 
 package lepus.router
 
-import java.time._
+import java.time.*
 import java.util.UUID
 
-import scala.annotation._
-import scala.reflect.ClassTag
-import scala.util._
+import scala.annotation.*
+import scala.util.*
 
-import lepus.router.model._
-import Schema._
+import lepus.router.model.*
+import Schema.*
 
 @implicitNotFound("Could not find an implicit EndpointConverter[${S}, ${T}]")
-trait EndpointConverter[S, T] {
+trait EndpointConverter[S, T]:
 
   def stringTo(from: S): T
 
-  def decode(str: S): DecodeResult[T] = {
-    Try { stringTo(str) } match {
+  def decode(str: S): DecodeResult[T] =
+    Try { stringTo(str) } match
       case Success(s) => DecodeResult.Success(s)
       case Failure(e) => DecodeResult.InvalidValue(str.toString, Some(e))
-    }
-  }
 
   def schema: Schema[T]
-}
 
-object EndpointConverter {
+object EndpointConverter:
 
   /** Variable for converting path and query parameter values to any type. */
-  implicit val string: EndpointConverter[String, String] = new EndpointConverter[String, String] {
-    override def stringTo(str: String): String         = str
-    override def schema:                Schema[String] = Schema.schemaString
-  }
+  given EndpointConverter[String, String] with
+    override def stringTo(from: String): String         = from
+    override def schema:                 Schema[String] = summon[Schema[String]]
 
-  implicit val byte:       EndpointConverter[String, Byte]       = convertT[String, Byte](_.toByte)
-  implicit val short:      EndpointConverter[String, Short]      = convertT[String, Short](_.toShort)
-  implicit val int:        EndpointConverter[String, Int]        = convertT[String, Int](_.toInt)
-  implicit val long:       EndpointConverter[String, Long]       = convertT[String, Long](_.toLong)
-  implicit val float:      EndpointConverter[String, Float]      = convertT[String, Float](_.toFloat)
-  implicit val double:     EndpointConverter[String, Double]     = convertT[String, Double](_.toDouble)
-  implicit val boolean:    EndpointConverter[String, Boolean]    = convertT[String, Boolean](_.toBoolean)
-  implicit val bigDecimal: EndpointConverter[String, BigDecimal] = convertT[String, BigDecimal](BigDecimal(_))
-  implicit val localTime:  EndpointConverter[String, LocalTime]  = convertT[String, LocalTime](LocalTime.parse(_))
-  implicit val localDate: EndpointConverter[String, LocalDate] =
-    convertT[String, LocalDate](LocalDate.parse(_))
-  implicit val localDateTime: EndpointConverter[String, LocalDateTime] =
-    convertT[String, LocalDateTime](LocalDateTime.parse(_))
-  implicit val offsetTime: EndpointConverter[String, OffsetTime] = convertT[String, OffsetTime](OffsetTime.parse(_))
-  implicit val offsetDateTime: EndpointConverter[String, OffsetDateTime] =
-    convertT[String, OffsetDateTime](OffsetDateTime.parse(_))
-  implicit val zonedDateTime: EndpointConverter[String, ZonedDateTime] =
-    convertT[String, ZonedDateTime](ZonedDateTime.parse(_))
-  implicit val instant: EndpointConverter[String, Instant] =
-    convertT[String, Instant](Instant.parse(_))
-  implicit val uuid: EndpointConverter[String, UUID] = convertT[String, UUID](UUID.fromString)
+  given EndpointConverter[String, Byte]           = convertT[String, Byte](_.toByte)
+  given EndpointConverter[String, Short]          = convertT[String, Short](_.toShort)
+  given EndpointConverter[String, Int]            = convertT[String, Int](_.toInt)
+  given EndpointConverter[String, Long]           = convertT[String, Long](_.toLong)
+  given EndpointConverter[String, Float]          = convertT[String, Float](_.toFloat)
+  given EndpointConverter[String, Double]         = convertT[String, Double](_.toDouble)
+  given EndpointConverter[String, Boolean]        = convertT[String, Boolean](_.toBoolean)
+  given EndpointConverter[String, BigDecimal]     = convertT[String, BigDecimal](BigDecimal(_))
+  given EndpointConverter[String, LocalTime]      = convertT[String, LocalTime](LocalTime.parse(_))
+  given EndpointConverter[String, LocalDate]      = convertT[String, LocalDate](LocalDate.parse(_))
+  given EndpointConverter[String, LocalDateTime]  = convertT[String, LocalDateTime](LocalDateTime.parse(_))
+  given EndpointConverter[String, OffsetTime]     = convertT[String, OffsetTime](OffsetTime.parse(_))
+  given EndpointConverter[String, OffsetDateTime] = convertT[String, OffsetDateTime](OffsetDateTime.parse(_))
+  given EndpointConverter[String, ZonedDateTime]  = convertT[String, ZonedDateTime](ZonedDateTime.parse(_))
+  given EndpointConverter[String, Instant]        = convertT[String, Instant](Instant.parse(_))
+  given EndpointConverter[String, UUID]           = convertT[String, UUID](UUID.fromString)
 
   /** Variables for converting path and query parameter values to arrays of any type. */
-  implicit def array[T](implicit
-    converter: EndpointConverter[String, T],
-    classTag:  ClassTag[T],
-    schema:    Schema[T]
+  given [T](using
+    schema: Schema[T]
   ): EndpointConverter[String, Array[T]] =
-    convertT(_.split(",").map(_.asInstanceOf[T]))
-  implicit def list[T](implicit
-    converter: EndpointConverter[String, T],
-    classTag:  ClassTag[T],
-    schema:    Schema[T]
+    convertT(_.split(",").asInstanceOf)
+  given [T](using
+    schema: Schema[T]
   ): EndpointConverter[String, List[T]] =
-    convertT(array[T].stringTo(_).toList)
-  implicit def seq[T](implicit
-    converter: EndpointConverter[String, T],
-    classTag:  ClassTag[T],
-    schema:    Schema[T]
+    convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toList)
+  given [T](using
+    schema: Schema[T]
   ): EndpointConverter[String, Seq[T]] =
-    convertT(array[T].stringTo(_).toSeq)
-  implicit def set[T](implicit
-    converter: EndpointConverter[String, T],
-    classTag:  ClassTag[T],
-    schema:    Schema[T]
+    convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSeq)
+  given [T](using
+    schema: Schema[T]
   ): EndpointConverter[String, Set[T]] =
-    convertT(array[T].stringTo(_).toSet)
-
-  /** Converted from String to any type and finally to DecodeResult
-    *
-    * @param stringT
-    *   Convert from String to type T
-    * @tparam T
-    *   Type of String to be converted
-    * @return
-    *   DecodeResult Success storing T type
-    */
-  def stringTo[T](stringT: String => T): String => DecodeResult[T] =
-    stringT.andThen(DecodeResult.Success(_))
+    convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSet)
 
   /** Generate an EndpointConverter that performs the conversion of type S to type T.
     *
@@ -111,9 +81,8 @@ object EndpointConverter {
     * @return
     *   EndpointConverter to perform the conversion process from type S to type T
     */
-  def convertT[S, T](st: S => T)(implicit s: Schema[T]): EndpointConverter[S, T] =
+  def convertT[S, T](st: S => T)(using s: Schema[T]): EndpointConverter[S, T] =
     new EndpointConverter[S, T] {
       override def stringTo(str: S): T         = st(str)
       override def schema:           Schema[T] = s
     }
-}

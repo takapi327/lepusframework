@@ -60,22 +60,6 @@ object BuildSettings {
     )
   )
 
-  /**
-   * Change SourceDir according to Scala version.
-   *
-   * @param sourceDir
-   * Directory under src of each project
-   * @param scalaVersion
-   * Scala version to be used in each project
-   * @return
-   * Returns the directory corresponding to the version
-   */
-  private def changeSourceDirByVersion(sourceDir: File, scalaVersion: String): List[File] =
-    CrossVersion.partialVersion(scalaVersion) match {
-      case Some((3, _)) => List(sourceDir / "scala-3")
-      case _            => List(sourceDir / "scala-2.13")
-    }
-
   /** These settings are used by all projects. */
   def commonSettings: Seq[Setting[_]] = Def.settings(
     organization := "com.github.takapi327",
@@ -87,18 +71,11 @@ object BuildSettings {
     scalacOptions ++= baseScalaSettings
   )
 
-  /** Used for projects with multiple versions. */
-  def multiVersionSettings: Seq[Setting[_]] = commonSettings ++ Def.settings(
-    crossScalaVersions := Seq(scala3, scala213),
-    Compile / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
-    Test    / unmanagedSourceDirectories ++= changeSourceDirByVersion((Compile / sourceDirectory).value, scalaVersion.value),
-  )
-
   /** A project that runs in the sbt runtime. */
   object LepusSbtProject {
     def apply(name: String, dir: String): Project =
       Project(name, file(dir))
-        .settings(multiVersionSettings: _*)
+        .settings(commonSettings: _*)
         .settings(publishSettings: _*)
   }
 

@@ -10,11 +10,11 @@ import lepus.router.model.Schema
 
 import lepus.swagger.model.Reference
 
-object SchemaToReferenceTest extends Specification {
+object SchemaToReferenceTest extends Specification:
 
-  val schemaToTuple     = new SchemaToTuple()
-  val userSchemaTuples  = schemaToTuple(User.schema)
-  val schemaToReference = new SchemaToReference(Some(userSchemaTuples.toListMap))
+  val schemaToTuple     = SchemaToTuple()
+  val userSchemaTuples  = schemaToTuple(summon[Schema[User]])
+  val schemaToReference = SchemaToReference(Some(userSchemaTuples.toListMap))
 
   "Testing the SchemaToReference" should {
 
@@ -25,7 +25,7 @@ object SchemaToReferenceTest extends Specification {
 
     "If the Schema does not have a Shame Name, it is set to None." in {
       val schemaNameUser    = Schema.Name("lepus.swagger.User", List())
-      val stringSchemaTuple = schemaToTuple(Schema.schemaString)
+      val stringSchemaTuple = schemaToTuple(summon[Schema[String]])
       val schemaToReference = new SchemaToReference(Some(stringSchemaTuple.toListMap))
       schemaToReference.map(schemaNameUser).isEmpty
     }
@@ -35,4 +35,3 @@ object SchemaToReferenceTest extends Specification {
       schemaToReference.map(schemaNameUser).contains(Reference(s"#/components/schemas/${ schemaNameUser.shortName }"))
     }
   }
-}

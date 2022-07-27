@@ -4,10 +4,9 @@
 
 package lepus.swagger
 
-object Exception {
+object Exception:
 
   /** Indicates an issue with generate a swagger api document, e.g. a problem reading its configuration.
     */
   final case class GenerateSwaggerException(message: String, throwableOpt: Option[Throwable] = None)
     extends Exception(message, throwableOpt.orNull)
-}

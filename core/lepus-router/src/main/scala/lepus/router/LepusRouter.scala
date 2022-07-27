@@ -4,24 +4,24 @@
 
 package lepus.router
 
-import lepus.router.http._
+import lepus.router.http.*
 
-trait LepusRouter {
-  implicit def stringToPath(str: String): RequestEndpoint.FixedPath[String] =
-    RequestEndpoint.FixedPath(str, EndpointConverter.string)
+trait LepusRouter:
 
-  implicit def intToPath(int: Int): RequestEndpoint.FixedPath[String] =
-    RequestEndpoint.FixedPath(int.toString, EndpointConverter.string)
+  given Conversion[String, RequestEndpoint.FixedPath[String]] =
+    v => RequestEndpoint.FixedPath(v, summon)
 
-  implicit def longToPath(long: Long): RequestEndpoint.FixedPath[String] =
-    RequestEndpoint.FixedPath(long.toString, EndpointConverter.string)
+  given Conversion[Int, RequestEndpoint.FixedPath[String]] =
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
-  implicit def shortToPath(short: Short): RequestEndpoint.FixedPath[String] =
-    RequestEndpoint.FixedPath(short.toString, EndpointConverter.string)
+  given Conversion[Long, RequestEndpoint.FixedPath[String]] =
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
-  def bindPath[T](name: String)(implicit converter: EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
-    RequestEndpoint.PathParam(name, implicitly)
+  given Conversion[Short, RequestEndpoint.FixedPath[String]] =
+    v => RequestEndpoint.FixedPath(v.toString, summon)
 
-  def bindQuery[T](key: String)(implicit converter: EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
-    RequestEndpoint.QueryParam(key, implicitly)
-}
+  def bindPath[T](name: String)(using EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
+    RequestEndpoint.PathParam(name, summon)
+
+  def bindQuery[T](key: String)(using EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
+    RequestEndpoint.QueryParam(key, summon)

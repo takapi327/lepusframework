@@ -7,21 +7,11 @@ package lepus.swagger
 import org.specs2.mutable.Specification
 
 import lepus.router.model.Schema
-import lepus.router.generic.semiauto._
+import lepus.router.generic.semiauto.*
 
-case class Address(zipCode: String, country: String, prefecture: String)
-object Address {
-  implicit val schema: Schema[Address] = deriveSchemer
-}
-
-case class User(name: String, address: Address)
-object User {
-  implicit val schema: Schema[User] = deriveSchemer
-}
-
-object SchemaToTupleTest extends Specification {
-  val schemaToTuple    = new SchemaToTuple()
-  val userSchemaTuples = schemaToTuple(User.schema)
+object SchemaToTupleTest extends Specification:
+  val schemaToTuple    = SchemaToTuple()
+  val userSchemaTuples = schemaToTuple(summon[Schema[User]])
 
   "Testing the SchemaToTuple" should {
 
@@ -32,7 +22,7 @@ object SchemaToTupleTest extends Specification {
 
     "Contains the specified Shame Name and Schema Tuple." in {
       val schemaNameUser  = Schema.Name("lepus.swagger.User", List())
-      val userSchemaTuple = (schemaNameUser, User.schema)
+      val userSchemaTuple = (schemaNameUser, summon[Schema[User]])
       userSchemaTuples.contains(userSchemaTuple)
     }
 
@@ -43,7 +33,7 @@ object SchemaToTupleTest extends Specification {
 
     "Schema Name and Schema Tuple of the nested model are also included." in {
       val schemaNameAddress  = Schema.Name("lepus.swagger.Address", List())
-      val addressSchemaTuple = (schemaNameAddress, Address.schema)
+      val addressSchemaTuple = (schemaNameAddress, summon[Schema[Address]])
       userSchemaTuples.contains(addressSchemaTuple)
     }
 
@@ -56,8 +46,8 @@ object SchemaToTupleTest extends Specification {
     "Tuples can be generated from Schema with Shame Name as the key." in {
       val schemaNameUser     = Schema.Name("lepus.swagger.User", List())
       val schemaNameAddress  = Schema.Name("lepus.swagger.Address", List())
-      val userSchemaTuple    = (schemaNameUser, User.schema)
-      val addressSchemaTuple = (schemaNameAddress, Address.schema)
+      val userSchemaTuple    = (schemaNameUser, summon[Schema[User]])
+      val addressSchemaTuple = (schemaNameAddress, summon[Schema[Address]])
       println(userSchemaTuples.map(_._1))
       userSchemaTuples.map(_._1).contains(schemaNameUser) &&
       userSchemaTuples.map(_._1).contains(schemaNameAddress) &&
@@ -65,4 +55,3 @@ object SchemaToTupleTest extends Specification {
       userSchemaTuples.contains(addressSchemaTuple)
     }
   }
-}

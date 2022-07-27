@@ -4,105 +4,95 @@
 
 package lepus.swagger
 
+import java.util.Date
+import java.time.LocalDateTime
+
 import org.specs2.mutable.Specification
 
 import lepus.router.model.Schema
+import lepus.swagger.model.OpenApiSchema.{ SchemaFormat, SchemaType }
 
-import lepus.swagger.model.OpenApiSchema.{ SchemaType, SchemaFormat }
+object SchemaToOpenApiSchemaTest extends Specification:
 
-object SchemaToOpenApiSchemaTest extends Specification {
-
-  val schemaToTuple         = new SchemaToTuple()
-  val userSchemaTuples      = schemaToTuple(User.schema)
-  val schemaToReference     = new SchemaToReference(Some(userSchemaTuples.toListMap))
-  val schemaToOpenApiSchema = new SchemaToOpenApiSchema(schemaToReference)
+  val schemaToTuple         = SchemaToTuple()
+  val userSchemaTuples      = schemaToTuple(summon[Schema[User]])
+  val schemaToReference     = SchemaToReference(Some(userSchemaTuples.toListMap))
+  val schemaToOpenApiSchema = SchemaToOpenApiSchema(schemaToReference)
 
   "Schema can be converted to OpenAPISchema." should {
-    schemaToOpenApiSchema(User.schema).isRight
+    schemaToOpenApiSchema(summon[Schema[User]]).isRight
   }
 
   "If the model has a Schema Name, it will be Left." should {
-    schemaToOpenApiSchema(User.schema, false, false).isLeft
+    schemaToOpenApiSchema(summon[Schema[User]], false, false).isLeft
   }
 
   "If the model does not have a Schema Name, it will be Right." should {
-    schemaToOpenApiSchema(Schema.schemaString, false, false).isRight
+    schemaToOpenApiSchema(summon[Schema[String]], false, false).isRight
   }
 
   "For Option types, the value of nullable is true." should {
-    schemaToOpenApiSchema(Schema.schemaOption[String]) match {
+    schemaToOpenApiSchema(summon[Schema[Option[String]]]) match
       case Right(s) => s.nullable.getOrElse(false)
       case Left(_)  => false
-    }
   }
 
   "For types other than Option, the value of nullable is None." should {
-    schemaToOpenApiSchema(Schema.schemaString) match {
+    schemaToOpenApiSchema(summon[Schema[String]]) match
       case Right(s) => s.nullable.isEmpty
       case Left(_)  => false
-    }
   }
 
   "The Type of String will be string." should {
-    schemaToOpenApiSchema(Schema.schemaString) match {
+    schemaToOpenApiSchema(summon[Schema[String]]) match
       case Right(s) => s.`type`.contains(SchemaType.String)
       case Left(_)  => false
-    }
   }
 
   "The Type of Int will be integer." should {
-    schemaToOpenApiSchema(Schema.schemaInt) match {
+    schemaToOpenApiSchema(summon[Schema[Int]]) match
       case Right(s) => s.`type`.contains(SchemaType.Integer)
       case Left(_)  => false
-    }
   }
 
   "The Type of Double will be number." should {
-    schemaToOpenApiSchema(Schema.schemaDouble) match {
+    schemaToOpenApiSchema(summon[Schema[Double]]) match
       case Right(s) => s.`type`.contains(SchemaType.Number)
       case Left(_)  => false
-    }
   }
 
   "The Type of Boolean will be boolean." should {
-    schemaToOpenApiSchema(Schema.schemaBoolean) match {
+    schemaToOpenApiSchema(summon[Schema[Boolean]]) match
       case Right(s) => s.`type`.contains(SchemaType.Boolean)
       case Left(_)  => false
-    }
   }
 
   "The Type of Case Class will be object." should {
-    schemaToOpenApiSchema(User.schema) match {
+    schemaToOpenApiSchema(summon[Schema[User]]) match
       case Right(s) => s.`type`.contains(SchemaType.Object)
       case Left(_)  => false
-    }
   }
 
   "The Type of Array will be array." should {
-    schemaToOpenApiSchema(Schema.schemaArray[String]) match {
+    schemaToOpenApiSchema(summon[Schema[Array[String]]]) match
       case Right(s) => s.`type`.contains(SchemaType.Array)
       case Left(_)  => false
-    }
   }
 
   "Type of Array[Byte] type becomes string and format becomes binary." should {
-    schemaToOpenApiSchema(Schema.schemaByteArray) match {
+    schemaToOpenApiSchema(summon[Schema[Array[Byte]]]) match
       case Right(s) => s.`type`.contains(SchemaType.String) && s.format.contains(SchemaFormat.Binary)
       case Left(_)  => false
-    }
   }
 
   "Type of Date type becomes string and format becomes date." should {
-    schemaToOpenApiSchema(Schema.schemaDate) match {
+    schemaToOpenApiSchema(summon[Schema[Date]]) match
       case Right(s) => s.`type`.contains(SchemaType.String) && s.format.contains(SchemaFormat.Date)
       case Left(_)  => false
-    }
   }
 
   "Type of LocalDateTime type becomes string but format becomes not date-time." should {
-    schemaToOpenApiSchema(Schema.schemaLocalDateTime) match {
+    schemaToOpenApiSchema(summon[Schema[LocalDateTime]]) match
       case Right(s) => s.`type`.contains(SchemaType.String) && !s.format.contains(SchemaFormat.DateTime)
       case Left(_)  => false
-    }
   }
-}

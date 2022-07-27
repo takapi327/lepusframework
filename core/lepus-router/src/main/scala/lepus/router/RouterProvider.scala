@@ -12,19 +12,17 @@ import lepus.router.model.Tag
   *
   * For example:
   * {{{
-  *  object HttpApp extends RouterProvider[IO] {
+  *  object HttpApp extends RouterProvider[IO]:
   *    override def routes: NonEmptyList[RouterConstructor[IO]] =
   *      NonEmptyList.of(HelloRoute)
-  *  }
   * }}}
   *
   * @tparam F
   *   the effect type.
   */
-trait RouterProvider[F[_]] {
+trait RouterProvider[F[_]]:
 
   /** Tag of this endpoint, used during Swagger (Open API) document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
   def routes: NonEmptyList[RouterConstructor[F, _]]
-}
