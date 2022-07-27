@@ -13,8 +13,10 @@ import lepus.router.model.Tag
   * For example:
   * {{{
   *  object HttpApp extends RouterProvider[IO]:
-  *    override def routes: NonEmptyList[RouterConstructor[IO]] =
-  *      NonEmptyList.of(HelloRoute)
+  *    override def routes = union(
+  *      "hello" / name -> HelloRoute,
+  *      "world" / country -> WorldRoute
+  *    )
   * }}}
   *
   * @tparam F
@@ -25,4 +27,8 @@ trait RouterProvider[F[_]]:
   /** Tag of this endpoint, used during Swagger (Open API) document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
-  def routes: NonEmptyList[RouterConstructor[F, _]]
+  def routes: NonEmptyList[Route[F]]
+
+  def union(route: Route[F]*): NonEmptyList[Route[F]] =
+    require(route.nonEmpty, "There must always be at least one Route.")
+    NonEmptyList.fromListUnsafe(route.toList)
