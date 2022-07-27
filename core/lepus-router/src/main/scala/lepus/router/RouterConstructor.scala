@@ -8,7 +8,7 @@ import cats.effect.{ Async, Sync }
 
 import org.http4s.HttpRoutes as Http4sRoutes
 
-import lepus.router.http.{ RequestEndpoint, Request, Response, Header, Method }
+import lepus.router.http.{ Request, Response, Header, Method }
 import lepus.router.model.{ Tag, ServerResponse }
 
 /** A model that contains one routing information.
@@ -17,12 +17,6 @@ import lepus.router.model.{ Tag, ServerResponse }
   * {{{
   *   // http:localhost:5555/hello/world/lepus
   *   object HelloRoute extends RouterConstructor[IO]:
-  *     override type Param = (String, Long)
-  *     override def endpoint: RequestEndpoint[_] =
-  *       "hello" / bindPath[String]("world") / bindPath[String]("name")
-  *
-  *     override def summary = Some("Hello World!")
-  *
   *     override def routes: Routes[IO, Param] = {
   *       case GET => IO(ServerResponse.NoContent)
   *     }
@@ -57,9 +51,6 @@ abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
 
   /** List of methods that can be handled by this endpoint. */
   lazy val methods: List[Method] = Method.values.filter(routes.isDefinedAt).toList
-
-  /** The value that will be the path of the Http request. */
-  def endpoint: RequestEndpoint.Endpoint
 
   /** Summary of this endpoint, used during Open API document generation. */
   def summary: Option[String] = None
