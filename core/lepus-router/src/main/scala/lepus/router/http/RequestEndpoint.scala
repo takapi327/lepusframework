@@ -20,10 +20,6 @@ object RequestEndpoint:
     @targetName("addQuery?") def :?(query: Query): Endpoint = this ++ query
     @targetName("addQuery&") def :&(query: Query): Endpoint = this ++ query
 
-    @targetName("endpointToTuple") def ->[F[_]](
-      const: RouterConstructor[F, ?]
-    ): Route[F] = (this, const)
-
   sealed trait Param extends Endpoint:
     def converter:   EndpointConverter[String, ?]
     def description: Option[String]
