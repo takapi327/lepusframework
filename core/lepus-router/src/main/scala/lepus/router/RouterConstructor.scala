@@ -61,19 +61,6 @@ abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
   /** The value that will be the path of the Http request. */
   def endpoint: RequestEndpoint.Endpoint
 
-  /** Summary of this endpoint, used during Open API document generation. */
-  def summary: Option[String] = None
-
-  /** Description of this endpoint, used during Open API document generation. */
-  def description: Option[String] = None
-
-  /** Tag of this endpoint, used during Open API document generation. */
-  def tags: Set[Tag] = Set.empty[Tag]
-
-  /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
-    */
-  def deprecated: Option[Boolean] = None
-
   def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
 
   /** An array of responses returned by each method. */
