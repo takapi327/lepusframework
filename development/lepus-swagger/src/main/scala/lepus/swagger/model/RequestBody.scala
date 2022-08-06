@@ -16,7 +16,7 @@ case class RequestBody(
   content:     ListMap[String, Content]
 )
 
-object RequestBody:
+private[lepus] object RequestBody:
 
   val empty = RequestBody("RequestBody is not specified", false, ListMap.empty)
 

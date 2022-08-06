@@ -10,6 +10,8 @@ import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.{ Method, RequestEndpoint }
 
+import lepus.openapi.OpenApiConstructor
+
 import lepus.swagger.SchemaToOpenApiSchema
 
 /** Model for generating Swagger documentation for a single endpoint path
@@ -37,11 +39,11 @@ final case class Path(
   responses:   ListMap[String, Response] = ListMap.empty
 )
 
-object Path:
+private[lepus] object Path:
 
   def fromEndpoint[F[_]](
     method:                Method,
-    router:                RouterConstructor[F, _],
+    router:                RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): Path =
     val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()

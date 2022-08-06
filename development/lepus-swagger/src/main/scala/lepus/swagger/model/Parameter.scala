@@ -29,7 +29,7 @@ final case class Parameter(
   description: Option[String]
 )
 
-object Parameter:
+private[lepus] object Parameter:
 
   def fromRequestEndpoint(
     magnet:                RequestEndpointMagnet,
