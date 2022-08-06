@@ -6,16 +6,15 @@
 
 package server.router
 
-import cats.effect._
+import cats.effect.IO
 
-import lepus.router._
+import lepus.router.{ *, given }
 import lepus.router.model.ServerResponse
 
-object HelloRoute extends RouterConstructor[IO, String] {
+object HelloRoute extends RouterConstructor[IO, String]:
 
   override def endpoint = "hello" / bindPath[String]("name")
 
   override def routes = {
     case GET => req => IO(ServerResponse.NoContent)
   }
-}
