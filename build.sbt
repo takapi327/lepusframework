@@ -39,7 +39,7 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
         name = Some("sbt scripted"),
       )
     ),
-    scalas = List(scala3, scala212),
+    scalas = List(scala3),
     javas  = List(JavaSpec.temurin(java11)),
   )
 )
@@ -104,7 +104,6 @@ lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt
 
 lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
   .dependsOn(SbtPluginProject)
-  .settings(publish / skip := true)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
