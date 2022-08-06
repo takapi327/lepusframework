@@ -31,7 +31,7 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
     "sbt scripted",
     githubWorkflowJobSetup.value.toList ::: List(
       WorkflowStep.Run(
-        List("sbt publishLocal"),
+        List("sbt +publishLocal"),
         name = Some("sbt publishLocal"),
       ),
       WorkflowStep.Run(
