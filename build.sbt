@@ -39,7 +39,7 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
         name = Some("sbt scripted"),
       )
     ),
-    scalas = List(scala3),
+    scalas = List(scala3, scala212),
     javas  = List(JavaSpec.temurin(java11)),
   )
 )
