@@ -48,7 +48,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
           |
           |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
-          |    val routerProvider: OpenApiProvider[IO] & OpenApiProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
+          |    val routerProvider: RouterProvider[IO] & OpenApiProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
           |
           |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), routerProvider)
           |
