@@ -10,9 +10,7 @@ import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.{ Method, RequestEndpoint }
 
-import lepus.openapi.OpenApiConstructor
-
-import lepus.swagger.SchemaToOpenApiSchema
+import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
 
 /** Model for generating Swagger documentation for a single endpoint path
   *

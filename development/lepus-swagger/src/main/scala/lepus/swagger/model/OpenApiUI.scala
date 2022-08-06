@@ -6,8 +6,6 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.openapi.model.Tag
-
 /** @param openapi
   *   OpenAPI version
   * @param info
