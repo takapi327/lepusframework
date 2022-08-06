@@ -12,15 +12,16 @@ import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
 import lepus.router.{ RouterConstructor, RouterProvider }
+
 import lepus.swagger.model.*
 
-object RouterToOpenAPI:
+private[lepus] object RouterToOpenAPI:
 
   val schemaToTuple: SchemaToTuple = SchemaToTuple()
 
   def generateOpenAPIDocs[F[_]](
     info:   Info,
-    router: RouterProvider[F]
+    router: RouterProvider[F] & OpenApiProvider[F]
   ): OpenApiUI =
     val groupEndpoint = router.routes.groupBy(_.endpoint.toPath)
 
@@ -31,10 +32,10 @@ object RouterToOpenAPI:
 
     val component = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
     val endpoints = groupEndpoint.map(v => v._1 -> routerToPath(v._2, schemaToOpenApiSchema))
-    OpenApiUI.build(info, endpoints, router.tags, component)
+    OpenApiUI.build(info, endpoints, router.routes.toList.flatMap(_.tags).toSet, component)
 
   private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[String, NonEmptyList[RouterConstructor[F, ?]]]
+    groupEndpoint: Map[String, NonEmptyList[RouterConstructor[F, ?] & OpenApiConstructor[F, ?]]]
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, routes) <- groupEndpoint.toList
@@ -51,7 +52,7 @@ object RouterToOpenAPI:
     }
 
   private def routerToPath[F[_]](
-    routes:                NonEmptyList[RouterConstructor[F, ?]],
+    routes:                NonEmptyList[RouterConstructor[F, ?] & OpenApiConstructor[F, ?]],
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): Map[String, Path] =
     (for
