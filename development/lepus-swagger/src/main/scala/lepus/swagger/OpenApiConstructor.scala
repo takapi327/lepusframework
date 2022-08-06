@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.swagger
 
@@ -22,7 +22,7 @@ trait OpenApiConstructor[F[_], P]:
   def tags: Set[Tag] = Set.empty[Tag]
 
   /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
-   */
+    */
   def deprecated: Option[Boolean] = None
 
   /** List of methods that can be handled by this endpoint. */

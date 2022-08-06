@@ -61,7 +61,7 @@ object LepusSettings {
     baseClassloader := LepusCommands.baseClassloaderTask.value,
     (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue,
     commands += LepusCommands.swaggerCommand,
-    swaggerTitle := None,
-    swaggerVersion := None,
+    swaggerTitle   := None,
+    swaggerVersion := None
   )
 }

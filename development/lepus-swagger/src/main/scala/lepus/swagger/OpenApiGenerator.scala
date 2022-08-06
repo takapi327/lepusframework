@@ -102,7 +102,9 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
         case ex: ClassNotFoundException =>
           throw GenerateSwaggerException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
 
-    if !classOf[OpenApiProvider[IO]].isAssignableFrom(routeClass) && !classOf[RouterProvider[IO]].isAssignableFrom(routeClass) then
+    if !classOf[OpenApiProvider[IO]]
+        .isAssignableFrom(routeClass) && !classOf[RouterProvider[IO]].isAssignableFrom(routeClass)
+    then
       throw GenerateSwaggerException(
         s"""
           |Class ${ routeClass.getName } must implement RouterProvider interface
