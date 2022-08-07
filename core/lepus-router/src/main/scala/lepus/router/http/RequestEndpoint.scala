@@ -6,7 +6,7 @@ package lepus.router.http
 
 import scala.annotation.targetName
 
-import lepus.router.{ Route, EndpointConverter, Validator, RouterConstructor }
+import lepus.router.{ EndpointConverter, Validator }
 
 object RequestEndpoint:
 
