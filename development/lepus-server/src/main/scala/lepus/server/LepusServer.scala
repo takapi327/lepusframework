@@ -28,11 +28,9 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    val httpApp = routerProvider.routes
-      .map {
-        case (endpoint, router) => bindFromRequest(router.routes, endpoint)
-      }
-      .reduce
+    val httpApp = routerProvider.routes.map {
+      case (endpoint, router) => bindFromRequest(router.routes, endpoint)
+    }.reduce
 
     BlazeServerBuilder[IO]
       .bindHttp(port, host)
