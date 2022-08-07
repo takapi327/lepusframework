@@ -25,6 +25,22 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
     ),
     scalas = List(scala3, scala212),
     javas  = List(JavaSpec.temurin(java11)),
+  ),
+  WorkflowJob(
+    "sbtScripted",
+    "sbt scripted",
+    githubWorkflowJobSetup.value.toList ::: List(
+      WorkflowStep.Run(
+        List("sbt +publishLocal"),
+        name = Some("sbt publishLocal"),
+      ),
+      WorkflowStep.Run(
+        List("sbt scripted"),
+        name = Some("sbt scripted"),
+      )
+    ),
+    scalas = List(scala3),
+    javas  = List(JavaSpec.temurin(java11)),
   )
 )
 
@@ -88,7 +104,6 @@ lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt
 
 lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
   .dependsOn(SbtPluginProject)
-  .settings(publish / skip := true)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,

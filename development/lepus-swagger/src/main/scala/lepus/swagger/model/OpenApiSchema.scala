@@ -16,7 +16,7 @@ case class OpenApiSchema(
   oneOf:      List[Either[Reference, OpenApiSchema]]            = List.empty
 )
 
-object OpenApiSchema:
+private[lepus] object OpenApiSchema:
 
   def apply(`type`: SchemaType): OpenApiSchema =
     OpenApiSchema(`type` = Some(`type`))

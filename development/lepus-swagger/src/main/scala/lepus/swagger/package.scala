@@ -4,4 +4,10 @@
 
 package lepus
 
-package object swagger extends ExtensionMethods
+import lepus.router.http.RequestEndpoint
+import lepus.router.RouterConstructor
+
+package object swagger extends ExtensionMethods:
+
+  type RouteApi[F[_]] = (RequestEndpoint.Endpoint, RouterConstructor[F, ?] & OpenApiConstructor[F, ?])
+

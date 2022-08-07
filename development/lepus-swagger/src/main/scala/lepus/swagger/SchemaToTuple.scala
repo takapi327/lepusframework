@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 
 import lepus.router.model.{ Schema, SchemaType }
 
-class SchemaToTuple:
+private[lepus] class SchemaToTuple:
   def apply(schema: Schema[?]): List[(Schema.Name, Schema[?])] =
     val thisSchema = schema.name match
       case Some(name) => List(name -> schema)
@@ -21,7 +21,7 @@ class SchemaToTuple:
 
     thisSchema ++ propertySchemas
 
-object SchemaToTuple:
+private[lepus] object SchemaToTuple:
 
   def unique(tuples: Iterable[(Schema.Name, Schema[?])]): Iterable[(Schema.Name, Schema[?])] =
     val uniques: collection.mutable.Set[Schema.Name]  = collection.mutable.Set()

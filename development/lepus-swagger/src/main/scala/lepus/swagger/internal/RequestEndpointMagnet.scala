@@ -15,7 +15,7 @@ trait RequestEndpointMagnet:
   type ThisType
   def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType
 
-object RequestEndpointMagnet:
+private[lepus] object RequestEndpointMagnet:
 
   type PathParam  = Path & Param
   type QueryParam = Query & Param
