@@ -15,7 +15,7 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import lepus.core.LepusVersion
 import LepusImport._
 import LepusInternalKeys._
-import lepus.sbt.LepusSwaggerImport._
+import LepusSwaggerImport._
 
 object LepusSettings {
 
