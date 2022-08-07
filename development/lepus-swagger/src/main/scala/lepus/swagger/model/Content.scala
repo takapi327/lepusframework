@@ -22,7 +22,7 @@ final case class Content(
   examples: ListMap[String, String]                  = ListMap.empty
 )
 
-object Content:
+private[lepus] object Content:
 
   def build(schema: Schema[_], schemaToOpenApiSchema: SchemaToOpenApiSchema): Content =
     Content(

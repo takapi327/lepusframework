@@ -6,8 +6,6 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.model.Tag
-
 /** @param openapi
   *   OpenAPI version
   * @param info
@@ -30,7 +28,7 @@ final case class OpenApiUI(
   components: Option[Component]              = None
 )
 
-object OpenApiUI:
+private[lepus] object OpenApiUI:
 
   def build(
     info:      Info,
@@ -55,7 +53,7 @@ object OpenApiUI:
   * @param contact
   * @param license
   */
-final case class Info(
+private[lepus] final case class Info(
   title:          String,
   version:        String,
   description:    Option[String]  = None,
@@ -64,13 +62,13 @@ final case class Info(
   license:        Option[License] = None
 )
 
-final case class Contact(
+private[lepus] final case class Contact(
   name:  Option[String] = None,
   email: Option[String] = None,
   url:   Option[String] = None
 )
 
-final case class License(
+private[lepus] final case class License(
   name: String,
   url:  String
 )
@@ -83,11 +81,11 @@ final case class License(
   * @param description
   *   Additional information about the servers provided
   */
-final case class Server(
+private[lepus] final case class Server(
   url:         String,
   description: Option[String] = None
 )
 
-final case class Component(
+private[lepus] final case class Component(
   schemas: ListMap[String, Either[Reference, OpenApiSchema]]
 )

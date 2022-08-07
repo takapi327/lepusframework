@@ -10,7 +10,6 @@ import io.circe.*
 import io.circe.generic.semiauto.*
 import io.circe.syntax.EncoderOps
 
-import lepus.router.model.Tag
 import lepus.swagger.model.*
 
 trait OpenApiEncoder:

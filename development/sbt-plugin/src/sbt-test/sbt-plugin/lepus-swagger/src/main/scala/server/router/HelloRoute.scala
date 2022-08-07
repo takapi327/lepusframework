@@ -6,34 +6,35 @@
 
 package server.router
 
-import cats.effect._
+import cats.effect.IO
 
-import io.circe._
-import io.circe.generic.semiauto._
+import io.circe.*
+import io.circe.generic.semiauto.*
 
-import lepus.router._
-import lepus.router.http._
+import lepus.router.{ *, given }
+import lepus.router.http.*
 import lepus.router.model.Schema
-import lepus.router.generic.semiauto._
+import lepus.router.generic.semiauto.*
 import lepus.router.model.ServerResponse
 
-case class Sample(info: String)
-object Sample {
-  implicit val encoder: Encoder[Sample] = deriveEncoder
-  implicit val schema:  Schema[Sample]  = deriveSchemer
-}
+import lepus.swagger.OpenApiConstructor
 
-object HelloRoute extends RouterConstructor[IO, String] {
+case class Sample(info: String)
+object Sample:
+  given Encoder[Sample] = deriveEncoder
+  given Schema[Sample]  = deriveSchemer
+
+object HelloRoute extends RouterConstructor[IO, String], OpenApiConstructor[IO, String]:
 
   override def endpoint = "hello" / bindPath[String]("name")
 
   override def summary     = Some("Sample Paths")
   override def description = Some("Sample Paths")
 
-  override def responses: PartialFunction[RequestMethod, List[Response[_]]] = {
+  override def responses = {
     case GET => List(
       Response.build[Sample](
-        status      = responseStatus.Ok,
+        status      = status.Ok,
         headers     = List.empty,
         description = "Sample information acquisition"
       )
@@ -43,4 +44,3 @@ object HelloRoute extends RouterConstructor[IO, String] {
   override def routes = {
     case GET => req => IO(ServerResponse.NoContent)
   }
-}

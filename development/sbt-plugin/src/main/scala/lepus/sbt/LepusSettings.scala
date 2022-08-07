@@ -15,6 +15,7 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import lepus.core.LepusVersion
 import LepusImport._
 import LepusInternalKeys._
+import LepusSwaggerImport._
 
 object LepusSettings {
 
@@ -59,6 +60,8 @@ object LepusSettings {
     libraryDependencies += lepusSwagger,
     baseClassloader := LepusCommands.baseClassloaderTask.value,
     (Compile / sourceGenerators) += LepusGenerator.generateSwagger.taskValue,
-    commands += LepusCommands.swaggerCommand
+    commands += LepusCommands.swaggerCommand,
+    swaggerTitle   := None,
+    swaggerVersion := None
   )
 }

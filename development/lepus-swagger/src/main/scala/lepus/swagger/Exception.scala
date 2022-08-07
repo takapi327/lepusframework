@@ -4,7 +4,7 @@
 
 package lepus.swagger
 
-object Exception:
+private[lepus] object Exception:
 
   /** Indicates an issue with generate a swagger api document, e.g. a problem reading its configuration.
     */

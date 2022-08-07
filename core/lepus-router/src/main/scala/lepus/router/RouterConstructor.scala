@@ -9,7 +9,7 @@ import cats.effect.{ Async, Sync }
 import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.http.{ RequestEndpoint, Request, Response, Header, Method }
-import lepus.router.model.{ Tag, ServerResponse }
+import lepus.router.model.ServerResponse
 
 /** A model that contains one routing information.
   *
@@ -55,24 +55,8 @@ abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
   /** Alias of ServerResponse. */
   protected final val response = ServerResponse
 
-  /** List of methods that can be handled by this endpoint. */
-  lazy val methods: List[Method] = Method.values.filter(routes.isDefinedAt).toList
-
   /** The value that will be the path of the Http request. */
   def endpoint: RequestEndpoint.Endpoint
-
-  /** Summary of this endpoint, used during Open API document generation. */
-  def summary: Option[String] = None
-
-  /** Description of this endpoint, used during Open API document generation. */
-  def description: Option[String] = None
-
-  /** Tag of this endpoint, used during Open API document generation. */
-  def tags: Set[Tag] = Set.empty[Tag]
-
-  /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
-    */
-  def deprecated: Option[Boolean] = None
 
   def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
 

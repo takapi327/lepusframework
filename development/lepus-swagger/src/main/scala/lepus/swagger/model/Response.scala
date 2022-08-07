@@ -26,7 +26,7 @@ final case class Response(
   description: String
 )
 
-object Response:
+private[lepus] object Response:
 
   val empty = Response(ListMap.empty, ListMap.empty, "Response is not specified")
 
