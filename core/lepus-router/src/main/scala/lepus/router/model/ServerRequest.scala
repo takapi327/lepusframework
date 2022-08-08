@@ -12,7 +12,7 @@ import org.http4s.{ Request, EntityDecoder }
 
 import lepus.router.http.Header
 
-class ServerRequest[F[_], T](request: Request[F], val param: T):
+class ServerRequest[F[_]](request: Request[F]):
 
   opaque type Protocol = String
   extension (prot: Protocol) @targetName("protocolAsString") def asString: String = prot

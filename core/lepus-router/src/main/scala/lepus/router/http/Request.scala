@@ -4,17 +4,21 @@
 
 package lepus.router.http
 
-import org.http4s.{ Request as Http4sRequest, Uri }
+import scala.annotation.targetName
+
+import cats.MonadThrow
+
+import org.http4s.{ Request as Http4sRequest, Uri, EntityDecoder }
 
 import lepus.router.model.Schema
 
 trait HttpRequest:
-  def method:          Method
-  def pathSegments:    List[String]
-  def queryParameters: Map[String, Seq[String]]
+  def method: Method
+  private[lepus] def pathSegments:    List[String]
+  private[lepus] def queryParameters: Map[String, Seq[String]]
 
 class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
-  lazy val method: Method = request.method.name.toUpperCase match
+  val method: Method = request.method.name.toUpperCase match
     case "GET"     => Method.Get
     case "HEAD"    => Method.Head
     case "POST"    => Method.Post
@@ -26,14 +30,42 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
     case "TRACE"   => Method.Trace
     case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
 
-  lazy val pathSegments: List[String] =
+  private[lepus] val pathSegments: List[String] =
     request.pathInfo.renderString
       .dropWhile(_ == '/')
       .split("/")
       .toList
       .map(Uri.decode(_))
 
-  lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
+  private[lepus] val queryParameters: Map[String, Seq[String]] = request.multiParams
+
+  opaque type Protocol = String
+  extension (prot: Protocol) @targetName("protocolAsString") def asString: String = prot
+
+  opaque type ContentType = String
+  extension (content: ContentType) @targetName("contentTypeAsString") def asString: String = content
+
+  opaque type ContentLength = Long
+  extension (content: ContentLength) def asLong: Long = content
+
+  val protocol: Protocol = request.httpVersion.toString()
+
+  val headers: Seq[Header] =
+    request.headers.headers.map(header => Header(header.name.toString, header.value))
+
+  val contentType:   Option[ContentType]   = findHeaderValue(Header.CONTENT_TYPE)
+  val contentLength: Option[ContentLength] = findHeaderValue(Header.CONTENT_LENGTH).flatMap(_.toLongOption)
+
+  /** Based on the name of the header, get the value associated with it.
+   * @param name
+   *   Http Request Header name
+   * @return
+   *   Http Request Header value
+   */
+  def findHeaderValue(name: String): Option[ContentType] = headers.find(_.is(name)).map(_.value)
+
+  def as[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =
+    request.as[A]
 
 object Request:
 
