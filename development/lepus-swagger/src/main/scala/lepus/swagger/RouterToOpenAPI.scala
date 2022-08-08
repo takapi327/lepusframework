@@ -53,10 +53,24 @@ private[lepus] object RouterToOpenAPI:
       }
     }
 
+  private def routerToSchemaTuple[F[_]](
+    groupEndpoint: Map[RequestEndpoint.Endpoint, lepus.router.Router[F, ?, ?, ?]]
+  ): Option[ListMap[Schema.Name, Schema[?]]] =
+    val encoded = for
+      (_, router) <- groupEndpoint.toList
+      encoded     <- schemaToTuple(router.output)
+    yield encoded
+
+    encoded.toListMap.foldLeft[ListMap[Schema.Name, Schema[?]]](ListMap.empty) { (o, ol) =>
+      PartialFunction.condOpt(o, ol) {
+        case (x, xs) => x concat xs
+      }
+    }
+
   private def routerToPath[F[_]](
     router: RouteApi[F],
     schema: SchemaToOpenApiSchema
   ): Map[String, Path] =
     val (endpoint, route) = router
     (for method <- route.methods
-    yield method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)).toMap
+    yield method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route.action, schema)).toMap

@@ -14,16 +14,16 @@ import cats.effect.IO
 import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.RouterConstructor
-import lepus.router.http.RequestEndpoint
-import lepus.router.http.Method
+import lepus.router.http.{ Request, RequestEndpoint, Method }
 import lepus.router.model.{ ServerRequest, ServerResponse }
 
 package object router extends LepusRouter:
 
   type Http[T] = PartialFunction[Method, T]
 
-  type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
+  type HttpRoutes[F[_]] = Http[F[ServerResponse]]
 
   given Semigroup[Http4sRoutes[IO]] = _ combineK _
 
-  type Route[F[_]] = (RequestEndpoint.Endpoint, RouterConstructor[F, ?])
+  type Routing[F[_]] = (RequestEndpoint.Endpoint, lepus.router.Router[F, ?, ?, ?])
+  type Requestable[F[_], T] = T ?=> Request[F] ?=> HttpRoutes[F]
