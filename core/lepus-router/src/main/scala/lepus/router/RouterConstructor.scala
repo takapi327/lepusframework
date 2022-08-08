@@ -24,10 +24,8 @@ import lepus.router.model.ServerResponse
   *
   * @tparam F
   *   the effect type.
-  * @tparam P
-  *   the combined type of the Http request path and query parameters
   */
-abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
+abstract class RouterConstructor[F[_]](using Async[F], Sync[F]):
 
   /** Alias of RequestMethod. */
   protected final val GET     = Method.Get
@@ -55,4 +53,4 @@ abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
   def responses: Http[List[Response[?]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
-  def routes: HttpRoutes[F, P]
+  def routes: HttpRoutes[F]
