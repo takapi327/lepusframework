@@ -8,10 +8,11 @@
 # Start api server
 # TODO: After the Run command is executed, subsequent commands are not executed.
 # Verify again after the Server run and stop process is implemented in Lepus.
+> compile
 #> run
 
 # Call Request API
-#$ callRequestAPI hello/lepus 200
+#> callRequestAPI hello/lepus 200
 #$ touch success.txt
 
 #$ exec kill -9 $(lsof -t -i:5555)
