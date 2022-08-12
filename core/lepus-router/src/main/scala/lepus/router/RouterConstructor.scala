@@ -27,17 +27,6 @@ import lepus.router.model.ServerResponse
   */
 abstract class RouterConstructor[F[_]](using Async[F], Sync[F]):
 
-  /** Alias of RequestMethod. */
-  protected final val GET     = Method.Get
-  protected final val HEAD    = Method.Head
-  protected final val POST    = Method.Post
-  protected final val PUT     = Method.Put
-  protected final val DELETE  = Method.Delete
-  protected final val OPTIONS = Method.Options
-  protected final val PATCH   = Method.Patch
-  protected final val CONNECT = Method.Connect
-  protected final val TRACE   = Method.Trace
-
   /** Alias of ResponseStatus. */
   protected final val status = Response.Status
 
