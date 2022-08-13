@@ -4,20 +4,18 @@
 
 package lepus.router
 
-import cats.effect.{ Async, Sync }
-
 import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.http.{ Request, Response, Header, Method }
-import lepus.router.model.ServerResponse
+import lepus.router.model.{ Schema, ServerResponse }
 
 /** A model that contains one routing information.
   *
   * For example:
   * {{{
   *   // http:localhost:5555/hello/world/lepus
-  *   object HelloRoute extends RouterConstructor[IO]:
-  *     def routes: Routes[IO, Param] = {
+  *   object HelloRoute extends RouterConstructor[IO, String]:
+  *     def routes = {
   *       case GET => IO(ServerResponse.NoContent)
   *     }
   * }}}
@@ -25,7 +23,7 @@ import lepus.router.model.ServerResponse
   * @tparam F
   *   the effect type.
   */
-abstract class RouterConstructor[F[_]](using Async[F], Sync[F]):
+abstract class RouterConstructor[F[_], T]:
 
   /** Alias of ResponseStatus. */
   protected final val status = Response.Status
@@ -42,4 +40,4 @@ abstract class RouterConstructor[F[_]](using Async[F], Sync[F]):
   def responses: Http[List[Response[?]]] = PartialFunction.empty
 
   /** Corresponding logic for each method of this endpoint. */
-  def routes: HttpRoutes[F]
+  def routes: Requestable[F][T]
