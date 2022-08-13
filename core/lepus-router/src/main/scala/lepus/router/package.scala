@@ -25,8 +25,8 @@ package object router extends LepusRouter:
 
   given Semigroup[Http4sRoutes[IO]] = _ combineK _
 
-  type Routing[F[_]] = (RequestEndpoint.Endpoint, Router[F, ?, ?, ?])
-  type Requestable[F[_], T] = T ?=> Request[F] ?=> HttpRoutes[F]
+  type Routing[F[_]] = (RequestEndpoint.Endpoint, RouterConstructor[F])
+  type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> HttpRoutes[F]
 
   /** Alias of RequestMethod. */
   final val GET     = Method.Get
