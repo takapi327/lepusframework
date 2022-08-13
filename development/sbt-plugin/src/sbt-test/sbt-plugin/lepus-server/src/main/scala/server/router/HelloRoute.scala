@@ -13,8 +13,6 @@ import lepus.router.model.ServerResponse
 
 object HelloRoute extends RouterConstructor[IO, String]:
 
-  override def endpoint = "hello" / bindPath[String]("name")
-
   override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
+    case GET => IO(ServerResponse.NoContent)
   }
