@@ -13,7 +13,7 @@ import io.circe.generic.semiauto.*
 
 import lepus.router.{ *, given }
 import lepus.router.http.*
-import lepus.router.http.Response.Status
+import lepus.router.http.Status
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
 import lepus.router.model.ServerResponse
