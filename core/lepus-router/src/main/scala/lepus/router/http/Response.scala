@@ -19,7 +19,7 @@ import lepus.router.model.Schema
   */
 case class Response[T: Encoder](
   status:           Status,
-  headers:          List[Response.CustomHeader[?]] = List.empty,
+  headers:          List[Header.CustomHeader[?]] = List.empty,
   description:      String
 )(using val schema: Schema[T])
 
@@ -27,7 +27,7 @@ object Response:
 
   def build[T: Encoder: Schema](
     status:      Status,
-    headers:     List[CustomHeader[?]],
+    headers:     List[Header.CustomHeader[?]],
     description: String
   ): Response[T] =
     Response[T](
@@ -35,9 +35,4 @@ object Response:
       headers     = headers,
       description = description
     )
-
-  case class CustomHeader[T](
-    name:             String,
-    description:      String
-  )(using val schema: Schema[T])
 end Response

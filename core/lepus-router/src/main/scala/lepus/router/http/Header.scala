@@ -8,13 +8,18 @@ import org.typelevel.ci.CIString
 
 import org.http4s.{ Uri, Header as Http4sHeader }
 
+import lepus.router.model.Schema
+
 import Header.*
 trait Header(
   name: String,
-  val value: String,
-  val uri: Option[Uri] = None,
+  value: String,
+  uri: Option[Uri] = None,
   fieldName: FieldName = FieldName.ContentType,
 ):
+
+  def getValue: String = value
+  def getUri:   Option[Uri] = uri
 
   override def toString:             String = s"$name: $value"
   def toString(split: String = "/"): String = s"$name$split$value"
@@ -48,6 +53,14 @@ object Header:
     fieldName: FieldName = FieldName.ContentType,
   ): Header =
     new Header(name, value, uri, fieldName) {}
+
+  case class CustomHeader[T](
+    name:             String,
+    value:            T,
+    uri:              Option[Uri] = None,
+    fieldName:        FieldName   = FieldName.ContentType,
+    description:      String      = ""
+  )(using val schema: Schema[T]) extends Header(name, value.toString, uri, fieldName)
 
   enum HeaderType:
     case ApplicationGzip               extends HeaderType, Header("application", "gzip")

@@ -37,7 +37,7 @@ class ServerRequest[F[_]](request: Request[F]):
     * @return
     *   Http Request Header value
     */
-  def findHeaderValue(name: String): Option[ContentType] = headers.find(_.is(name)).map(_.value)
+  def findHeaderValue(name: String): Option[ContentType] = headers.find(_.is(name)).map(_.getValue)
 
   def as[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =
     request.as[A]

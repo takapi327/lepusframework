@@ -34,7 +34,7 @@ case class ServerResponse(
   def toHttp4sResponse[F[_]](): Http4sResponse[F] =
     Http4sResponse[F](
       status  = status.toHttp4sStatus(),
-      headers = Http4sHeaders(headers.map(_.toHttp4sHeader()), headers.flatMap(_.uri).map(Location(_))),
+      headers = Http4sHeaders(headers.map(_.toHttp4sHeader()), headers.flatMap(_.getUri).map(Location(_))),
       body    = body.map(_.toStream()).getOrElse(Stream.empty)
     )
 
