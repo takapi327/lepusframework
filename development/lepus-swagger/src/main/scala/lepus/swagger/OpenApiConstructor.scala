@@ -6,9 +6,9 @@ package lepus.swagger
 
 import lepus.router.RouterConstructor
 import lepus.router.Http
-import lepus.router.http.{ Request, Response }
+import lepus.router.http.Request
 
-import lepus.swagger.model.Tag
+import lepus.swagger.model.{ Tag, OpenApiResponse }
 
 /** Model for generating OpenApi documentation.
   *
@@ -55,7 +55,7 @@ trait OpenApiConstructor[F[_], T] extends RouterConstructor[F, T]:
   def bodies: Http[Request.Body[?]] = PartialFunction.empty
 
   /** An array of responses returned by each method. */
-  def responses: Http[List[Response[?]]] = PartialFunction.empty
+  def responses: Http[List[OpenApiResponse[?]]] = PartialFunction.empty
 
   /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
     */

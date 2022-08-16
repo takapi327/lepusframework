@@ -34,7 +34,7 @@ final case class Path(
   deprecated:  Option[Boolean]           = None,
   parameters:  List[Parameter]           = List.empty,
   requestBody: Option[RequestBody]       = None,
-  responses:   ListMap[String, Response] = ListMap.empty
+  responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 
 private[lepus] object Path:
@@ -61,8 +61,8 @@ private[lepus] object Path:
     val responses = router.responses
       .lift(method)
       .filter(_.nonEmpty)
-      .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schema)))
-      .getOrElse(List("default" -> Response.empty))
+      .map(resList => resList.map(res => res.status.enumStatus.toString -> res.toUI(schema)))
+      .getOrElse(List("default" -> OpenApiResponse.UI.empty))
 
     Path(
       summary     = router.summary,

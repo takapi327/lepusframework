@@ -13,7 +13,7 @@ import org.http4s.{ Request as Http4sRequest, HttpRoutes as Http4sRoutes, Respon
 import lepus.router.*
 import lepus.router.http.*
 import lepus.router.internal.*
-import lepus.router.model.{ ServerRequest, ServerResponse }
+import lepus.router.model.ServerRequest
 import lepus.router.ConvertResult.*
 
 /** Compare and verify Http requests and endpoints, and combine them with logic.
@@ -50,9 +50,9 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     * @param response
     *   Logic return value corresponding to the endpoint
     * @return
-    *   ServerResponse with headers according to the contents of the body
+    *   Response with headers according to the contents of the body
     */
-  def addResponseHeader(response: ServerResponse): ServerResponse =
+  def addResponseHeader(response: Response): Response =
     response.body match
       case None => response
       case Some(body) =>
