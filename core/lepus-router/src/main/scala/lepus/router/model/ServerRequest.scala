@@ -28,8 +28,9 @@ class ServerRequest[F[_]](request: Request[F]):
   lazy val headers: Seq[Header] =
     request.headers.headers.map(header => Header(header.name.toString, header.value))
 
-  lazy val contentType:   Option[ContentType]   = findHeaderValue(Header.FieldName.ContentType.name)
-  lazy val contentLength: Option[ContentLength] = findHeaderValue(Header.FieldName.ContentLength.name).flatMap(_.toLongOption)
+  lazy val contentType: Option[ContentType] = findHeaderValue(Header.FieldName.ContentType.name)
+  lazy val contentLength: Option[ContentLength] =
+    findHeaderValue(Header.FieldName.ContentLength.name).flatMap(_.toLongOption)
 
   /** Based on the name of the header, get the value associated with it.
     * @param name

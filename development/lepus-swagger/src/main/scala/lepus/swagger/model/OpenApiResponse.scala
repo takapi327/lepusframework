@@ -14,14 +14,14 @@ import lepus.router.model.Schema
 import lepus.swagger.SchemaToOpenApiSchema
 
 /** API Response Value
- *
- * @param status
- *   Response Status Code
- * @param headers
- *   List of headers given to the response
- * @param description
- *   Response Description
- */
+  *
+  * @param status
+  *   Response Status Code
+  * @param headers
+  *   List of headers given to the response
+  * @param description
+  *   Response Description
+  */
 case class OpenApiResponse[T: Encoder: Schema](
   status:      Status,
   headers:     List[RouteHeader.CustomHeader[?]] = List.empty,
@@ -39,19 +39,18 @@ case class OpenApiResponse[T: Encoder: Schema](
       description = description
     )
 
-
 object OpenApiResponse:
 
   /** @param headers
-   *   Maps a header name to its definition. RFC7230 states header names are case insensitive. If a response header is
-   *   defined with the name "Content-Type", it SHALL be ignored.
-   * @param content
-   *   A map containing descriptions of potential response payloads. The key is a media type or media type range and the
-   *   value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g.
-   *   text/plain overrides text
-   * @param description
-   *   REQUIRED. A short description of the response. CommonMark syntax MAY be used for rich text representation.
-   */
+    *   Maps a header name to its definition. RFC7230 states header names are case insensitive. If a response header is
+    *   defined with the name "Content-Type", it SHALL be ignored.
+    * @param content
+    *   A map containing descriptions of potential response payloads. The key is a media type or media type range and
+    *   the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g.
+    *   text/plain overrides text
+    * @param description
+    *   REQUIRED. A short description of the response. CommonMark syntax MAY be used for rich text representation.
+    */
   case class UI(
     headers:     ListMap[String, OpenApiResponse.Header],
     content:     ListMap[String, Content],

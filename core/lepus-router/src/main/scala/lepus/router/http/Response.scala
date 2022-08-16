@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.http
 
@@ -13,14 +13,14 @@ import lepus.router.http.{ Header, Status }
 import lepus.router.ConvertResult
 
 /** A model of the response to be returned in response to a received request.
- *
- * @param status
- *   Status of Response
- * @param headers
- *   An array of headers to be attached to the response.
- * @param body
- *   The value of the response body, converted to a Stream.
- */
+  *
+  * @param status
+  *   Status of Response
+  * @param headers
+  *   An array of headers to be attached to the response.
+  * @param body
+  *   The value of the response body, converted to a Stream.
+  */
 case class Response(
   status:  Status,
   headers: Seq[Header],
@@ -59,14 +59,14 @@ object Response:
         case Left(ex)   => throw new Exception(ex.message)
 
   /** Process for linking URLs to query parameters.
-   *
-   * @param url
-   *   String of the URL to redirect to.
-   * @param queryParams
-   *   Query parameter to pass to the redirect URL.
-   * @return
-   *   The complete path with the URL to be redirected to and the query parameters tied to it.
-   */
+    *
+    * @param url
+    *   String of the URL to redirect to.
+    * @param queryParams
+    *   Query parameter to pass to the redirect URL.
+    * @return
+    *   The complete path with the URL to be redirected to and the query parameters tied to it.
+    */
   private[lepus] def bindUrlAndQueryParams(url: String, queryParams: Map[String, Seq[String]]): String =
     if queryParams.isEmpty then url
     else

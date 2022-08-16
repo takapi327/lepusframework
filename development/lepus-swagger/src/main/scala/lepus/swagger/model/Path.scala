@@ -28,12 +28,12 @@ import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
   *   List of response values per endpoint status
   */
 final case class Path(
-  summary:     Option[String]            = None,
-  description: Option[String]            = None,
-  tags:        Set[String]               = Set.empty,
-  deprecated:  Option[Boolean]           = None,
-  parameters:  List[Parameter]           = List.empty,
-  requestBody: Option[RequestBody]       = None,
+  summary:     Option[String]                      = None,
+  description: Option[String]                      = None,
+  tags:        Set[String]                         = Set.empty,
+  deprecated:  Option[Boolean]                     = None,
+  parameters:  List[Parameter]                     = List.empty,
+  requestBody: Option[RequestBody]                 = None,
   responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 

@@ -12,13 +12,13 @@ import lepus.router.model.Schema
 
 import Header.*
 trait Header(
-  name: String,
-  value: String,
-  uri: Option[Uri] = None,
-  fieldName: FieldName = FieldName.ContentType,
+  name:      String,
+  value:     String,
+  uri:       Option[Uri] = None,
+  fieldName: FieldName   = FieldName.ContentType
 ):
 
-  def getValue: String = value
+  def getValue: String      = value
   def getUri:   Option[Uri] = uri
 
   override def toString:             String = s"$name: $value"
@@ -47,20 +47,21 @@ trait Header(
 object Header:
 
   def apply(
-    name: String,
-    value: String,
-    uri: Option[Uri] = None,
-    fieldName: FieldName = FieldName.ContentType,
+    name:      String,
+    value:     String,
+    uri:       Option[Uri] = None,
+    fieldName: FieldName = FieldName.ContentType
   ): Header =
     new Header(name, value, uri, fieldName) {}
 
-  case class CustomHeader[T](
-    name:             String,
-    value:            T,
-    uri:              Option[Uri] = None,
-    fieldName:        FieldName   = FieldName.ContentType,
-    description:      String      = ""
-  )(using val schema: Schema[T]) extends Header(name, value.toString, uri, fieldName)
+  case class CustomHeader[T: Schema](
+    name:        String,
+    value:       T,
+    uri:         Option[Uri] = None,
+    fieldName:   FieldName   = FieldName.ContentType,
+    description: String      = ""
+  ) extends Header(name, value.toString, uri, fieldName):
+    val schema: Schema[T] = summon[Schema[T]]
 
   enum HeaderType:
     case ApplicationGzip               extends HeaderType, Header("application", "gzip")
@@ -89,84 +90,84 @@ object Header:
     case TextPlain                     extends HeaderType, Header("text", "plain")
 
   /** The values listed in the following sites are defined as variables. see
-   * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-   */
+    * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+    */
   enum FieldName(val name: String):
     def toCIString: CIString = CIString(name)
-    case Accept                           extends FieldName("Accept")
-    case AcceptCharset                    extends FieldName("Accept-Charset")
-    case AcceptEncoding                   extends FieldName("Accept-Encoding")
-    case AcceptLanguage                   extends FieldName("Accept-Language")
-    case AcceptRanges                     extends FieldName("Accept-Ranges")
-    case AccessControlAllowCredentials    extends FieldName("Access-Control-Allow-Credentials")
-    case AccessControlAllowHeaders        extends FieldName("Access-Control-Allow-Headers")
-    case AccessControlAllowMethods        extends FieldName("Access-Control-Allow-Methods")
-    case AccessControlAllowOrigin         extends FieldName("Access-Control-Allow-Origin")
-    case AccessControlExposeHeaders       extends FieldName("Access-Control-Expose-Headers")
-    case AccessControlMaxAge              extends FieldName("Access-Control-Max-Age")
-    case AccessControlRequestHeaders      extends FieldName("Access-Control-Request-Headers")
-    case AccessControlRequestMethod       extends FieldName("Access-Control-Request-Method")
-    case Age                              extends FieldName("Age")
-    case Allow                            extends FieldName("Allow")
-    case Authorization                    extends FieldName("Authorization")
-    case CacheControl                     extends FieldName("Cache-Control")
-    case Connection                       extends FieldName("Connection")
-    case ContentDisposition               extends FieldName("Content-Disposition")
-    case ContentEncoding                  extends FieldName("Content-Encoding")
-    case ContentLanguage                  extends FieldName("Content-Language")
-    case ContentLength                    extends FieldName("Content-Length")
-    case ContentLocation                  extends FieldName("Content-Location")
-    case ContentMd5                       extends FieldName("Content-MD5")
-    case ContentRange                     extends FieldName("Content-Range")
-    case ContentTransferEncoding          extends FieldName("Content-Transfer-Encoding")
-    case ContentType                      extends FieldName("Content-Type")
-    case Cookie                           extends FieldName("Cookie")
-    case Date                             extends FieldName("Date")
-    case Etag                             extends FieldName("ETag")
-    case Expect                           extends FieldName("Expect")
-    case Expires                          extends FieldName("Expires")
-    case Forwarded                        extends FieldName("Forwarded")
-    case From                             extends FieldName("From")
-    case Host                             extends FieldName("Host")
-    case IfMatch                          extends FieldName("If-Match")
-    case IfModified_since                 extends FieldName("If-Modified-Since")
-    case IfNoneMatch                      extends FieldName("If-None-Match")
-    case IfRange                          extends FieldName("If-Range")
-    case IfUnmodifiedSince                extends FieldName("If-Unmodified-Since")
-    case LastModified                     extends FieldName("Last-Modified")
-    case Link                             extends FieldName("Link")
-    case Location                         extends FieldName("Location")
-    case MaxForwards                      extends FieldName("Max-Forwards")
-    case Origin                           extends FieldName("Origin")
-    case Pragma                           extends FieldName("Pragma")
-    case ProxyAuthenticate                extends FieldName("Proxy-Authenticate")
-    case ProxyAuthorization               extends FieldName("Proxy-Authorization")
-    case Range                            extends FieldName("Range")
-    case Referer                          extends FieldName("Referer")
-    case RemoteAddress                    extends FieldName("Remote-Address")
-    case RetryAfter                       extends FieldName("Retry-After")
-    case SecWebsocketKey                  extends FieldName("Sec-WebSocket-Key")
-    case SecWebsocketExtensions           extends FieldName("Sec-WebSocket-Extensions")
-    case SecWebsocketAccept               extends FieldName("Sec-WebSocket-Accept")
-    case SecWebsocketProtocol             extends FieldName("Sec-WebSocket-Protocol")
-    case SecWebsocketVersion              extends FieldName("Sec-WebSocket-Version")
-    case Server                           extends FieldName("Server")
-    case SetCookie                        extends FieldName("Set-Cookie")
-    case StrictTransportSecurity          extends FieldName("Strict-Transport-Security")
-    case Te                               extends FieldName("Te")
-    case Trailer                          extends FieldName("Trailer")
-    case TransferEncoding                 extends FieldName("Transfer-Encoding")
-    case Upgrade                          extends FieldName("Upgrade")
-    case Useragent                        extends FieldName("User-Agent")
-    case Vary                             extends FieldName("Vary")
-    case Via                              extends FieldName("Via")
-    case Warning                          extends FieldName("Warning")
-    case WwwAuthenticate                  extends FieldName("WWW-Authenticate")
-    case XFrameOptions                    extends FieldName("X-Frame-Options")
-    case XForwardedFor                    extends FieldName("X-Forwarded-For")
-    case XForwardedHost                   extends FieldName("X-Forwarded-Host")
-    case XForwardedPort                   extends FieldName("X-Forwarded-Port")
-    case XForwardedProto                  extends FieldName("X-Forwarded-Proto")
-    case XRealIp                          extends FieldName("X-Real-Ip")
-    case XRequestedWith                   extends FieldName("X-Requested-With")
-    case XXssProtection                   extends FieldName("X-XSS-Protection")
+    case Accept                        extends FieldName("Accept")
+    case AcceptCharset                 extends FieldName("Accept-Charset")
+    case AcceptEncoding                extends FieldName("Accept-Encoding")
+    case AcceptLanguage                extends FieldName("Accept-Language")
+    case AcceptRanges                  extends FieldName("Accept-Ranges")
+    case AccessControlAllowCredentials extends FieldName("Access-Control-Allow-Credentials")
+    case AccessControlAllowHeaders     extends FieldName("Access-Control-Allow-Headers")
+    case AccessControlAllowMethods     extends FieldName("Access-Control-Allow-Methods")
+    case AccessControlAllowOrigin      extends FieldName("Access-Control-Allow-Origin")
+    case AccessControlExposeHeaders    extends FieldName("Access-Control-Expose-Headers")
+    case AccessControlMaxAge           extends FieldName("Access-Control-Max-Age")
+    case AccessControlRequestHeaders   extends FieldName("Access-Control-Request-Headers")
+    case AccessControlRequestMethod    extends FieldName("Access-Control-Request-Method")
+    case Age                           extends FieldName("Age")
+    case Allow                         extends FieldName("Allow")
+    case Authorization                 extends FieldName("Authorization")
+    case CacheControl                  extends FieldName("Cache-Control")
+    case Connection                    extends FieldName("Connection")
+    case ContentDisposition            extends FieldName("Content-Disposition")
+    case ContentEncoding               extends FieldName("Content-Encoding")
+    case ContentLanguage               extends FieldName("Content-Language")
+    case ContentLength                 extends FieldName("Content-Length")
+    case ContentLocation               extends FieldName("Content-Location")
+    case ContentMd5                    extends FieldName("Content-MD5")
+    case ContentRange                  extends FieldName("Content-Range")
+    case ContentTransferEncoding       extends FieldName("Content-Transfer-Encoding")
+    case ContentType                   extends FieldName("Content-Type")
+    case Cookie                        extends FieldName("Cookie")
+    case Date                          extends FieldName("Date")
+    case Etag                          extends FieldName("ETag")
+    case Expect                        extends FieldName("Expect")
+    case Expires                       extends FieldName("Expires")
+    case Forwarded                     extends FieldName("Forwarded")
+    case From                          extends FieldName("From")
+    case Host                          extends FieldName("Host")
+    case IfMatch                       extends FieldName("If-Match")
+    case IfModified_since              extends FieldName("If-Modified-Since")
+    case IfNoneMatch                   extends FieldName("If-None-Match")
+    case IfRange                       extends FieldName("If-Range")
+    case IfUnmodifiedSince             extends FieldName("If-Unmodified-Since")
+    case LastModified                  extends FieldName("Last-Modified")
+    case Link                          extends FieldName("Link")
+    case Location                      extends FieldName("Location")
+    case MaxForwards                   extends FieldName("Max-Forwards")
+    case Origin                        extends FieldName("Origin")
+    case Pragma                        extends FieldName("Pragma")
+    case ProxyAuthenticate             extends FieldName("Proxy-Authenticate")
+    case ProxyAuthorization            extends FieldName("Proxy-Authorization")
+    case Range                         extends FieldName("Range")
+    case Referer                       extends FieldName("Referer")
+    case RemoteAddress                 extends FieldName("Remote-Address")
+    case RetryAfter                    extends FieldName("Retry-After")
+    case SecWebsocketKey               extends FieldName("Sec-WebSocket-Key")
+    case SecWebsocketExtensions        extends FieldName("Sec-WebSocket-Extensions")
+    case SecWebsocketAccept            extends FieldName("Sec-WebSocket-Accept")
+    case SecWebsocketProtocol          extends FieldName("Sec-WebSocket-Protocol")
+    case SecWebsocketVersion           extends FieldName("Sec-WebSocket-Version")
+    case Server                        extends FieldName("Server")
+    case SetCookie                     extends FieldName("Set-Cookie")
+    case StrictTransportSecurity       extends FieldName("Strict-Transport-Security")
+    case Te                            extends FieldName("Te")
+    case Trailer                       extends FieldName("Trailer")
+    case TransferEncoding              extends FieldName("Transfer-Encoding")
+    case Upgrade                       extends FieldName("Upgrade")
+    case Useragent                     extends FieldName("User-Agent")
+    case Vary                          extends FieldName("Vary")
+    case Via                           extends FieldName("Via")
+    case Warning                       extends FieldName("Warning")
+    case WwwAuthenticate               extends FieldName("WWW-Authenticate")
+    case XFrameOptions                 extends FieldName("X-Frame-Options")
+    case XForwardedFor                 extends FieldName("X-Forwarded-For")
+    case XForwardedHost                extends FieldName("X-Forwarded-Host")
+    case XForwardedPort                extends FieldName("X-Forwarded-Port")
+    case XForwardedProto               extends FieldName("X-Forwarded-Proto")
+    case XRealIp                       extends FieldName("X-Real-Ip")
+    case XRequestedWith                extends FieldName("X-Requested-With")
+    case XXssProtection                extends FieldName("X-XSS-Protection")
