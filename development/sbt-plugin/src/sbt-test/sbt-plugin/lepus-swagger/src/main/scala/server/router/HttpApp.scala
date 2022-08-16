@@ -6,14 +6,17 @@
 
 package server.router
 
-import cats.effect.IO
 import cats.data.NonEmptyList
 
-import lepus.router.*
+import cats.effect.IO
 
+import lepus.router.{ *, given }
+
+import lepus.swagger.*
 import lepus.swagger.OpenApiProvider
 
-object HttpApp extends RouterProvider[IO], OpenApiProvider[IO]:
+object HttpApp extends OpenApiProvider[IO]:
 
-  override def routes =
-    NonEmptyList.of(HelloRoute)
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") -> HelloRoute
+  )

@@ -20,10 +20,6 @@ import lepus.swagger.model.Tag
   *     override val tags        = Set(Tag)
   *     override val deprecated  = Some(false)
   *
-  *     override def bodies = {
-  *       case GET => Request.Body.build[HelloWorld]("Hello world")
-  *     }
-  *
   *     override def responses = {
   *       case GET => List(
   *         Response.build[HelloWorld](
