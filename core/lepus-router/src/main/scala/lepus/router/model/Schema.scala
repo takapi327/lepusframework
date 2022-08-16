@@ -78,6 +78,7 @@ object Schema:
   given Schema[JBigDecimal]    = Schema(SNumber())
   given Schema[BigInt]         = Schema(SInteger())
   given Schema[JBigInteger]    = Schema(SInteger())
+  given Schema[Unit]           = Schema(Entity.empty)
 
   given [T: Schema]:                      Schema[Option[T]] = summon[Schema[T]].asOption
   given [T: Schema]:                      Schema[Array[T]]  = summon[Schema[T]].asArray

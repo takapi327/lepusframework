@@ -9,4 +9,4 @@ import lepus.router.RouterConstructor
 
 package object swagger extends ExtensionMethods:
 
-  type RouteApi[F[_]] = (RequestEndpoint.Endpoint, RouterConstructor[F, ?] & OpenApiConstructor[F, ?])
+  type RouteApi[F[_]] = (RequestEndpoint.Endpoint[?], RouterConstructor[F, ?] & OpenApiConstructor[F, ?])

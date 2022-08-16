@@ -32,6 +32,7 @@ object EndpointConverter:
     override def stringTo(from: String): String         = from
     override def schema:                 Schema[String] = summon[Schema[String]]
 
+  given EndpointConverter[String, Unit]           = convertT[String, Unit](_ => ())
   given EndpointConverter[String, Byte]           = convertT[String, Byte](_.toByte)
   given EndpointConverter[String, Short]          = convertT[String, Short](_.toShort)
   given EndpointConverter[String, Int]            = convertT[String, Int](_.toInt)

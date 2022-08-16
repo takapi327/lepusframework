@@ -41,15 +41,15 @@ private[lepus] object Path:
 
   def fromEndpoint[F[_]](
     method:   Method,
-    endpoint: RequestEndpoint.Endpoint,
+    endpoint: RequestEndpoint.Endpoint[?],
     router:   RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Path =
-    val endpoints: Vector[RequestEndpoint.Endpoint] = endpoint.asVector()
+    val endpoints: Vector[RequestEndpoint.Endpoint[?]] = endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
-      case e: (RequestEndpoint.Path & RequestEndpoint.Param) =>
+      case e: (RequestEndpoint.Path[?] & RequestEndpoint.Param[?]) =>
         Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
-      case e: (RequestEndpoint.Query & RequestEndpoint.Param) =>
+      case e: (RequestEndpoint.Query[?] & RequestEndpoint.Param[?]) =>
         Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case _ => None
     }.toList

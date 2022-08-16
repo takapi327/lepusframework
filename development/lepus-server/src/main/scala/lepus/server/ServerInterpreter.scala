@@ -34,7 +34,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     * @return
     *   If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
     */
-  def bindFromRequest[T](routes: Requestable[F][T], endpoint: RequestEndpoint.Endpoint): Http4sRoutes[F] =
+  def bindFromRequest[T](routes: Requestable[F][T], endpoint: RequestEndpoint.Endpoint[T]): Http4sRoutes[F] =
     Kleisli[[K] =>> OptionT[F, K], Http4sRequest[F], Http4sResponse[F]] { (http4sRequest: Http4sRequest[F]) =>
       val request = Request[F](http4sRequest)
 
@@ -74,7 +74,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     */
   private def decodeRequest[T](
     request:  HttpRequest,
-    endpoint: RequestEndpoint.Endpoint
+    endpoint: RequestEndpoint.Endpoint[T]
   ): Option[T] =
     val (decodeEndpointResult, _) = DecodeEndpoint(request, endpoint)
     decodeEndpointResult match
