@@ -17,8 +17,8 @@ trait RequestEndpointMagnet:
 
 private[lepus] object RequestEndpointMagnet:
 
-  type PathParam  = Path & Param
-  type QueryParam = Query & Param
+  type PathParam  = Path[?] & Param[?]
+  type QueryParam = Query[?] & Param[?]
 
   given Conversion[PathParam, RequestEndpointMagnet] with
     override def apply(endpoint: PathParam): RequestEndpointMagnet =

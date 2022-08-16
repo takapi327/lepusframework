@@ -10,35 +10,35 @@ import lepus.router.http.*
 
 trait ExtensionMethods:
 
-  extension (endpoint: RequestEndpoint.Endpoint)
-    def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint, Vector[T]]): Vector[T] =
+  extension (endpoint: RequestEndpoint.Endpoint[?])
+    def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint[?], Vector[T]]): Vector[T] =
       endpoint match
         case RequestEndpoint.Pair(left, right) => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
-        case r: RequestEndpoint.Endpoint if pf.isDefinedAt(r) => pf(r)
-        case _                                                => Vector.empty
+        case r: RequestEndpoint.Endpoint[?] if pf.isDefinedAt(r) => pf(r)
+        case _                                                   => Vector.empty
 
-    def asVector(): Vector[RequestEndpoint.Endpoint] =
+    def asVector(): Vector[RequestEndpoint.Endpoint[?]] =
       recursiveEndpoints {
-        case e: RequestEndpoint.Endpoint => Vector(e)
+        case e: RequestEndpoint.Endpoint[?] => Vector(e)
       }
 
     def toPath: String = "/" + asVector()
       .map {
-        case e: RequestEndpoint.FixedPath[_] => e.name
-        case e: RequestEndpoint.Path         => s"{${ e.name }}"
+        case e: RequestEndpoint.FixedPath[?] => e.name
+        case e: RequestEndpoint.Path[?]      => s"{${ e.name }}"
         case _                               => ""
       }
       .mkString("/")
 
     def isPath: Boolean =
       endpoint match
-        case _: RequestEndpoint.Path => true
-        case _                       => false
+        case _: RequestEndpoint.Path[?] => true
+        case _                          => false
 
     def isQueryParam: Boolean =
       endpoint match
-        case _: RequestEndpoint.Query => true
-        case _                        => false
+        case _: RequestEndpoint.Query[?] => true
+        case _                           => false
 
   // see https://github.com/scala/bug/issues/12186
   extension [T](v: Vector[T])

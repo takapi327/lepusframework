@@ -42,6 +42,8 @@ object SchemaType:
       def thisType: String = s"field($name, ${ schema.thisType })"
     }
 
+    def empty[T]: Entity[T] = Entity(Nil)
+
     object Field {
       case class Name(name: String, encodedName: String)
 
