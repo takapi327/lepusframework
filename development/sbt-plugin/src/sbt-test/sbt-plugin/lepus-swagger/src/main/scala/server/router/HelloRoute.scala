@@ -13,12 +13,11 @@ import io.circe.generic.semiauto.*
 
 import lepus.router.{ *, given }
 import lepus.router.http.*
-import lepus.router.http.Status
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
-import lepus.router.model.ServerResponse
 
 import lepus.swagger.OpenApiConstructor
+import lepus.swagger.model.OpenApiResponse
 
 case class Sample(info: String)
 object Sample:
@@ -32,7 +31,7 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
 
   override def responses = {
     case GET => List(
-      Response.build[Sample](
+      OpenApiResponse.build[Sample](
         status      = Status.Ok,
         headers     = List.empty,
         description = "Sample information acquisition"
@@ -41,5 +40,5 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
   }
 
   override def routes = {
-    case GET => IO(ServerResponse.NoContent)
+    case GET => IO(Response.NoContent)
   }
