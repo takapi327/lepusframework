@@ -4,11 +4,6 @@
 
 package lepus.router
 
-import org.http4s.HttpRoutes as Http4sRoutes
-
-import lepus.router.http.{ Request, Response, Header, Method }
-import lepus.router.model.{ Schema, ServerResponse }
-
 /** A model that contains one routing information.
   *
   * For example:
@@ -18,27 +13,19 @@ import lepus.router.model.{ Schema, ServerResponse }
   *     def routes = {
   *       case GET => IO(ServerResponse.NoContent)
   *     }
+  *
+  *   // There is also a way to use it without objects.
+  *   "hello" / bindPath[String]("world") -> RouterConstructor.of {
+  *     case GET => HelloWorldController.get
+  *   }
   * }}}
   *
   * @tparam F
   *   the effect type.
+  * @tparam T
+  *  Endpoint Type
   */
 trait RouterConstructor[F[_], T]:
-
-  /** Alias of ResponseStatus. */
-  protected final val status = Response.Status
-
-  /** Alias of ResponseHeader. */
-  protected final val header = Header
-
-  /** Alias of ServerResponse. */
-  protected final val response = ServerResponse
-
-  def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
-
-  /** An array of responses returned by each method. */
-  def responses: Http[List[Response[?]]] = PartialFunction.empty
-
   /** Corresponding logic for each method of this endpoint. */
   def routes: Requestable[F][T]
 

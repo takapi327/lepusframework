@@ -54,7 +54,7 @@ private[lepus] object Path:
       case _ => None
     }.toList
 
-    val requestBody = router.requestBodies
+    val requestBody = router.bodies
       .lift(method)
       .map(req => RequestBody.build(req, schema))
 
