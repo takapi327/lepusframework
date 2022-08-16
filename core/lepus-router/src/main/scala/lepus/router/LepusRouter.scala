@@ -4,20 +4,22 @@
 
 package lepus.router
 
+import scala.annotation.targetName
+
 import lepus.router.http.*
 
 trait LepusRouter:
 
-  given Conversion[String, RequestEndpoint.FixedPath[String]] =
+  given Conversion[String, RequestEndpoint.FixedPath[Unit]] =
     v => RequestEndpoint.FixedPath(v, summon)
 
-  given Conversion[Int, RequestEndpoint.FixedPath[String]] =
+  given Conversion[Int, RequestEndpoint.FixedPath[Unit]] =
     v => RequestEndpoint.FixedPath(v.toString, summon)
 
-  given Conversion[Long, RequestEndpoint.FixedPath[String]] =
+  given Conversion[Long, RequestEndpoint.FixedPath[Unit]] =
     v => RequestEndpoint.FixedPath(v.toString, summon)
 
-  given Conversion[Short, RequestEndpoint.FixedPath[String]] =
+  given Conversion[Short, RequestEndpoint.FixedPath[Unit]] =
     v => RequestEndpoint.FixedPath(v.toString, summon)
 
   def bindPath[T](name: String)(using EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
@@ -25,3 +27,6 @@ trait LepusRouter:
 
   def bindQuery[T](key: String)(using EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
     RequestEndpoint.QueryParam(key, summon)
+
+  extension [T] (endpoint: RequestEndpoint.Endpoint[T])
+    @targetName("toTuple") def ->[F[_]](router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
