@@ -53,8 +53,8 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
   val headers: Seq[Header] =
     request.headers.headers.map(header => Header(header.name.toString, header.value))
 
-  val contentType:   Option[ContentType]   = findHeaderValue(Header.CONTENT_TYPE)
-  val contentLength: Option[ContentLength] = findHeaderValue(Header.CONTENT_LENGTH).flatMap(_.toLongOption)
+  val contentType:   Option[ContentType]   = findHeaderValue(Header.FieldName.ContentType.name)
+  val contentLength: Option[ContentLength] = findHeaderValue(Header.FieldName.ContentLength.name).flatMap(_.toLongOption)
 
   /** Based on the name of the header, get the value associated with it.
     * @param name

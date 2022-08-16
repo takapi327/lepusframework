@@ -36,11 +36,6 @@ object Response:
       description = description
     )
 
-  def Ok[T: Encoder: Schema](
-    headers:     List[CustomHeader[?]],
-    description: String
-  ): Response[T] = build[T](Status.Ok, headers, description)
-
   case class CustomHeader[T](
     name:             String,
     description:      String

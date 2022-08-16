@@ -9,7 +9,12 @@ import org.typelevel.ci.CIString
 import org.http4s.{ Uri, Header as Http4sHeader }
 
 import Header.*
-trait Header(name: String, val value: String, val uri: Option[Uri] = None):
+trait Header(
+  name: String,
+  val value: String,
+  val uri: Option[Uri] = None,
+  fieldName: FieldName = FieldName.ContentType,
+):
 
   override def toString:             String = s"$name: $value"
   def toString(split: String = "/"): String = s"$name$split$value"
@@ -28,14 +33,21 @@ trait Header(name: String, val value: String, val uri: Option[Uri] = None):
   val isModel:       Boolean = is("model")
 
   def toHttp4sHeader(): Http4sHeader.Raw =
-    Http4sHeader.Raw(CIString(CONTENT_TYPE), this.toString())
+    Http4sHeader.Raw(fieldName.toCIString, this.toString())
   def toHttp4sHeader(contentType: CIString): Http4sHeader.Raw =
     Http4sHeader.Raw(contentType, this.toString())
+  def toHttp4sHeader(fieldName: FieldName): Http4sHeader.Raw =
+    Http4sHeader.Raw(fieldName.toCIString, this.toString())
 
 object Header:
 
-  def apply(name: String, value: String, uri: Option[Uri] = None): Header =
-    new Header(name, value, uri) {}
+  def apply(
+    name: String,
+    value: String,
+    uri: Option[Uri] = None,
+    fieldName: FieldName = FieldName.ContentType,
+  ): Header =
+    new Header(name, value, uri, fieldName) {}
 
   enum HeaderType:
     case ApplicationGzip               extends HeaderType, Header("application", "gzip")
@@ -64,82 +76,84 @@ object Header:
     case TextPlain                     extends HeaderType, Header("text", "plain")
 
   /** The values listed in the following sites are defined as variables. see
-    * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-    */
-  val ACCEPT                           = "Accept"
-  val ACCEPT_CHARSET                   = "Accept-Charset"
-  val ACCEPT_ENCODING                  = "Accept-Encoding"
-  val ACCEPT_LANGUAGE                  = "Accept-Language"
-  val ACCEPT_RANGES                    = "Accept-Ranges"
-  val ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials"
-  val ACCESS_CONTROL_ALLOW_HEADERS     = "Access-Control-Allow-Headers"
-  val ACCESS_CONTROL_ALLOW_METHODS     = "Access-Control-Allow-Methods"
-  val ACCESS_CONTROL_ALLOW_ORIGIN      = "Access-Control-Allow-Origin"
-  val ACCESS_CONTROL_EXPOSE_HEADERS    = "Access-Control-Expose-Headers"
-  val ACCESS_CONTROL_MAX_AGE           = "Access-Control-Max-Age"
-  val ACCESS_CONTROL_REQUEST_HEADERS   = "Access-Control-Request-Headers"
-  val ACCESS_CONTROL_REQUEST_METHOD    = "Access-Control-Request-Method"
-  val AGE                              = "Age"
-  val ALLOW                            = "Allow"
-  val AUTHORIZATION                    = "Authorization"
-  val CACHE_CONTROL                    = "Cache-Control"
-  val CONNECTION                       = "Connection"
-  val CONTENT_DISPOSITION              = "Content-Disposition"
-  val CONTENT_ENCODING                 = "Content-Encoding"
-  val CONTENT_LANGUAGE                 = "Content-Language"
-  val CONTENT_LENGTH                   = "Content-Length"
-  val CONTENT_LOCATION                 = "Content-Location"
-  val CONTENT_MD5                      = "Content-MD5"
-  val CONTENT_RANGE                    = "Content-Range"
-  val CONTENT_TRANSFER_ENCODING        = "Content-Transfer-Encoding"
-  val CONTENT_TYPE                     = "Content-Type"
-  val COOKIE                           = "Cookie"
-  val DATE                             = "Date"
-  val ETAG                             = "ETag"
-  val EXPECT                           = "Expect"
-  val EXPIRES                          = "Expires"
-  val FORWARDED                        = "Forwarded"
-  val FROM                             = "From"
-  val HOST                             = "Host"
-  val IF_MATCH                         = "If-Match"
-  val IF_MODIFIED_SINCE                = "If-Modified-Since"
-  val IF_NONE_MATCH                    = "If-None-Match"
-  val IF_RANGE                         = "If-Range"
-  val IF_UNMODIFIED_SINCE              = "If-Unmodified-Since"
-  val LAST_MODIFIED                    = "Last-Modified"
-  val LINK                             = "Link"
-  val LOCATION                         = "Location"
-  val MAX_FORWARDS                     = "Max-Forwards"
-  val ORIGIN                           = "Origin"
-  val PRAGMA                           = "Pragma"
-  val PROXY_AUTHENTICATE               = "Proxy-Authenticate"
-  val PROXY_AUTHORIZATION              = "Proxy-Authorization"
-  val RANGE                            = "Range"
-  val REFERER                          = "Referer"
-  val REMOTE_ADDRESS                   = "Remote-Address"
-  val RETRY_AFTER                      = "Retry-After"
-  val SEC_WEBSOCKET_KEY                = "Sec-WebSocket-Key"
-  val SEC_WEBSOCKET_EXTENSIONS         = "Sec-WebSocket-Extensions"
-  val SEC_WEBSOCKET_ACCEPT             = "Sec-WebSocket-Accept"
-  val SEC_WEBSOCKET_PROTOCOL           = "Sec-WebSocket-Protocol"
-  val SEC_WEBSOCKET_VERSION            = "Sec-WebSocket-Version"
-  val SERVER                           = "Server"
-  val SET_COOKIE                       = "Set-Cookie"
-  val STRICT_TRANSPORT_SECURITY        = "Strict-Transport-Security"
-  val TE                               = "Te"
-  val TRAILER                          = "Trailer"
-  val TRANSFER_ENCODING                = "Transfer-Encoding"
-  val UPGRADE                          = "Upgrade"
-  val USERAGENT                        = "User-Agent"
-  val VARY                             = "Vary"
-  val VIA                              = "Via"
-  val WARNING                          = "Warning"
-  val WWW_AUTHENTICATE                 = "WWW-Authenticate"
-  val X_FRAME_OPTIONS                  = "X-Frame-Options"
-  val X_FORWARDED_FOR                  = "X-Forwarded-For"
-  val X_FORWARDED_HOST                 = "X-Forwarded-Host"
-  val X_FORWARDED_PORT                 = "X-Forwarded-Port"
-  val X_FORWARDED_PROTO                = "X-Forwarded-Proto"
-  val X_REAL_IP                        = "X-Real-Ip"
-  val X_REQUESTED_WITH                 = "X-Requested-With"
-  val X_XSS_PROTECTION                 = "X-XSS-Protection"
+   * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+   */
+  enum FieldName(val name: String):
+    def toCIString: CIString = CIString(name)
+    case Accept                           extends FieldName("Accept")
+    case AcceptCharset                    extends FieldName("Accept-Charset")
+    case AcceptEncoding                   extends FieldName("Accept-Encoding")
+    case AcceptLanguage                   extends FieldName("Accept-Language")
+    case AcceptRanges                     extends FieldName("Accept-Ranges")
+    case AccessControlAllowCredentials    extends FieldName("Access-Control-Allow-Credentials")
+    case AccessControlAllowHeaders        extends FieldName("Access-Control-Allow-Headers")
+    case AccessControlAllowMethods        extends FieldName("Access-Control-Allow-Methods")
+    case AccessControlAllowOrigin         extends FieldName("Access-Control-Allow-Origin")
+    case AccessControlExposeHeaders       extends FieldName("Access-Control-Expose-Headers")
+    case AccessControlMaxAge              extends FieldName("Access-Control-Max-Age")
+    case AccessControlRequestHeaders      extends FieldName("Access-Control-Request-Headers")
+    case AccessControlRequestMethod       extends FieldName("Access-Control-Request-Method")
+    case Age                              extends FieldName("Age")
+    case Allow                            extends FieldName("Allow")
+    case Authorization                    extends FieldName("Authorization")
+    case CacheControl                     extends FieldName("Cache-Control")
+    case Connection                       extends FieldName("Connection")
+    case ContentDisposition               extends FieldName("Content-Disposition")
+    case ContentEncoding                  extends FieldName("Content-Encoding")
+    case ContentLanguage                  extends FieldName("Content-Language")
+    case ContentLength                    extends FieldName("Content-Length")
+    case ContentLocation                  extends FieldName("Content-Location")
+    case ContentMd5                       extends FieldName("Content-MD5")
+    case ContentRange                     extends FieldName("Content-Range")
+    case ContentTransferEncoding          extends FieldName("Content-Transfer-Encoding")
+    case ContentType                      extends FieldName("Content-Type")
+    case Cookie                           extends FieldName("Cookie")
+    case Date                             extends FieldName("Date")
+    case Etag                             extends FieldName("ETag")
+    case Expect                           extends FieldName("Expect")
+    case Expires                          extends FieldName("Expires")
+    case Forwarded                        extends FieldName("Forwarded")
+    case From                             extends FieldName("From")
+    case Host                             extends FieldName("Host")
+    case IfMatch                          extends FieldName("If-Match")
+    case IfModified_since                 extends FieldName("If-Modified-Since")
+    case IfNoneMatch                      extends FieldName("If-None-Match")
+    case IfRange                          extends FieldName("If-Range")
+    case IfUnmodifiedSince                extends FieldName("If-Unmodified-Since")
+    case LastModified                     extends FieldName("Last-Modified")
+    case Link                             extends FieldName("Link")
+    case Location                         extends FieldName("Location")
+    case MaxForwards                      extends FieldName("Max-Forwards")
+    case Origin                           extends FieldName("Origin")
+    case Pragma                           extends FieldName("Pragma")
+    case ProxyAuthenticate                extends FieldName("Proxy-Authenticate")
+    case ProxyAuthorization               extends FieldName("Proxy-Authorization")
+    case Range                            extends FieldName("Range")
+    case Referer                          extends FieldName("Referer")
+    case RemoteAddress                    extends FieldName("Remote-Address")
+    case RetryAfter                       extends FieldName("Retry-After")
+    case SecWebsocketKey                  extends FieldName("Sec-WebSocket-Key")
+    case SecWebsocketExtensions           extends FieldName("Sec-WebSocket-Extensions")
+    case SecWebsocketAccept               extends FieldName("Sec-WebSocket-Accept")
+    case SecWebsocketProtocol             extends FieldName("Sec-WebSocket-Protocol")
+    case SecWebsocketVersion              extends FieldName("Sec-WebSocket-Version")
+    case Server                           extends FieldName("Server")
+    case SetCookie                        extends FieldName("Set-Cookie")
+    case StrictTransportSecurity          extends FieldName("Strict-Transport-Security")
+    case Te                               extends FieldName("Te")
+    case Trailer                          extends FieldName("Trailer")
+    case TransferEncoding                 extends FieldName("Transfer-Encoding")
+    case Upgrade                          extends FieldName("Upgrade")
+    case Useragent                        extends FieldName("User-Agent")
+    case Vary                             extends FieldName("Vary")
+    case Via                              extends FieldName("Via")
+    case Warning                          extends FieldName("Warning")
+    case WwwAuthenticate                  extends FieldName("WWW-Authenticate")
+    case XFrameOptions                    extends FieldName("X-Frame-Options")
+    case XForwardedFor                    extends FieldName("X-Forwarded-For")
+    case XForwardedHost                   extends FieldName("X-Forwarded-Host")
+    case XForwardedPort                   extends FieldName("X-Forwarded-Port")
+    case XForwardedProto                  extends FieldName("X-Forwarded-Proto")
+    case XRealIp                          extends FieldName("X-Real-Ip")
+    case XRequestedWith                   extends FieldName("X-Requested-With")
+    case XXssProtection                   extends FieldName("X-XSS-Protection")
