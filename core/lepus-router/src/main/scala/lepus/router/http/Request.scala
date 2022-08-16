@@ -13,7 +13,7 @@ import org.http4s.{ Request as Http4sRequest, Uri, EntityDecoder }
 import lepus.router.model.Schema
 
 trait HttpRequest:
-  def method: Method
+  def method:                         Method
   private[lepus] def pathSegments:    List[String]
   private[lepus] def queryParameters: Map[String, Seq[String]]
 
@@ -57,11 +57,11 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
   val contentLength: Option[ContentLength] = findHeaderValue(Header.CONTENT_LENGTH).flatMap(_.toLongOption)
 
   /** Based on the name of the header, get the value associated with it.
-   * @param name
-   *   Http Request Header name
-   * @return
-   *   Http Request Header value
-   */
+    * @param name
+    *   Http Request Header name
+    * @return
+    *   Http Request Header value
+    */
   def findHeaderValue(name: String): Option[ContentType] = headers.find(_.is(name)).map(_.value)
 
   def as[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =

@@ -58,6 +58,8 @@ private[lepus] object RouterToOpenAPI:
     schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =
     val methods = Method.values.filter(route.responses.isDefinedAt).toList
-    methods.map(method => {
-      method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)
-    }).toMap
+    methods
+      .map(method => {
+        method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)
+      })
+      .toMap
