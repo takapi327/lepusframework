@@ -56,7 +56,7 @@ abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
   protected final val response = ServerResponse
 
   /** The value that will be the path of the Http request. */
-  def endpoint: RequestEndpoint.Endpoint
+  def endpoint: RequestEndpoint.Endpoint[P]
 
   def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
 
