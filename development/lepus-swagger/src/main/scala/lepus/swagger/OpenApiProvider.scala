@@ -11,4 +11,4 @@ import lepus.router.{ RouterConstructor, RouterProvider }
 trait OpenApiProvider[F[_]]:
   self: RouterProvider[F] =>
 
-  override def routes: NonEmptyList[RouteApi[F]] = self.routes
+  override def routes: NonEmptyList[RouteApi[F]]

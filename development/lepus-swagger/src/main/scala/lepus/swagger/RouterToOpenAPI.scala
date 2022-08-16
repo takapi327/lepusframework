@@ -11,8 +11,7 @@ import cats.data.NonEmptyList
 import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
-import lepus.router.{ RouterConstructor, RouterProvider }
-import lepus.router.http.RequestEndpoint
+import lepus.router.http.{ Method, RequestEndpoint }
 
 import lepus.swagger.model.*
 
@@ -22,7 +21,7 @@ private[lepus] object RouterToOpenAPI:
 
   def generateOpenAPIDocs[F[_]](
     info:   Info,
-    router: RouterProvider[F] & OpenApiProvider[F]
+    router: OpenApiProvider[F]
   ): OpenApiUI =
     val groupEndpoint = router.routes.toList.toMap
 
@@ -33,7 +32,7 @@ private[lepus] object RouterToOpenAPI:
 
     val component = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
     val endpoints = groupEndpoint.map {
-      case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint -> route, schemaToOpenApiSchema)
+      case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint, route, schemaToOpenApiSchema)
     }
     OpenApiUI.build(info, endpoints, router.routes.toList.flatMap(_._2.tags).toSet, component)
 
@@ -42,7 +41,7 @@ private[lepus] object RouterToOpenAPI:
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, router) <- groupEndpoint.toList
-      method      <- router.methods
+      method      <- Method.values
     yield router.responses
       .lift(method)
       .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
@@ -53,24 +52,12 @@ private[lepus] object RouterToOpenAPI:
       }
     }
 
-  private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[RequestEndpoint.Endpoint[?], lepus.router.Router[F, ?, ?, ?]]
-  ): Option[ListMap[Schema.Name, Schema[?]]] =
-    val encoded = for
-      (_, router) <- groupEndpoint.toList
-      encoded     <- schemaToTuple(router.output)
-    yield encoded
-
-    encoded.toListMap.foldLeft[ListMap[Schema.Name, Schema[?]]](ListMap.empty) { (o, ol) =>
-      PartialFunction.condOpt(o, ol) {
-        case (x, xs) => x concat xs
-      }
-    }
-
   private def routerToPath[F[_]](
-    router: RouteApi[F],
-    schema: SchemaToOpenApiSchema
+    endpoint: RequestEndpoint.Endpoint[?],
+    route:    RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
+    schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =
-    val (endpoint, route) = router
-    (for method <- route.methods
-    yield method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route.action, schema)).toMap
+    val methods = Method.values.filter(route.responses.isDefinedAt).toList
+    methods.map(method => {
+      method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)
+    }).toMap

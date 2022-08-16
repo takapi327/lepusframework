@@ -23,7 +23,7 @@ import lepus.router.model.{ Schema, ServerResponse }
   * @tparam F
   *   the effect type.
   */
-abstract class RouterConstructor[F[_], T]:
+trait RouterConstructor[F[_], T]:
 
   /** Alias of ResponseStatus. */
   protected final val status = Response.Status
@@ -41,3 +41,9 @@ abstract class RouterConstructor[F[_], T]:
 
   /** Corresponding logic for each method of this endpoint. */
   def routes: Requestable[F][T]
+
+object RouterConstructor:
+  def of[F[_], T](
+    requestable: Requestable[F][T]
+  ): RouterConstructor[F, T] = new RouterConstructor[F, T]:
+    override def routes: Requestable[F][T] = requestable

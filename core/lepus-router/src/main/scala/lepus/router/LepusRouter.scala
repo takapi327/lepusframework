@@ -28,5 +28,5 @@ trait LepusRouter:
   def bindQuery[T](key: String)(using EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
     RequestEndpoint.QueryParam(key, summon)
 
-  extension [T](endpoint: RequestEndpoint.Endpoint[T])
-    @targetName("toTuple") def ->[F[_]](router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
+  extension [F[_], T](endpoint: RequestEndpoint.Endpoint[T])
+    @targetName("toTuple") def ->(router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
