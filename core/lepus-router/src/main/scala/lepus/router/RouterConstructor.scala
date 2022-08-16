@@ -23,7 +23,7 @@ package lepus.router
   * @tparam F
   *   the effect type.
   * @tparam T
-  *  Endpoint Type
+  *   Endpoint Type
   */
 trait RouterConstructor[F[_], T]:
   /** Corresponding logic for each method of this endpoint. */

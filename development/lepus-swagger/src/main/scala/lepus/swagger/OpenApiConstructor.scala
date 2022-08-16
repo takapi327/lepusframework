@@ -10,41 +10,40 @@ import lepus.router.http.{ Request, Response }
 
 import lepus.swagger.model.Tag
 
-/**
- * Model for generating OpenApi documentation.
- * 
- * For example:
- * {{{
- *   object HelloRoute extends OpenApiConstructor[IO, String]:
- *     override val summary     = Some("Hello world")
- *     override val description = Some("Hello world")
- *     override val tags        = Set(Tag)
- *     override val deprecated  = Some(false)
- *     
- *     override def bodies = {
- *       case GET => Request.Body.build[HelloWorld]("Hello world")
- *     }
- *     
- *     override def responses = {
- *       case GET => List(
- *         Response.build[HelloWorld](
- *           status      = Status.Ok,
- *           headers     = List.empty,
- *           description = "Hello world",
- *         )
- *       )
- *     }
- *     
- *     override def routes = {
- *       case GET => IO(ServerResponse.NoContent)
- *     }
- * }}}
- * 
- * @tparam F
- *   the effect type.
- * @tparam T
- *   Endpoint Type
- */
+/** Model for generating OpenApi documentation.
+  *
+  * For example:
+  * {{{
+  *   object HelloRoute extends OpenApiConstructor[IO, String]:
+  *     override val summary     = Some("Hello world")
+  *     override val description = Some("Hello world")
+  *     override val tags        = Set(Tag)
+  *     override val deprecated  = Some(false)
+  *
+  *     override def bodies = {
+  *       case GET => Request.Body.build[HelloWorld]("Hello world")
+  *     }
+  *
+  *     override def responses = {
+  *       case GET => List(
+  *         Response.build[HelloWorld](
+  *           status      = Status.Ok,
+  *           headers     = List.empty,
+  *           description = "Hello world",
+  *         )
+  *       )
+  *     }
+  *
+  *     override def routes = {
+  *       case GET => IO(ServerResponse.NoContent)
+  *     }
+  * }}}
+  *
+  * @tparam F
+  *   the effect type.
+  * @tparam T
+  *   Endpoint Type
+  */
 trait OpenApiConstructor[F[_], T] extends RouterConstructor[F, T]:
 
   /** Summary of this endpoint, used during Open API document generation. */
