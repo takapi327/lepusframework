@@ -60,6 +60,7 @@ private[lepus] object Path:
 
     val responses = router.responses
       .lift(method)
+      .filter(_.nonEmpty)
       .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schema)))
       .getOrElse(List("default" -> Response.empty))
 
