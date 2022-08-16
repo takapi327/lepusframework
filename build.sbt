@@ -116,7 +116,7 @@ lazy val nonUserProjects = Seq[ProjectReference](
   SbtPluginProject,
   SbtScriptedToolsProject,
   LepusServerProject,
-  //LepusSwaggerProject
+  LepusSwaggerProject
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))

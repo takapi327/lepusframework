@@ -4,17 +4,12 @@
 
 package lepus.swagger
 
-import org.http4s.Request as Http4sRequest
-
 import lepus.router.RouterConstructor
-import lepus.router.http.{ Method, Request }
 
 import lepus.swagger.model.Tag
 
 trait OpenApiConstructor[F[_], T]:
   self: RouterConstructor[F, T] =>
-
-  given Request[F] = Request(Http4sRequest[F]())
 
   /** Summary of this endpoint, used during Open API document generation. */
   def summary: Option[String] = None
@@ -28,6 +23,3 @@ trait OpenApiConstructor[F[_], T]:
   /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
     */
   def deprecated: Option[Boolean] = None
-
-  /** List of methods that can be handled by this endpoint. */
-  final lazy val methods: List[Method] = Method.values.filter(self.routes(using None).isDefinedAt).toList

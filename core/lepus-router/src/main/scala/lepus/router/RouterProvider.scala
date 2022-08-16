@@ -13,7 +13,7 @@ import lepus.router.http.Request
   * For example:
   * {{{
   *  object HttpApp extends RouterProvider[IO]:
-  *    override def routes = combine(
+  *    override def routes = NonEmptyList.of(
   *      "hello" / name -> HelloRoute,
   *      "world" / country -> WorldRoute
   *    )
