@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.router.internal
 
@@ -39,18 +39,18 @@ trait LowPriorityTupleConcat3 extends LowPriorityTupleConcat2:
     override type Out = T
 
 trait LowPriorityTupleConcat2 extends LowPriorityTupleConcat1:
-  given concatTuples[T, U, TU] (using TupleOps.JoinAux[T, U, TU]): ParamConcat[T, U] with
+  given concatTuples[T, U, TU](using TupleOps.JoinAux[T, U, TU]): ParamConcat[T, U] with
     override type Out = TU
 
 trait LowPriorityTupleConcat1 extends LowPriorityTupleConcat0:
-  given concatSingleAndTuple[T, U, TU] (using TupleOps.JoinAux[Tuple1[T], U, TU]): ParamConcat[T, U] with
+  given concatSingleAndTuple[T, U, TU](using TupleOps.JoinAux[Tuple1[T], U, TU]): ParamConcat[T, U] with
     override type Out = TU
 
-  given concatTupleAndSingle[T, U, TU] (using TupleOps.JoinAux[T, Tuple1[U], TU]): ParamConcat[T, U] with
+  given concatTupleAndSingle[T, U, TU](using TupleOps.JoinAux[T, Tuple1[U], TU]): ParamConcat[T, U] with
     override type Out = TU
 
 trait LowPriorityTupleConcat0:
   type Aux[T, U, TU] = ParamConcat[T, U] { type Out = TU }
 
-  given [T, U, TU] (using TupleOps.JoinAux[Tuple1[T], Tuple1[U], TU]): ParamConcat[T, U] with
+  given [T, U, TU](using TupleOps.JoinAux[Tuple1[T], Tuple1[U], TU]): ParamConcat[T, U] with
     override type Out = TU

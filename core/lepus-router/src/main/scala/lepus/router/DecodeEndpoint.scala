@@ -188,4 +188,4 @@ object DecodeEndpointResult:
   case class MissMatch(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)       extends Failure
   case class NoSuchElement(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)   extends Failure
   case class ValidationError(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure) extends Failure
-  case class PathMissPatch(path: String)                                                        extends Failure
+  case class PathMissPatch(path: String)                                                           extends Failure

@@ -15,7 +15,7 @@ trait ExtensionMethods:
       endpoint match
         case RequestEndpoint.Pair(left, right) => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
         case r: RequestEndpoint.Endpoint[?] if pf.isDefinedAt(r) => pf(r)
-        case _                                                => Vector.empty
+        case _                                                   => Vector.empty
 
     def asVector(): Vector[RequestEndpoint.Endpoint[?]] =
       recursiveEndpoints {
