@@ -11,7 +11,7 @@ package lepus.router
   *   // http:localhost:5555/hello/world/lepus
   *   object HelloRoute extends RouterConstructor[IO, String]:
   *     def routes = {
-  *       case GET => IO(ServerResponse.NoContent)
+  *       case GET => IO(Response.NoContent)
   *     }
   *
   *   // There is also a way to use it without objects.

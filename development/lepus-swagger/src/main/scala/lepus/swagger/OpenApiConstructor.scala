@@ -22,16 +22,12 @@ import lepus.swagger.model.{ Tag, OpenApiResponse }
   *
   *     override def responses = {
   *       case GET => List(
-  *         Response.build[HelloWorld](
-  *           status      = Status.Ok,
-  *           headers     = List.empty,
-  *           description = "Hello world",
-  *         )
+  *         Response[HelloWorld](Status.Ok, List.empty, "Hello world")
   *       )
   *     }
   *
   *     override def routes = {
-  *       case GET => IO(ServerResponse.NoContent)
+  *       case GET => IO(Response.NoContent)
   *     }
   * }}}
   *
