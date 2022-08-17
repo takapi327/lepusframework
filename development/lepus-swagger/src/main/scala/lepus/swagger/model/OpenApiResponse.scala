@@ -64,15 +64,4 @@ object OpenApiResponse:
     schema:      Either[Reference, OpenApiSchema],
     description: String
   )
-
-  def build[T: Encoder: Schema](
-    status:      Status,
-    headers:     List[RouteHeader.CustomHeader[?]],
-    description: String
-  ): OpenApiResponse[T] =
-    OpenApiResponse[T](
-      status      = status,
-      headers     = headers,
-      description = description
-    )
 end OpenApiResponse
