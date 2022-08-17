@@ -28,39 +28,41 @@ import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
   *   List of response values per endpoint status
   */
 final case class Path(
-  summary:     Option[String]            = None,
-  description: Option[String]            = None,
-  tags:        Set[String]               = Set.empty,
-  deprecated:  Option[Boolean]           = None,
-  parameters:  List[Parameter]           = List.empty,
-  requestBody: Option[RequestBody]       = None,
-  responses:   ListMap[String, Response] = ListMap.empty
+  summary:     Option[String]                      = None,
+  description: Option[String]                      = None,
+  tags:        Set[String]                         = Set.empty,
+  deprecated:  Option[Boolean]                     = None,
+  parameters:  List[Parameter]                     = List.empty,
+  requestBody: Option[RequestBody]                 = None,
+  responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 
 private[lepus] object Path:
 
   def fromEndpoint[F[_]](
-    method:                Method,
-    router:                RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
-    schemaToOpenApiSchema: SchemaToOpenApiSchema
+    method:   Method,
+    endpoint: RequestEndpoint.Endpoint[?],
+    router:   OpenApiConstructor[F, ?],
+    schema:   SchemaToOpenApiSchema
   ): Path =
-    val endpoints: Vector[RequestEndpoint.Endpoint[?]] = router.endpoint.asVector()
+    val endpoints: Vector[RequestEndpoint.Endpoint[?]] = endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
       case e: (RequestEndpoint.Path[?] & RequestEndpoint.Param[?]) =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case e: (RequestEndpoint.Query[?] & RequestEndpoint.Param[?]) =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case _ => None
     }.toList
 
-    val requestBody = router.requestBodies
+    val requestBody = router.bodies
       .lift(method)
-      .map(req => RequestBody.build(req, schemaToOpenApiSchema))
+      .map(req => RequestBody.build(req, schema))
 
     val responses = router.responses
       .lift(method)
-      .map(resList => resList.map(res => res.status.enumStatus.toString -> Response.build(res, schemaToOpenApiSchema)))
-      .getOrElse(List("default" -> Response.empty))
+      .filter(_.nonEmpty)
+      .map(resList => resList.map(res => res.status.enumStatus.toString -> res.toUI(schema)))
+      .getOrElse(List("default" -> OpenApiResponse.UI.empty))
 
     Path(
       summary     = router.summary,

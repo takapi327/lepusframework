@@ -27,8 +27,8 @@ trait OpenApiEncoder:
 
   given Encoder[RequestBody] = deriveEncoder
 
-  given Encoder[Response.Header] = deriveEncoder
-  given Encoder[Response]        = deriveEncoder
+  given Encoder[OpenApiResponse.Header] = deriveEncoder
+  given Encoder[OpenApiResponse.UI]     = deriveEncoder
 
   given Encoder[Info]      = deriveEncoder
   given Encoder[Contact]   = deriveEncoder

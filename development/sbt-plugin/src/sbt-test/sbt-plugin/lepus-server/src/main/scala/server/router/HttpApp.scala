@@ -6,12 +6,17 @@
 
 package server.router
 
-import cats.effect.IO
 import cats.data.NonEmptyList
 
-import lepus.router.*
+import cats.effect.IO
+
+import lepus.router.{ *, given }
+import lepus.router.http.Response
 
 object HttpApp extends RouterProvider[IO]:
 
-  override def routes: NonEmptyList[RouterConstructor[IO, _]] =
-    NonEmptyList.of(HelloRoute)
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") -> RouterConstructor.of {
+      case GET => IO(Response.NoContent)
+    }
+  )

@@ -4,4 +4,16 @@
 
 package lepus
 
-package object swagger extends ExtensionMethods
+import scala.annotation.targetName
+
+import lepus.router.http.RequestEndpoint
+import lepus.router.RouterConstructor
+
+package object swagger extends ExtensionMethods:
+
+  type RouteApi[F[_]] = (RequestEndpoint.Endpoint[?], OpenApiConstructor[F, ?])
+
+  extension [F[_], T](endpoint: RequestEndpoint.Endpoint[T])
+    @targetName("toTuple") def ->(
+      router: OpenApiConstructor[F, endpoint.TypeParam]
+    ) = (endpoint, router)

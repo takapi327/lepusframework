@@ -5,12 +5,38 @@
 package lepus.swagger
 
 import lepus.router.RouterConstructor
-import lepus.router.http.Method
+import lepus.router.Http
+import lepus.router.http.Request
 
-import lepus.swagger.model.Tag
+import lepus.swagger.model.{ Tag, OpenApiResponse }
 
-trait OpenApiConstructor[F[_], P]:
-  self: RouterConstructor[F, P] =>
+/** Model for generating OpenApi documentation.
+  *
+  * For example:
+  * {{{
+  *   object HelloRoute extends OpenApiConstructor[IO, String]:
+  *     override val summary     = Some("Hello world")
+  *     override val description = Some("Hello world")
+  *     override val tags        = Set(Tag)
+  *     override val deprecated  = Some(false)
+  *
+  *     override def responses = {
+  *       case GET => List(
+  *         OpenApiResponse[HelloWorld](Status.Ok, List.empty, "Hello world")
+  *       )
+  *     }
+  *
+  *     override def routes = {
+  *       case GET => IO(Response.NoContent)
+  *     }
+  * }}}
+  *
+  * @tparam F
+  *   the effect type.
+  * @tparam T
+  *   Endpoint Type
+  */
+trait OpenApiConstructor[F[_], T] extends RouterConstructor[F, T]:
 
   /** Summary of this endpoint, used during Open API document generation. */
   def summary: Option[String] = None
@@ -21,9 +47,12 @@ trait OpenApiConstructor[F[_], P]:
   /** Tag of this endpoint, used during Open API document generation. */
   def tags: Set[Tag] = Set.empty[Tag]
 
+  /** The body that each method request receives */
+  def bodies: Http[Request.Body[?]] = PartialFunction.empty
+
+  /** An array of responses returned by each method. */
+  def responses: Http[List[OpenApiResponse[?]]] = PartialFunction.empty
+
   /** A flag used during Open API document generation to indicate whether this endpoint is deprecated or not.
     */
   def deprecated: Option[Boolean] = None
-
-  /** List of methods that can be handled by this endpoint. */
-  final lazy val methods: List[Method] = Method.values.filter(self.routes.isDefinedAt).toList

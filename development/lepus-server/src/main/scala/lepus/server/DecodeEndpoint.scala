@@ -2,11 +2,11 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router
+package lepus.server
 
 import scala.annotation.tailrec
 
-import http.*
+import lepus.router.http.*
 import lepus.router.model.*
 import lepus.router.internal.*
 

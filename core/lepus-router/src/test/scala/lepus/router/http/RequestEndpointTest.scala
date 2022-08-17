@@ -15,8 +15,8 @@ class RequestEndpointTest extends AnyFlatSpec:
 
       val endpoint1: Endpoint[String] = "test1" / bindPath[String]("p1")
       val endpoint2: Endpoint[String] = bindPath[String]("p1") / "test2"
-      val endpoint3: Endpoint[(String, String)] = endpoint1 and endpoint2
-      val endpoint4: Endpoint[(String, String, Long)] = endpoint1 and endpoint2 / bindPath[Long]("p1")
+      val endpoint3: Endpoint[(String, String)] = endpoint1 ++ endpoint2
+      val endpoint4: Endpoint[(String, String, Long)] = endpoint1 ++ endpoint2 / bindPath[Long]("p1")
     """.stripMargin)
   }
 
@@ -37,11 +37,9 @@ class RequestEndpointTest extends AnyFlatSpec:
       import cats.effect.IO
       import lepus.router.{ *, given }
 
-      bindPath[Long]("p1") / bindPath[String]("p2") -> new RouterConstructor[IO, (Long, String)]():
-        override def endpoint = bindPath[Long]("p1") / bindPath[String]("p2")
-        override def routes: HttpRoutes[IO, (Long, String)] = {
-          case GET => req => IO(lepus.router.model.ServerResponse.NoContent)
-        }
+      bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of {
+        case GET => IO(lepus.router.http.Response.NoContent)
+      }
     """.stripMargin)
   }
 
@@ -50,10 +48,8 @@ class RequestEndpointTest extends AnyFlatSpec:
       import cats.effect.IO
       import lepus.router.{ *, given }
 
-      bindPath[Long]("p1") / bindPath[String]("p2") -> new RouterConstructor[IO, (String, String)]():
-        override def endpoint = bindPath[Long]("p1") / bindPath[String]("p2")
-        override def routes: HttpRoutes[IO, (String, String)] = {
-          case GET => req => IO(lepus.router.model.ServerResponse.NoContent)
-        }
+      bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of[IO, (String, String)] {
+        case GET => IO(lepus.router.http.Response.NoContent)
+      }
     """.stripMargin)
   }

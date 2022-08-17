@@ -77,24 +77,19 @@ The following is the minimum configuration for routing in the Lepus Framework.
 ```scala
 package sample
 
-import cats.effect.*
+import cats.effect.IO
 import cats.data.NonEmptyList
 
-import lepus.router.*
-import lepus.router.model.ServerResponse
-
-object HelloRoute extends RouterConstructor[IO, (String)]:
-
-  override def endpoint = "hello" / bindPath[String]("name")
-
-  override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
-  }
+import lepus.router.{ *, given }
+import lepus.router.http.Response.*
 
 object HelloApp extends RouterProvider[IO]:
 
-  override def routes: NonEmptyList[RouterConstructor[IO, _]] =
-    NonEmptyList.of(HelloRoute)
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") -> RouterConstructor.of {
+      case GET => IO(NoContent)
+    }
+  )
 ```
 
 You must set the path of the object that inherits RouterProvider in application.conf.
@@ -109,12 +104,7 @@ Load the required project with build.sbt
 
 ```sbt
 lazy val root = (project in file("."))
-  .settings(
-    ...
-    swaggerTitle   := "project name",
-    swaggerVersion := "project version"
-  )
-  .enablePlugins(Lepus)
+  .settings(...)
   .enablePlugins(LepusSwagger)
 ```
 
@@ -130,32 +120,28 @@ import lepus.router.*
 import lepus.router.http.*
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
-import lepus.router.model.ServerResponse
+import lepus.router.http.Response.*
+import lepus.swagger.*
+import lepus.swagger.model.OpenApiResponse
 
 case class Sample(info: String)
 object Sample:
   given Encoder[Sample] = deriveEncoder
   given Schema[Sample]  = deriveSchemer
 
-object HelloRoute extends RouterConstructor[IO, (String, Long)]:
+object HelloRoute extends OpenApiConstructor[IO, String]:
 
-  override def endpoint = "hello" / bindPath[String]("name")
-
-  override def summary     = Some("Sample Paths")
-  override def description = Some("Sample Paths")
+  override val summary     = Some("Sample Paths")
+  override val description = Some("Sample Paths")
 
   override def responses = {
     case GET => List(
-      Response.build[Sample](
-        status      = responseStatus.Ok,
-        headers     = List.empty,
-        description = "Sample information acquisition"
-      )
+      OpenApiResponse[Sample](Status.NoContent, List.empty, "Sample information acquisition")
     )
   }
 
   override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
+    case GET => IO(NoContent)
   }
 ```
 

@@ -14,13 +14,13 @@ object RequestEndpoint:
   sealed trait Endpoint[T]:
     private[lepus] type TypeParam = T
     private[lepus] type ThisType <: Endpoint[T]
-    def and[N, TN](other: Endpoint[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] =
+    @targetName("and") def ++[N, TN](other: Endpoint[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] =
       RequestEndpoint.Pair[T, N, TN](this, other)
 
-    @targetName("splitPath") def /[N, TN](other: Path[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = and(other)
+    @targetName("splitPath") def /[N, TN](path: Path[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ path
 
-    @targetName("queryQ") def :?[N, TN](other: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = and(other)
-    @targetName("query&") def :&[N, TN](other: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = and(other)
+    @targetName("queryQ") def :?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+    @targetName("query&") def :&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
 
   sealed trait Param[T] extends Endpoint[T]:
     def converter:   EndpointConverter[String, T]

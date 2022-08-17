@@ -8,7 +8,5 @@ import cats.data.NonEmptyList
 
 import lepus.router.{ RouterConstructor, RouterProvider }
 
-trait OpenApiProvider[F[_]]:
-  self: RouterProvider[F] =>
-
-  override def routes: NonEmptyList[RouterConstructor[F, ?] & OpenApiConstructor[F, ?]] = self.routes
+trait OpenApiProvider[F[_]] extends RouterProvider[F]:
+  override def routes: NonEmptyList[RouteApi[F]]

@@ -13,14 +13,14 @@ object ResponseStatusTest extends Specification:
   "Testing the ResponseStatus" should {
 
     "Ok in ResponseStatus is a successful response" in {
-      Response.Status.Ok.isSuccess
+      Status.Ok.isSuccess
     }
 
     "Ok in ResponseStatus is not a response to an error" in {
-      !Response.Status.Ok.isServerError
+      !Status.Ok.isServerError
     }
 
     "The toHttp4sStatus method can be used to convert to http4s Status" in {
-      Response.Status.Ok.toHttp4sStatus() must beAnInstanceOf[Http4sStatus]
+      Status.Ok.toHttp4sStatus() must beAnInstanceOf[Http4sStatus]
     }
   }

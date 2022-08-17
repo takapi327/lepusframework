@@ -15,32 +15,26 @@ import lepus.router.{ *, given }
 import lepus.router.http.*
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
-import lepus.router.model.ServerResponse
 
 import lepus.swagger.OpenApiConstructor
+import lepus.swagger.model.OpenApiResponse
 
 case class Sample(info: String)
 object Sample:
   given Encoder[Sample] = deriveEncoder
   given Schema[Sample]  = deriveSchemer
 
-object HelloRoute extends RouterConstructor[IO, String], OpenApiConstructor[IO, String]:
-
-  override def endpoint = "hello" / bindPath[String]("name")
+object HelloRoute extends OpenApiConstructor[IO, String]:
 
   override def summary     = Some("Sample Paths")
   override def description = Some("Sample Paths")
 
   override def responses = {
     case GET => List(
-      Response.build[Sample](
-        status      = status.Ok,
-        headers     = List.empty,
-        description = "Sample information acquisition"
-      )
+      OpenApiResponse[Sample](Status.Ok, List.empty, "Sample information acquisition")
     )
   }
 
   override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
+    case GET => IO(Response.NoContent)
   }

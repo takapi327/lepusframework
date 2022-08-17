@@ -4,64 +4,33 @@
 
 package lepus.router
 
-import cats.effect.{ Async, Sync }
-
-import org.http4s.HttpRoutes as Http4sRoutes
-
-import lepus.router.http.{ RequestEndpoint, Request, Response, Header, Method }
-import lepus.router.model.ServerResponse
-
 /** A model that contains one routing information.
   *
   * For example:
   * {{{
   *   // http:localhost:5555/hello/world/lepus
-  *   object HelloRoute extends RouterConstructor[IO]:
-  *     override type Param = (String, Long)
-  *     override def endpoint: RequestEndpoint[_] =
-  *       "hello" / bindPath[String]("world") / bindPath[String]("name")
-  *
-  *     override def summary = Some("Hello World!")
-  *
-  *     override def routes: Routes[IO, Param] = {
-  *       case GET => IO(ServerResponse.NoContent)
+  *   object HelloRoute extends RouterConstructor[IO, String]:
+  *     def routes = {
+  *       case GET => IO(Response.NoContent)
   *     }
+  *
+  *   // There is also a way to use it without objects.
+  *   "hello" / bindPath[String]("world") -> RouterConstructor.of {
+  *     case GET => HelloWorldController.get
+  *   }
   * }}}
   *
   * @tparam F
   *   the effect type.
-  * @tparam P
-  *   the combined type of the Http request path and query parameters
+  * @tparam T
+  *   Endpoint Type
   */
-abstract class RouterConstructor[F[_], P](using Async[F], Sync[F]):
-
-  /** Alias of RequestMethod. */
-  protected final val GET     = Method.Get
-  protected final val HEAD    = Method.Head
-  protected final val POST    = Method.Post
-  protected final val PUT     = Method.Put
-  protected final val DELETE  = Method.Delete
-  protected final val OPTIONS = Method.Options
-  protected final val PATCH   = Method.Patch
-  protected final val CONNECT = Method.Connect
-  protected final val TRACE   = Method.Trace
-
-  /** Alias of ResponseStatus. */
-  protected final val status = Response.Status
-
-  /** Alias of ResponseHeader. */
-  protected final val header = Header
-
-  /** Alias of ServerResponse. */
-  protected final val response = ServerResponse
-
-  /** The value that will be the path of the Http request. */
-  def endpoint: RequestEndpoint.Endpoint[P]
-
-  def requestBodies: Http[Request.Body[?]] = PartialFunction.empty
-
-  /** An array of responses returned by each method. */
-  def responses: Http[List[Response[?]]] = PartialFunction.empty
-
+trait RouterConstructor[F[_], T]:
   /** Corresponding logic for each method of this endpoint. */
-  def routes: HttpRoutes[F, P]
+  def routes: Requestable[F][T]
+
+object RouterConstructor:
+  def of[F[_], T](
+    requestable: Requestable[F][T]
+  ): RouterConstructor[F, T] = new RouterConstructor[F, T]:
+    override def routes: Requestable[F][T] = requestable
