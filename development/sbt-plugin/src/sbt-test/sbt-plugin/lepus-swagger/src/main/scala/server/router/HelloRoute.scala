@@ -31,11 +31,7 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
 
   override def responses = {
     case GET => List(
-      OpenApiResponse.build[Sample](
-        status      = Status.Ok,
-        headers     = List.empty,
-        description = "Sample information acquisition"
-      )
+      OpenApiResponse[Sample](Status.Ok, List.empty, "Sample information acquisition")
     )
   }
 
