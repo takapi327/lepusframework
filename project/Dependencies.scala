@@ -21,10 +21,10 @@ object Dependencies {
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.3"
 
-  val http4sVersion = "0.23.6"
+  val http4sVersion = "0.23.14"
   val http4s = Seq(
     "http4s-dsl",
-    "http4s-blaze-server"
+    "http4s-ember-server"
   ).map("org.http4s" %% _ % http4sVersion)
 
   val circeVersion = "0.14.1"
