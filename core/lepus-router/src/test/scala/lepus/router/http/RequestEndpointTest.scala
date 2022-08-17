@@ -38,7 +38,7 @@ class RequestEndpointTest extends AnyFlatSpec:
       import lepus.router.{ *, given }
 
       bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of {
-        case GET => IO(lepus.router.model.ServerResponse.NoContent)
+        case GET => IO(lepus.router.http.Response.NoContent)
       }
     """.stripMargin)
   }
@@ -49,7 +49,7 @@ class RequestEndpointTest extends AnyFlatSpec:
       import lepus.router.{ *, given }
 
       bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of[IO, (String, String)] {
-        case GET => IO(lepus.router.model.ServerResponse.NoContent)
+        case GET => IO(lepus.router.http.Response.NoContent)
       }
     """.stripMargin)
   }
