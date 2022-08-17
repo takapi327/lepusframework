@@ -34,7 +34,8 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
       case (endpoint, router) => bindFromRequest(router.routes, endpoint)
     }.reduce
 
-    EmberServerBuilder.default[IO]
+    EmberServerBuilder
+      .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
       .withHttpApp(httpApp.orNotFound)
