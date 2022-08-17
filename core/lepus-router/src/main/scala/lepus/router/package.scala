@@ -15,7 +15,6 @@ import org.http4s.HttpRoutes as Http4sRoutes
 
 import lepus.router.RouterConstructor
 import lepus.router.http.{ Request, RequestEndpoint, Method, Response }
-import lepus.router.model.ServerRequest
 
 package object router extends LepusRouter:
 
