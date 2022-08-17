@@ -22,7 +22,7 @@ import lepus.swagger.model.{ Tag, OpenApiResponse }
   *
   *     override def responses = {
   *       case GET => List(
-  *         Response[HelloWorld](Status.Ok, List.empty, "Hello world")
+  *         OpenApiResponse[HelloWorld](Status.Ok, List.empty, "Hello world")
   *       )
   *     }
   *

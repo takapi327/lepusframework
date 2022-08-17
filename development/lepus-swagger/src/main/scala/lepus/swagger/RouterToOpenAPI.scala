@@ -37,7 +37,7 @@ private[lepus] object RouterToOpenAPI:
     OpenApiUI.build(info, endpoints, router.routes.toList.flatMap(_._2.tags).toSet, component)
 
   private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[RequestEndpoint.Endpoint[?], RouterConstructor[F, ?] & OpenApiConstructor[F, ?]]
+    groupEndpoint: Map[RequestEndpoint.Endpoint[?], OpenApiConstructor[F, ?]]
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, router) <- groupEndpoint.toList
@@ -54,7 +54,7 @@ private[lepus] object RouterToOpenAPI:
 
   private def routerToPath[F[_]](
     endpoint: RequestEndpoint.Endpoint[?],
-    route:    RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
+    route:    OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =
     val methods = Method.values.filter(route.responses.isDefinedAt).toList

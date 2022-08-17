@@ -42,7 +42,7 @@ private[lepus] object Path:
   def fromEndpoint[F[_]](
     method:   Method,
     endpoint: RequestEndpoint.Endpoint[?],
-    router:   RouterConstructor[F, ?] & OpenApiConstructor[F, ?],
+    router:   OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Path =
     val endpoints: Vector[RequestEndpoint.Endpoint[?]] = endpoint.asVector()
