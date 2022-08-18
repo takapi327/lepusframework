@@ -7,9 +7,11 @@ package lepus.server
 import scala.language.reflectiveCalls
 
 import cats.effect.*
+import cats.effect.std.Console
 
 import com.comcast.ip4s.*
 
+import org.http4s.*
 import org.http4s.ember.server.EmberServerBuilder
 
 import lepus.core.util.Configuration
@@ -39,8 +41,11 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
       .withHttpApp(httpApp.orNotFound)
+      .withErrorHandler { case error =>
+        Console[IO].println(s"Unexpected error: $error")
+          .as(Response(Status.InternalServerError))
+      }
       .build
-      .use(_ => IO.never)
       .as(ExitCode.Success)
 
   private def loadRouterProvider(): RouterProvider[IO] =
