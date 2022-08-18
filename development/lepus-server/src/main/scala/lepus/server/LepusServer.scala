@@ -41,9 +41,11 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
       .withHttpApp(httpApp.orNotFound)
-      .withErrorHandler { case error =>
-        Console[IO].println(s"Unexpected error: $error")
-          .as(Response(Status.InternalServerError))
+      .withErrorHandler {
+        case error =>
+          Console[IO]
+            .println(s"Unexpected error: $error")
+            .as(Response(Status.InternalServerError))
       }
       .build
       .as(ExitCode.Success)
