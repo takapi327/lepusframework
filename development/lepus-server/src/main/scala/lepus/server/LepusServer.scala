@@ -48,6 +48,7 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
             .as(Response(Status.InternalServerError))
       }
       .build
+      .use(_ => IO.never)
       .as(ExitCode.Success)
 
   private def loadRouterProvider(): RouterProvider[IO] =
