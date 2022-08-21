@@ -2,13 +2,13 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.model
+package lepus.swagger.model
 
 /** Define an array of tags to be used to organize the API. Tags defined here will be displayed in the order in which
   * they are defined. It is not necessary to define all the tags used in the API, but the tags that are automatically
   * created will be added after the tags defined here. An untagged API will be assigned a tag named default.
   */
-trait Tag {
+trait Tag:
 
   /** API tag name. Must be unique. */
   def name: String
@@ -21,4 +21,3 @@ trait Tag {
 
   /** API tag external documents url. */
   def externalDocsUrl: Option[String] = None
-}

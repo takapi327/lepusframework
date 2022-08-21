@@ -4,35 +4,81 @@
 
 package lepus.router.http
 
-import org.http4s.{ Request => Http4sRequest, Uri }
+import scala.annotation.targetName
 
-trait HttpRequest {
-  def method:          RequestMethod
-  def pathSegments:    List[String]
-  def queryParameters: Map[String, Seq[String]]
-}
+import cats.MonadThrow
 
-class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest {
-  lazy val method: RequestMethod = request.method.name.toUpperCase match {
-    case "GET"     => RequestMethod.Get
-    case "HEAD"    => RequestMethod.Head
-    case "POST"    => RequestMethod.Post
-    case "PUT"     => RequestMethod.Put
-    case "DELETE"  => RequestMethod.Delete
-    case "OPTIONS" => RequestMethod.Options
-    case "PATCH"   => RequestMethod.Patch
-    case "CONNECT" => RequestMethod.Connect
-    case "TRACE"   => RequestMethod.Trace
+import org.http4s.{ Request as Http4sRequest, Uri, EntityDecoder }
+
+import lepus.router.model.Schema
+
+trait HttpRequest:
+  def method:                         Method
+  private[lepus] def pathSegments:    List[String]
+  private[lepus] def queryParameters: Map[String, Seq[String]]
+
+class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
+  val method: Method = request.method.name.toUpperCase match
+    case "GET"     => Method.Get
+    case "HEAD"    => Method.Head
+    case "POST"    => Method.Post
+    case "PUT"     => Method.Put
+    case "DELETE"  => Method.Delete
+    case "OPTIONS" => Method.Options
+    case "PATCH"   => Method.Patch
+    case "CONNECT" => Method.Connect
+    case "TRACE"   => Method.Trace
     case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
-  }
 
-  lazy val pathSegments: List[String] = {
+  private[lepus] val pathSegments: List[String] =
     request.pathInfo.renderString
       .dropWhile(_ == '/')
       .split("/")
       .toList
       .map(Uri.decode(_))
-  }
 
-  lazy val queryParameters: Map[String, Seq[String]] = request.multiParams
-}
+  private[lepus] val queryParameters: Map[String, Seq[String]] = request.multiParams
+
+  opaque type Protocol = String
+  extension (prot: Protocol) @targetName("protocolAsString") def asString: String = prot
+
+  opaque type ContentType = String
+  extension (content: ContentType) @targetName("contentTypeAsString") def asString: String = content
+
+  opaque type ContentLength = Long
+  extension (content: ContentLength) def asLong: Long = content
+
+  val protocol: Protocol = request.httpVersion.toString()
+
+  val headers: Seq[Header] =
+    request.headers.headers.map(header => Header(header.name.toString, header.value))
+
+  val contentType: Option[ContentType] = findHeaderValue(Header.FieldName.ContentType.name)
+  val contentLength: Option[ContentLength] =
+    findHeaderValue(Header.FieldName.ContentLength.name).flatMap(_.toLongOption)
+
+  /** Based on the name of the header, get the value associated with it.
+    * @param name
+    *   Http Request Header name
+    * @return
+    *   Http Request Header value
+    */
+  def findHeaderValue(name: String): Option[ContentType] = headers.find(_.is(name)).map(_.getValue)
+
+  def as[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =
+    request.as[A]
+
+object Request:
+
+  case class Body[T](
+    description:      String
+  )(using val schema: Schema[T])
+
+  object Body:
+
+    def build[T: Schema](
+      description: String
+    ): Body[T] = Body(description)
+  end Body
+
+end Request

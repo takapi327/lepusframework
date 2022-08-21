@@ -28,10 +28,10 @@ import java.util
   *   </<configuration>
   * }}}
   */
-class LogbackJsonEncoder extends BaseEncoder {
-  override def doLayout(event: ILoggingEvent): String = {
-    val sbuf: StringBuffer                 = new StringBuffer(128)
-    val map:  util.HashMap[String, String] = new util.HashMap()
+class LogbackJsonEncoder extends BaseEncoder:
+  override def doLayout(event: ILoggingEvent): String =
+    val sbuf: StringBuffer                 = StringBuffer(128)
+    val map:  util.HashMap[String, String] = util.HashMap()
     map.put("timeStamp", timeStampToLocalDateTime(event.getTimeStamp).toString)
     map.put("level", colorLevel(event))
     map.put("maker", event.getMarker.toString)
@@ -52,5 +52,3 @@ class LogbackJsonEncoder extends BaseEncoder {
     })
     sbuf.append(" }")
     sbuf.toString
-  }
-}

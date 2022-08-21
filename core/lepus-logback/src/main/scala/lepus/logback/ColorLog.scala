@@ -4,11 +4,11 @@
 
 package lepus.logback
 
-import scala.Console._
+import scala.Console.*
 
-trait ColorLog {
+trait ColorLog:
 
-  private lazy val isANSISupported = {
+  private lazy val isANSISupported =
     sys.props
       .get("sbt.log.noformat")
       .map(_ != "true")
@@ -20,14 +20,12 @@ trait ColorLog {
           .map(_ => false)
       }
       .getOrElse(true)
-  }
 
-  def red(str: String):     String = if (isANSISupported) RED + str + RESET else str
-  def blue(str: String):    String = if (isANSISupported) BLUE + str + RESET else str
-  def cyan(str: String):    String = if (isANSISupported) CYAN + str + RESET else str
-  def green(str: String):   String = if (isANSISupported) GREEN + str + RESET else str
-  def magenta(str: String): String = if (isANSISupported) MAGENTA + str + RESET else str
-  def white(str: String):   String = if (isANSISupported) WHITE + str + RESET else str
-  def black(str: String):   String = if (isANSISupported) BLACK + str + RESET else str
-  def yellow(str: String):  String = if (isANSISupported) YELLOW + str + RESET else str
-}
+  def red(str: String):     String = if isANSISupported then RED + str + RESET else str
+  def blue(str: String):    String = if isANSISupported then BLUE + str + RESET else str
+  def cyan(str: String):    String = if isANSISupported then CYAN + str + RESET else str
+  def green(str: String):   String = if isANSISupported then GREEN + str + RESET else str
+  def magenta(str: String): String = if isANSISupported then MAGENTA + str + RESET else str
+  def white(str: String):   String = if isANSISupported then WHITE + str + RESET else str
+  def black(str: String):   String = if isANSISupported then BLACK + str + RESET else str
+  def yellow(str: String):  String = if isANSISupported then YELLOW + str + RESET else str

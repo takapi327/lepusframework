@@ -6,17 +6,17 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import OpenApiSchema._
+import OpenApiSchema.*
 case class OpenApiSchema(
   `type`:     Option[SchemaType]                                = None,
   required:   List[String]                                      = List.empty,
   properties: ListMap[String, Either[Reference, OpenApiSchema]] = ListMap.empty,
-  format:     Option[String]                                    = None,
+  format:     Option[SchemaFormat]                              = None,
   nullable:   Option[Boolean]                                   = None,
   oneOf:      List[Either[Reference, OpenApiSchema]]            = List.empty
 )
 
-object OpenApiSchema {
+private[lepus] object OpenApiSchema:
 
   def apply(`type`: SchemaType): OpenApiSchema =
     OpenApiSchema(`type` = Some(`type`))
@@ -24,25 +24,23 @@ object OpenApiSchema {
   def apply(references: List[Either[Reference, OpenApiSchema]]): OpenApiSchema =
     OpenApiSchema(oneOf = references)
 
-  sealed abstract class SchemaType(val value: String)
-  object SchemaType {
-    case object Boolean extends SchemaType("boolean")
-    case object Object  extends SchemaType("object")
-    case object Array   extends SchemaType("array")
-    case object Number  extends SchemaType("number")
-    case object String  extends SchemaType("string")
-    case object Integer extends SchemaType("integer")
-  }
+  enum SchemaType(`type`: String):
+    override def toString: String = `type`
+    case Boolean extends SchemaType("boolean")
+    case Object  extends SchemaType("object")
+    case Array   extends SchemaType("array")
+    case Number  extends SchemaType("number")
+    case String  extends SchemaType("string")
+    case Integer extends SchemaType("integer")
 
-  object SchemaFormat {
-    val Int32:    String = "int32"
-    val Int64:    String = "int64"
-    val Float:    String = "float"
-    val Double:   String = "double"
-    val Byte:     String = "byte"
-    val Binary:   String = "binary"
-    val Date:     String = "date"
-    val DateTime: String = "date-time"
-    val Password: String = "password"
-  }
-}
+  enum SchemaFormat(`type`: String):
+    override def toString: String = `type`
+    case Int32    extends SchemaFormat("int32")
+    case Int64    extends SchemaFormat("int64")
+    case Float    extends SchemaFormat("float")
+    case Double   extends SchemaFormat("double")
+    case Byte     extends SchemaFormat("byte")
+    case Binary   extends SchemaFormat("binary")
+    case Date     extends SchemaFormat("date")
+    case DateTime extends SchemaFormat("date-time")
+    case Password extends SchemaFormat("password")

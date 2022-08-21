@@ -6,7 +6,7 @@ package lepus.router
 
 import org.specs2.mutable.Specification
 
-object ValidatorTest extends Specification {
+object ValidatorTest extends Specification:
 
   "Testing the Validator" should {
 
@@ -89,4 +89,3 @@ object ValidatorTest extends Specification {
       Validator.Range(5, 0) must throwAn[IllegalArgumentException]
     }
   }
-}

@@ -4,10 +4,9 @@
 
 package lepus.server
 
-object Exception {
+object Exception:
 
   /** Indicates an issue with starting a server, e.g. a problem reading its configuration.
     */
   final case class ServerStartException(message: String, throwableOpt: Option[Throwable] = None)
     extends Exception(message, throwableOpt.orNull)
-}

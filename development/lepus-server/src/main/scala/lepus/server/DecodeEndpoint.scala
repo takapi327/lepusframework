@@ -2,23 +2,23 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router
+package lepus.server
 
 import scala.annotation.tailrec
 
-import http._
-import lepus.router.model._
-import lepus.router.internal._
+import lepus.router.http.*
+import lepus.router.model.*
+import lepus.router.internal.*
 
-object DecodeEndpoint {
+object DecodeEndpoint:
 
-  type DecodedResult = Vector[(RequestEndpoint.Endpoint, DecodeResult[_])]
+  type DecodedResult = Vector[(RequestEndpoint.Endpoint[?], DecodeResult[?])]
   type Result        = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
 
   def apply(
     request:  HttpRequest,
-    endpoint: RequestEndpoint.Endpoint
-  ): (DecodeEndpointResult, DecodedResult) = {
+    endpoint: RequestEndpoint.Endpoint[?]
+  ): (DecodeEndpointResult, DecodedResult) =
 
     val endpoints = endpoint.asVector()
 
@@ -28,11 +28,9 @@ object DecodeEndpoint {
     decodingConvolution(
       tailrecMatchPath(DecodePathRequest(request), endpointPaths, _, _),
       tailrecMatchQuery(DecodeQueryRequest(request), endpointQueryParams, _, _)
-    )(DecodeEndpointResult.Success(Vector.empty), Vector.empty) match {
+    )(DecodeEndpointResult.Success(Vector.empty), Vector.empty) match
       case (result: DecodeEndpointResult.Success, decoded) => (tailrecDecode(decoded, result), decoded)
       case (result, decoded)                               => (result, decoded)
-    }
-  }
 
   /** Compares and verifies the path of the Http request with the path of the endpoint, and performs all tail recursion
     * of decoding.
@@ -50,62 +48,53 @@ object DecodeEndpoint {
     */
   @tailrec private def tailrecMatchPath(
     request:   DecodePathRequest,
-    endpoints: Vector[RequestEndpoint.Endpoint],
+    endpoints: Vector[RequestEndpoint.Endpoint[?]],
     result:    DecodeEndpointResult.Success,
     decoded:   DecodedResult
   ): (DecodeEndpointResult, DecodedResult) =
-    endpoints.headAndTail match {
+    endpoints.headAndTail match
       case Some((head, tail)) =>
-        head match {
+        head match
           case RequestEndpoint.FixedPath(name, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
-            nextSegment match {
+            nextSegment match
               case Some(segment) =>
-                if (segment == name) {
-                  tailrecMatchPath(decodeServerRequest, tail, result, decoded)
-                } else {
+                if segment == name then tailrecMatchPath(decodeServerRequest, tail, result, decoded)
+                else
                   val failure = DecodeEndpointResult.MissMatch(head, DecodeResult.Mismatch(segment, name))
                   (failure, decoded)
-                }
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-            }
           case RequestEndpoint.PathParam(_, converter, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
-            nextSegment match {
+            nextSegment match
               case Some(segment) =>
                 val newDecoded = decoded :+ ((head, converter.decode(segment)))
                 tailrecMatchPath(decodeServerRequest, tail, result, newDecoded)
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-            }
           case RequestEndpoint.ValidatePathParam(_, converter, validator, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
-            nextSegment match {
+            nextSegment match
               case Some(segment) =>
-                validator(segment) match {
+                validator(segment) match
                   case Some(decodeResult) =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResult)
                     (failure, decoded)
                   case None =>
                     val newDecoded = decoded :+ ((head, converter.decode(segment)))
                     tailrecMatchPath(decodeServerRequest, tail, result, newDecoded)
-                }
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-            }
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
-        }
       case None =>
         val (nextSegment, _) = request.nextPathSegment
-        nextSegment match {
+        nextSegment match
           case Some(v) => (DecodeEndpointResult.PathMissPatch(v), decoded)
           case None    => (result, decoded)
-        }
-    }
 
   /** Compares and verifies the path of the Http request with the query param of the endpoint, and performs all tail
     * recursion of decoding.
@@ -123,37 +112,32 @@ object DecodeEndpoint {
     */
   @tailrec private def tailrecMatchQuery(
     request:   DecodeQueryRequest,
-    endpoints: Vector[RequestEndpoint.Endpoint],
+    endpoints: Vector[RequestEndpoint.Endpoint[?]],
     result:    DecodeEndpointResult.Success,
     decoded:   DecodedResult
   ): (DecodeEndpointResult, DecodedResult) =
-    endpoints.headAndTail match {
+    endpoints.headAndTail match
       case Some((head, tail)) =>
-        head match {
+        head match
           case RequestEndpoint.QueryParam(key, converter, _) =>
-            request.nextQuerySegment(key) match {
+            request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
                 val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
                 tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
-            }
           case RequestEndpoint.ValidateQueryParam(key, converter, validator, _) =>
-            request.nextQuerySegment(key) match {
+            request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
-                values.flatMap(validator(_)) match {
+                values.flatMap(validator(_)) match
                   case Nil =>
                     val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
                     tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
                   case decodeResults =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResults.head)
                     (failure, decoded)
-                }
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
-            }
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
-        }
       case None => (result, decoded)
-    }
 
   /** Process with tail recursion so that only Success decoded endpoints are processed.
     *
@@ -165,17 +149,15 @@ object DecodeEndpoint {
     *   Value resulting from decoding the endpoint
     */
   @tailrec private def tailrecDecode(
-    decodedEndpoints: Vector[(RequestEndpoint.Endpoint, DecodeResult[_])],
+    decodedEndpoints: Vector[(RequestEndpoint.Endpoint[?], DecodeResult[?])],
     decodeResult:     DecodeEndpointResult.Success
   ): DecodeEndpointResult = {
-    decodedEndpoints.headAndTail match {
+    decodedEndpoints.headAndTail match
       case None => decodeResult
       case Some((head, tail)) =>
-        head match {
+        head match
           case (endpoint, failure: DecodeResult.Failure) => DecodeEndpointResult.Error(endpoint, failure)
           case (_, DecodeResult.Success(value))          => tailrecDecode(tail, decodeResult.update(value))
-        }
-    }
   }
 
   /** Receive and in turn process decoding endpoints. The path and query parameter decoding processes can be combined by
@@ -187,28 +169,23 @@ object DecodeEndpoint {
     *   Result of decoding the path, query parameter endpoints.
     */
   private def decodingConvolution(results: Result*): Result = (result, decoded) =>
-    results match {
+    results match
       case head +: tail =>
-        head(result, decoded) match {
+        head(result, decoded) match
           case (result: DecodeEndpointResult.Success, decoded) => decodingConvolution(tail: _*)(result, decoded)
           case decodedResult                                   => decodedResult
-        }
       case _ => (result, decoded)
-    }
-}
 
 sealed trait DecodeEndpointResult
-object DecodeEndpointResult {
-  case class Success(decodedEndpoints: Vector[Any]) extends DecodeEndpointResult {
+object DecodeEndpointResult:
+  case class Success(decodedEndpoints: Vector[Any]) extends DecodeEndpointResult:
     def update(decodedEndpoint: Any): Success =
       copy(decodedEndpoints :+ decodedEndpoint)
-  }
 
   sealed trait Failure extends DecodeEndpointResult
 
-  case class Error(endpoint: RequestEndpoint.Endpoint, failure: DecodeResult.Failure)           extends Failure
-  case class MissMatch(endpoint: RequestEndpoint.Endpoint, failure: DecodeResult.Failure)       extends Failure
-  case class NoSuchElement(endpoint: RequestEndpoint.Endpoint, failure: DecodeResult.Failure)   extends Failure
-  case class ValidationError(endpoint: RequestEndpoint.Endpoint, failure: DecodeResult.Failure) extends Failure
-  case class PathMissPatch(path: String)                                                        extends Failure
-}
+  case class Error(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)           extends Failure
+  case class MissMatch(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)       extends Failure
+  case class NoSuchElement(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)   extends Failure
+  case class ValidationError(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure) extends Failure
+  case class PathMissPatch(path: String)                                                           extends Failure

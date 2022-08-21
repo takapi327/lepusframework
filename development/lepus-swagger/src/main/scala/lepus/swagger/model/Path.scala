@@ -6,11 +6,11 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router._
-import lepus.router.internal._
-import lepus.router.http.{ RequestMethod, RequestEndpoint }
+import lepus.router.*
+import lepus.router.internal.*
+import lepus.router.http.{ Method, RequestEndpoint }
 
-import lepus.swagger.SchemaToOpenApiSchema
+import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
 
 /** Model for generating Swagger documentation for a single endpoint path
   *
@@ -28,39 +28,41 @@ import lepus.swagger.SchemaToOpenApiSchema
   *   List of response values per endpoint status
   */
 final case class Path(
-  summary:     Option[String]            = None,
-  description: Option[String]            = None,
-  tags:        Set[String]               = Set.empty,
-  deprecated:  Option[Boolean]           = None,
-  parameters:  List[Parameter]           = List.empty,
-  requestBody: Option[RequestBody]       = None,
-  responses:   ListMap[String, Response] = ListMap.empty
+  summary:     Option[String]                      = None,
+  description: Option[String]                      = None,
+  tags:        Set[String]                         = Set.empty,
+  deprecated:  Option[Boolean]                     = None,
+  parameters:  List[Parameter]                     = List.empty,
+  requestBody: Option[RequestBody]                 = None,
+  responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 
-object Path {
+private[lepus] object Path:
 
   def fromEndpoint[F[_]](
-    method:                RequestMethod,
-    router:                RouterConstructor[F, _],
-    schemaToOpenApiSchema: SchemaToOpenApiSchema
-  ): Path = {
-    val endpoints: Vector[RequestEndpoint.Endpoint] = router.endpoint.asVector()
+    method:   Method,
+    endpoint: RequestEndpoint.Endpoint[?],
+    router:   OpenApiConstructor[F, ?],
+    schema:   SchemaToOpenApiSchema
+  ): Path =
+    val endpoints: Vector[RequestEndpoint.Endpoint[?]] = endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
-      case e: RequestEndpoint.Path with RequestEndpoint.Param =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
-      case e: RequestEndpoint.Query with RequestEndpoint.Param =>
-        Some(Parameter.fromRequestEndpoint(e, schemaToOpenApiSchema).asInstanceOf[Parameter])
+      case e: (RequestEndpoint.Path[?] & RequestEndpoint.Param[?]) =>
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
+      case e: (RequestEndpoint.Query[?] & RequestEndpoint.Param[?]) =>
+        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
       case _ => None
     }.toList
 
-    val requestBody = router.requestBodies
+    val requestBody = router.bodies
       .lift(method)
-      .map(req => RequestBody.build(req, schemaToOpenApiSchema))
+      .map(req => RequestBody.build(req, schema))
 
     val responses = router.responses
       .lift(method)
-      .map(resList => resList.map(res => res.status.code.toString -> Response.build(res, schemaToOpenApiSchema)))
-      .getOrElse(List("default" -> Response.empty))
+      .filter(_.nonEmpty)
+      .map(resList => resList.map(res => res.status.enumStatus.toString -> res.toUI(schema)))
+      .getOrElse(List("default" -> OpenApiResponse.UI.empty))
 
     Path(
       summary     = router.summary,
@@ -71,5 +73,3 @@ object Path {
       requestBody = requestBody,
       responses   = responses.to(ListMap)
     )
-  }
-}

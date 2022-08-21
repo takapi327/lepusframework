@@ -16,7 +16,7 @@ import lepus.router.RouterProvider
 
 import Exception.GenerateSwaggerException
 
-object OpenApiGenerator extends ExtensionMethods {
+private[lepus] object OpenApiGenerator extends ExtensionMethods:
 
   private val SERVER_ROUTES = "lepus.server.routes"
 
@@ -25,7 +25,7 @@ object OpenApiGenerator extends ExtensionMethods {
     version:       String,
     sourceManaged: File,
     baseDirectory: File
-  ): File = {
+  ): File =
 
     val outputFile = new File(sourceManaged, "LepusOpenApi.scala")
 
@@ -39,38 +39,34 @@ object OpenApiGenerator extends ExtensionMethods {
           |${ indent(0)(`package`) }
           |${ indent(0)(imports) }
           |
-          |object LepusOpenApi extends OpenApiEncoder with ExtensionMethods {
+          |private[lepus] object LepusOpenApi extends OpenApiEncoder, ExtensionMethods:
           |
           |  def main(args: Array[String]): Unit = generate()
           |
-          |  def generate(): Unit = {
+          |  def generate(): Unit =
           |    val config = Configuration.load()
           |
           |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
-          |    val routerProvider: RouterProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
+          |    val routerProvider: RouterProvider[IO] & OpenApiProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
           |
           |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), routerProvider)
           |
-          |    if (!file.exists()) {
+          |    if !file.exists() then
           |      file.getParentFile.mkdirs()
           |      file.createNewFile()
-          |    }
-          |    Files.write(file.toPath, openAPIUI.toYaml.getBytes(implicitly[Codec].name))
-          |  }
           |
-          |}
+          |    Files.write(file.toPath, openAPIUI.toYaml.getBytes(implicitly[Codec].name))
+          |
           |""".stripMargin
 
-    if (!outputFile.exists()) {
+    if !outputFile.exists() then
       outputFile.getParentFile.mkdirs()
       outputFile.createNewFile()
-    }
 
     Files.write(outputFile.toPath, scalaSource.getBytes(implicitly[Codec].name))
 
     outputFile
-  }
 
   private[lepus] def indent(i: Int)(str: String): String =
     str.linesIterator.map(" " * i + _).mkString("\n")
@@ -85,6 +81,7 @@ object OpenApiGenerator extends ExtensionMethods {
      |import cats.effect.IO
      |import lepus.core.util.Configuration
      |import lepus.router.RouterProvider
+     |import lepus.swagger.OpenApiProvider
      |import lepus.swagger.model.Info
      |import lepus.swagger.{ RouterToOpenAPI, OpenApiEncoder }
      |import Exception.GenerateSwaggerException
@@ -97,15 +94,17 @@ object OpenApiGenerator extends ExtensionMethods {
     * @return
     *   Value of RouterProvider registered in the app
     */
-  private[lepus] def loadRouterProvider(config: Configuration): RouterProvider[IO] = {
+  private[lepus] def loadRouterProvider(config: Configuration): RouterProvider[IO] & OpenApiProvider[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
-      catch {
+      catch
         case ex: ClassNotFoundException =>
           throw GenerateSwaggerException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
-      }
-    if (!classOf[RouterProvider[IO]].isAssignableFrom(routeClass)) {
+
+    if !classOf[OpenApiProvider[IO]]
+        .isAssignableFrom(routeClass) && !classOf[RouterProvider[IO]].isAssignableFrom(routeClass)
+    then
       throw GenerateSwaggerException(
         s"""
           |Class ${ routeClass.getName } must implement RouterProvider interface
@@ -118,16 +117,14 @@ object OpenApiGenerator extends ExtensionMethods {
           |
           |""".stripMargin
       )
-    }
+
     val constructor =
-      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO]]
-      catch {
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO] & OpenApiProvider[IO]]
+      catch
         case ex: NoSuchMethodException =>
           throw GenerateSwaggerException(
             s"RouterProvider class ${ routeClass.getName } must have a public default constructor",
             Some(ex)
           )
-      }
+
     constructor
-  }
-}

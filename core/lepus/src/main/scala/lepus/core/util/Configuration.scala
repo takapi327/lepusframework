@@ -4,104 +4,111 @@
 
 package lepus.core.util
 
-import java.time.{ Duration => JavaDuration }
+import java.time.Duration as JavaDuration
 
-import scala.jdk.CollectionConverters._
-import scala.concurrent.duration.{ Duration, FiniteDuration, _ }
+import scala.jdk.CollectionConverters.*
+import scala.concurrent.duration.{ Duration, FiniteDuration, * }
 
-import com.typesafe.config._
+import com.typesafe.config.*
 
-case class Configuration(config: Config) {
-  def get[A](path: String)(implicit loader: ConfigLoader[A]): A =
+case class Configuration(config: Config):
+  def get[A](path: String)(using loader: ConfigLoader[A]): A =
     loader.load(config, path)
-}
 
-object Configuration {
+object Configuration:
 
   def load(
     classLoader:    ClassLoader,
     directSettings: Map[String, String]
-  ): Configuration = {
-    try {
+  ): Configuration =
+    try
       val directConfig: Config = ConfigFactory.parseMap(directSettings.asJava)
       val config:       Config = ConfigFactory.load(classLoader, directConfig)
       Configuration(config)
-    } catch {
-      case e: ConfigException => throw new Exception
-    }
-  }
+    catch case e: ConfigException => throw new Exception(e.getMessage)
 
   def load(): Configuration = Configuration(ConfigFactory.load())
-}
 
-trait ConfigLoader[A] { self =>
+end Configuration
+
+trait ConfigLoader[A]:
+  self =>
+
   def load(config: Config, path: String): A
-  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader[B] {
-    def load(config: Config, path: String): B = {
+  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader {
+    def load(config: Config, path: String): B =
       f(self.load(config, path))
-    }
   }
-}
 
-object ConfigLoader {
+end ConfigLoader
+
+object ConfigLoader:
   def apply[A](f: Config => String => A): ConfigLoader[A] =
     new ConfigLoader[A] {
       override def load(config: Config, path: String): A =
         f(config)(path)
     }
 
-  implicit val string:         ConfigLoader[String]           = ConfigLoader(_.getString)
-  implicit val int:            ConfigLoader[Int]              = ConfigLoader(_.getInt)
-  implicit val long:           ConfigLoader[Long]             = ConfigLoader(_.getLong)
-  implicit val number:         ConfigLoader[Number]           = ConfigLoader(_.getNumber)
-  implicit val double:         ConfigLoader[Double]           = ConfigLoader(_.getDouble)
-  implicit val bytes:          ConfigLoader[ConfigMemorySize] = ConfigLoader(_.getMemorySize)
-  implicit val finiteDuration: ConfigLoader[FiniteDuration]   = ConfigLoader(_.getDuration).map(_.toNanos.nanos)
-  implicit val javaDuration:   ConfigLoader[JavaDuration]     = ConfigLoader(_.getDuration)
-  implicit val scalaDuration: ConfigLoader[Duration] = ConfigLoader(config =>
+  given ConfigLoader[String]           = ConfigLoader(_.getString)
+  given ConfigLoader[Int]              = ConfigLoader(_.getInt)
+  given ConfigLoader[Long]             = ConfigLoader(_.getLong)
+  given ConfigLoader[Number]           = ConfigLoader(_.getNumber)
+  given ConfigLoader[Double]           = ConfigLoader(_.getDouble)
+  given ConfigLoader[Boolean]          = ConfigLoader(_.getBoolean)
+  given ConfigLoader[ConfigMemorySize] = ConfigLoader(_.getMemorySize)
+  given ConfigLoader[FiniteDuration]   = ConfigLoader(_.getDuration).map(_.toNanos.nanos)
+  given ConfigLoader[JavaDuration]     = ConfigLoader(_.getDuration)
+  given ConfigLoader[Duration] = ConfigLoader(config =>
     path =>
-      if (config.getIsNull(path)) {
-        Duration.Inf
-      } else {
-        config.getDuration(path).toNanos.nanos
-      }
+      if config.getIsNull(path) then Duration.Inf
+      else config.getDuration(path).toNanos.nanos
   )
 
-  implicit val seqBoolean: ConfigLoader[Seq[Boolean]] =
-    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).asInstanceOf[Seq[Boolean]])
-  implicit val seqInt: ConfigLoader[Seq[Int]] =
-    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt).asInstanceOf[Seq[Int]])
-  implicit val seqLong: ConfigLoader[Seq[Long]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue).asInstanceOf[Seq[Long]])
-  implicit val seqNumber: ConfigLoader[Seq[Number]] =
-    ConfigLoader(_.getNumberList).map(_.asScala.asInstanceOf[Seq[Number]])
-  implicit val seqDouble: ConfigLoader[Seq[Double]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue).asInstanceOf[Seq[Double]])
-  implicit val seqString: ConfigLoader[Seq[String]] =
-    ConfigLoader(_.getStringList).map(_.asScala.asInstanceOf[Seq[String]])
-  implicit val seqBytes: ConfigLoader[Seq[ConfigMemorySize]] =
-    ConfigLoader(_.getMemorySizeList).map(_.asScala.asInstanceOf[Seq[ConfigMemorySize]])
-  implicit val seqFinite: ConfigLoader[Seq[FiniteDuration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).asInstanceOf[Seq[FiniteDuration]])
-  implicit val seqJavaDuration: ConfigLoader[Seq[JavaDuration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.asInstanceOf[Seq[JavaDuration]])
-  implicit val seqScalaDuration: ConfigLoader[Seq[Duration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).asInstanceOf[Seq[Duration]])
+  given seqBoolean: ConfigLoader[Seq[Boolean]] =
+    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).toSeq)
+  given seqInt: ConfigLoader[Seq[Int]] =
+    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt).toSeq)
+  given seqLong: ConfigLoader[Seq[Long]] =
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue).toSeq)
+  given seqNumber: ConfigLoader[Seq[Number]] =
+    ConfigLoader(_.getNumberList).map(_.asScala.toSeq)
+  given seqDouble: ConfigLoader[Seq[Double]] =
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue).toSeq)
+  given seqString: ConfigLoader[Seq[String]] =
+    ConfigLoader(_.getStringList).map(_.asScala.toSeq)
+  given seqBytes: ConfigLoader[Seq[ConfigMemorySize]] =
+    ConfigLoader(_.getMemorySizeList).map(_.asScala.toSeq)
+  given seqFinite: ConfigLoader[Seq[FiniteDuration]] =
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toSeq)
+  given seqJavaDuration: ConfigLoader[Seq[JavaDuration]] =
+    ConfigLoader(_.getDurationList).map(_.asScala.toSeq)
+  given seqScalaDuration: ConfigLoader[Seq[Duration]] =
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toSeq)
+  given seqConfig: ConfigLoader[Seq[Config]] =
+    ConfigLoader(_.getConfigList).map(_.asScala.toSeq)
+  given seqConfiguration: ConfigLoader[Seq[Configuration]] =
+    summon[ConfigLoader[Seq[Config]]].map(_.map(Configuration(_)))
 
-  implicit val config:       ConfigLoader[Config]       = ConfigLoader(_.getConfig)
-  implicit val configObject: ConfigLoader[ConfigObject] = ConfigLoader(_.getObject)
-  implicit val configList:   ConfigLoader[ConfigList]   = ConfigLoader(_.getList)
-  implicit val seqConfig: ConfigLoader[Seq[Config]] =
-    ConfigLoader(_.getConfigList).map(_.asScala.asInstanceOf[Seq[Config]])
-  implicit val configuration:    ConfigLoader[Configuration]      = config.map(Configuration(_))
-  implicit val seqConfiguration: ConfigLoader[Seq[Configuration]] = seqConfig.map(_.map(Configuration(_)))
+  given ConfigLoader[Config]        = ConfigLoader(_.getConfig)
+  given ConfigLoader[ConfigObject]  = ConfigLoader(_.getObject)
+  given ConfigLoader[ConfigList]    = ConfigLoader(_.getList)
+  given ConfigLoader[Configuration] = summon[ConfigLoader[Config]].map(Configuration(_))
 
-  implicit def optionA[A](implicit loader: ConfigLoader[A]): ConfigLoader[Option[A]] =
-    new ConfigLoader[Option[A]] {
-      override def load(config: Config, path: String): Option[A] =
-        (config.hasPath(path) && !config.getIsNull(path)) match {
-          case true  => Some(loader.load(config, path))
-          case false => None
+  given [A](using loader: ConfigLoader[A]): ConfigLoader[Option[A]] with
+    override def load(config: Config, path: String): Option[A] =
+      if config.hasPath(path) && !config.getIsNull(path) then Some(loader.load(config, path))
+      else None
+
+  given [A](using loader: ConfigLoader[A]): ConfigLoader[Map[String, A]] with
+    override def load(config: Config, path: String): Map[String, A] =
+      val obj  = config.getObject(path)
+      val conf = obj.toConfig
+      obj
+        .keySet()
+        .asScala
+        .map { key =>
+          key -> loader.load(conf, key)
         }
-    }
-}
+        .toMap
+
+end ConfigLoader

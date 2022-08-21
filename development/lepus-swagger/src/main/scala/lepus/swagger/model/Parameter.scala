@@ -23,23 +23,22 @@ import lepus.swagger.internal.RequestEndpointMagnet
   */
 final case class Parameter(
   name:        String,
-  in:          String,
+  in:          Parameter.ParameterInType,
   required:    Boolean,
   schema:      Either[Reference, OpenApiSchema],
   description: Option[String]
 )
 
-object Parameter {
+private[lepus] object Parameter:
 
   def fromRequestEndpoint(
     magnet:                RequestEndpointMagnet,
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): magnet.ThisType = magnet.toParameter(schemaToOpenApiSchema)
 
-  object ParameterInType {
-    val PATH   = "path"
-    val QUERY  = "query"
-    val HEADER = "header"
-    val COOKIE = "cookie"
-  }
-}
+  enum ParameterInType(`type`: String):
+    override def toString: String = `type`
+    case PATH   extends ParameterInType("path")
+    case QUERY  extends ParameterInType("query")
+    case HEADER extends ParameterInType("header")
+    case COOKIE extends ParameterInType("cookie")

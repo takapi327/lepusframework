@@ -4,20 +4,20 @@
 
 package lepus.router.model
 
-import java.time._
+import java.time.*
 import java.util.{ Date, UUID }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
-import scala.concurrent.duration
+import scala.concurrent.duration.Duration as ScalaDuration
 
-import SchemaType._
+import SchemaType.*
+
 final case class Schema[T](
   schemaType: SchemaType[T],
   name:       Option[Schema.Name] = None,
   format:     Option[String]      = None,
   isOptional: Boolean             = false
-) {
-
+):
   def thisType: String = s"schema is $schemaType"
 
   def format(f: String): Schema[T] = copy(format = Some(f))
@@ -47,41 +47,39 @@ final case class Schema[T](
       schemaType = SArray(this),
       isOptional = true
     )
-}
 
-object Schema {
-
+object Schema:
   case class Name(fullName: String, typeParameters: List[String]) {
     val shortName: String = fullName.split('.').lastOption.getOrElse(fullName)
   }
 
-  implicit val schemaString:         Schema[String]            = Schema(SString())
-  implicit val schemaByte:           Schema[Byte]              = Schema(SInteger())
-  implicit val schemaShort:          Schema[Short]             = Schema(SInteger())
-  implicit val schemaInt:            Schema[Int]               = Schema(SInteger[Int]()).format("int32")
-  implicit val schemaLong:           Schema[Long]              = Schema(SInteger[Long]()).format("int64")
-  implicit val schemaFloat:          Schema[Float]             = Schema(SNumber[Float]()).format("float")
-  implicit val schemaDouble:         Schema[Double]            = Schema(SNumber[Double]()).format("double")
-  implicit val schemaBoolean:        Schema[Boolean]           = Schema(SBoolean())
-  implicit val schemaByteArray:      Schema[Array[Byte]]       = Schema(SBinary())
-  implicit val schemaInstant:        Schema[Instant]           = Schema(SBinary())
-  implicit val schemaZonedDateTime:  Schema[ZonedDateTime]     = Schema(SDateTime())
-  implicit val schemaOffsetDateTime: Schema[OffsetDateTime]    = Schema(SDateTime())
-  implicit val schemaDate:           Schema[Date]              = Schema(SDate())
-  implicit val schemaLocalDateTime:  Schema[LocalDateTime]     = Schema(SString())
-  implicit val schemaLocalDate:      Schema[LocalDate]         = Schema(SDate())
-  implicit val schemaZoneOffset:     Schema[ZoneOffset]        = Schema(SString())
-  implicit val schemaJavaDuration:   Schema[Duration]          = Schema(SString())
-  implicit val schemaLocalTime:      Schema[LocalTime]         = Schema(SString())
-  implicit val schemaOffsetTime:     Schema[OffsetTime]        = Schema(SString())
-  implicit val schemaScalaDuration:  Schema[duration.Duration] = Schema(SString())
-  implicit val schemaUUID:           Schema[UUID]              = Schema(SString[UUID]()).format("uuid")
-  implicit val schemaBigDecimal:     Schema[BigDecimal]        = Schema(SNumber())
-  implicit val schemaJBigDecimal:    Schema[JBigDecimal]       = Schema(SNumber())
-  implicit val schemaBigInt:         Schema[BigInt]            = Schema(SInteger())
-  implicit val schemaJBigInteger:    Schema[JBigInteger]       = Schema(SInteger())
+  given Schema[String]         = Schema(SString())
+  given Schema[Byte]           = Schema(SInteger())
+  given Schema[Short]          = Schema(SInteger())
+  given Schema[Int]            = Schema(SInteger[Int]()).format("int32")
+  given Schema[Long]           = Schema(SInteger[Long]()).format("int64")
+  given Schema[Float]          = Schema(SNumber[Float]()).format("float")
+  given Schema[Double]         = Schema(SNumber[Double]()).format("double")
+  given Schema[Boolean]        = Schema(SBoolean())
+  given Schema[Array[Byte]]    = Schema(SBinary())
+  given Schema[Instant]        = Schema(SBinary())
+  given Schema[ZonedDateTime]  = Schema(SDateTime())
+  given Schema[OffsetDateTime] = Schema(SDateTime())
+  given Schema[Date]           = Schema(SDate())
+  given Schema[LocalDateTime]  = Schema(SString())
+  given Schema[LocalDate]      = Schema(SDate())
+  given Schema[ZoneOffset]     = Schema(SString())
+  given Schema[Duration]       = Schema(SString())
+  given Schema[LocalTime]      = Schema(SString())
+  given Schema[OffsetTime]     = Schema(SString())
+  given Schema[ScalaDuration]  = Schema(SString())
+  given Schema[UUID]           = Schema(SString[UUID]()).format("uuid")
+  given Schema[BigDecimal]     = Schema(SNumber())
+  given Schema[JBigDecimal]    = Schema(SNumber())
+  given Schema[BigInt]         = Schema(SInteger())
+  given Schema[JBigInteger]    = Schema(SInteger())
+  given Schema[Unit]           = Schema(Entity.empty)
 
-  implicit def schemaOption[T: Schema]:                        Schema[Option[T]] = implicitly[Schema[T]].asOption
-  implicit def schemaArray[T: Schema]:                         Schema[Array[T]]  = implicitly[Schema[T]].asArray
-  implicit def schemaIterable[T: Schema, C[X] <: Iterable[X]]: Schema[C[T]]      = implicitly[Schema[T]].asIterable[C]
-}
+  given [T: Schema]:                      Schema[Option[T]] = summon[Schema[T]].asOption
+  given [T: Schema]:                      Schema[Array[T]]  = summon[Schema[T]].asArray
+  given [T: Schema, C[X] <: Iterable[X]]: Schema[C[T]]      = summon[Schema[T]].asIterable[C]

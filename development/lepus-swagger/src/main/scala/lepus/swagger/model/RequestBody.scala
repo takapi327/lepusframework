@@ -6,7 +6,7 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.http.{ RequestBody => RouterRequestBody }
+import lepus.router.http.Request
 
 import lepus.swagger.SchemaToOpenApiSchema
 
@@ -16,14 +16,13 @@ case class RequestBody(
   content:     ListMap[String, Content]
 )
 
-object RequestBody {
+private[lepus] object RequestBody:
 
   val empty = RequestBody("RequestBody is not specified", false, ListMap.empty)
 
-  def build[T](body: RouterRequestBody[T], schemaToOpenApiSchema: SchemaToOpenApiSchema): RequestBody =
+  def build[T](body: Request.Body[T], schemaToOpenApiSchema: SchemaToOpenApiSchema): RequestBody =
     RequestBody(
       description = body.description,
       required    = true,
       content     = ListMap("application/json" -> Content.build(body.schema, schemaToOpenApiSchema))
     )
-}

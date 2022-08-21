@@ -9,40 +9,35 @@ import scala.collection.immutable.ListMap
 import lepus.router.model.{ Schema, SchemaType }
 
 import lepus.swagger.model.{ OpenApiSchema, Reference }
-import OpenApiSchema.{ SchemaType => OpenApiSchemaType, SchemaFormat => OpenApiSchemaFormat }
+import OpenApiSchema.{ SchemaType as OpenApiSchemaType, SchemaFormat as OpenApiSchemaFormat }
 
 /** Class for converting Schema of Router to Schema for OpenAPI.
   *
   * @param schemaToReference
   *   Class for converting to Reference model
   */
-class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
+class SchemaToOpenApiSchema(schemaToReference: SchemaToReference):
   def apply[T](
     schema:      Schema[T],
     isOptional:  Boolean = false,
     forceCreate: Boolean = true
-  ): Either[Reference, OpenApiSchema] = {
-    val result = if (forceCreate) {
-      discriminateBySchemaType(schema.schemaType)
-    } else {
-      schema.name match {
-        case Some(name) =>
-          schemaToReference.map(name) match {
-            case Some(value) => Left(value)
-            case None        => discriminateBySchemaType(schema.schemaType)
-          }
-        case None => discriminateBySchemaType(schema.schemaType)
-      }
-    }
-    if (isOptional) {
-      result.map(_.copy(nullable = Some(isOptional)))
-    } else {
-      result
-    }
-  }
+  ): Either[Reference, OpenApiSchema] =
+    val result =
+      if forceCreate then discriminateBySchemaType(schema.schemaType)
+      else
+        schema.name match
+          case Some(name) =>
+            schemaToReference.map(name) match
+              case Some(value) => Left(value)
+              case None        => discriminateBySchemaType(schema.schemaType)
+
+          case None => discriminateBySchemaType(schema.schemaType)
+
+    if isOptional then result.map(_.copy(nullable = Some(isOptional)))
+    else result
 
   private def discriminateBySchemaType(schemaType: SchemaType[_]): Either[Reference, OpenApiSchema] =
-    schemaType match {
+    schemaType match
       case SchemaType.SInteger() => Right(OpenApiSchema(OpenApiSchemaType.Integer))
       case SchemaType.SNumber()  => Right(OpenApiSchema(OpenApiSchemaType.Number))
       case SchemaType.SBoolean() => Right(OpenApiSchema(OpenApiSchemaType.Boolean))
@@ -63,18 +58,15 @@ class SchemaToOpenApiSchema(schemaToReference: SchemaToReference) {
       case SchemaType.SDateTime() =>
         Right(OpenApiSchema(OpenApiSchemaType.String).copy(format = Some(OpenApiSchemaFormat.DateTime)))
       case SchemaType.Trait(schemas) => Right(OpenApiSchema(schemas.map(apply(_))))
-    }
 
-  private def extractProperties[T](
-    fields: List[SchemaType.Entity.Field[T]]
+  private def extractProperties(
+    fields: List[SchemaType.Entity.Field]
   ): ListMap[String, Either[Reference, OpenApiSchema]] =
     fields
       .map(field => {
-        field.schema match {
+        field.schema match
           case Schema(_, Some(name), _, _) =>
             field.name.encodedName -> Left(schemaToReference.map(name).getOrElse(Reference(name.fullName)))
           case schema => field.name.encodedName -> apply(schema)
-        }
       })
       .toListMap
-}

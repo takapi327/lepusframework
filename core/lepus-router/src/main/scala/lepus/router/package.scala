@@ -7,22 +7,33 @@ package lepus
 import language.experimental.macros
 
 import cats.Semigroup
-import cats.syntax.semigroupk._
+import cats.syntax.semigroupk.*
 
 import cats.effect.IO
 
-import org.http4s.{ HttpRoutes => Http4sRoutes }
+import org.http4s.HttpRoutes as Http4sRoutes
 
-import lepus.router.http.RequestMethod
-import lepus.router.model.{ ServerRequest, ServerResponse }
+import lepus.router.RouterConstructor
+import lepus.router.http.{ Request, RequestEndpoint, Method, Response }
 
-package object router extends LepusRouter {
+package object router extends LepusRouter:
 
-  type Http[T] = PartialFunction[RequestMethod, T]
+  type Http[T] = PartialFunction[Method, T]
 
-  type HttpResponse[T]     = Http[T]
-  type HttpRequest[T]      = Http[T]
-  type HttpRoutes[F[_], T] = Http[ServerRequest[F, T] => F[ServerResponse]]
+  type HttpRoutes[F[_]] = Http[F[Response]]
 
-  implicit val routesSemigroup: Semigroup[Http4sRoutes[IO]] = _ combineK _
-}
+  given Semigroup[Http4sRoutes[IO]] = _ combineK _
+
+  type Routing[F[_]]     = (RequestEndpoint.Endpoint[?], RouterConstructor[F, ?])
+  type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> HttpRoutes[F]
+
+  /** Alias of RequestMethod. */
+  final val GET     = Method.Get
+  final val HEAD    = Method.Head
+  final val POST    = Method.Post
+  final val PUT     = Method.Put
+  final val DELETE  = Method.Delete
+  final val OPTIONS = Method.Options
+  final val PATCH   = Method.Patch
+  final val CONNECT = Method.Connect
+  final val TRACE   = Method.Trace

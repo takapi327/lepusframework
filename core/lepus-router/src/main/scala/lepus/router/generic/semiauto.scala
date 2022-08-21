@@ -4,10 +4,11 @@
 
 package lepus.router.generic
 
-import language.experimental.macros
+import scala.deriving.Mirror
 
-import magnolia1._
+import magnolia1.*
 
+import lepus.router.*
 import lepus.router.model.Schema
 
 /** Semi-automatic Schema derivation.
@@ -18,15 +19,13 @@ import lepus.router.model.Schema
   *
   * {{{
   *   import lepus.router.model.Schema
-  *   import lepus.router.generic.semiauto._
+  *   import lepus.router.generic.semiauto.*
   *
   *   case class Foo(i: Int, p: (String, Double))
   *
-  *   object Foo {
-  *     implicit val schema: Schema[Foo] = deriveSchemer[Foo]
-  *   }
+  *   object Foo:
+  *     given schema: Schema[Foo] = deriveSchemer[Foo]
   * }}}
   */
-object semiauto extends SchemaDerivation {
-  implicit def deriveSchemer[T]: Schema[T] = macro Magnolia.gen[T]
-}
+object semiauto extends SchemaDerivation:
+  inline final def deriveSchemer[T](using inline M: Mirror.Of[T]): Schema[T] = derived[T]

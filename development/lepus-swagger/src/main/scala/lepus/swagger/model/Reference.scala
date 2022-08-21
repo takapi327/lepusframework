@@ -4,4 +4,4 @@
 
 package lepus.swagger.model
 
-case class Reference($ref: String)
+private[lepus] case class Reference($ref: String)

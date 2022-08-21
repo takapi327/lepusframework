@@ -1,12 +1,9 @@
 ![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/lepus-v0.1.0-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.3.0-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
-  </a>
-  <a href="https://github.com/scala/scala">
-    <img src="https://img.shields.io/badge/scala-v2.13.x-red">
   </a>
   <a href="https://github.com/lampepfl/dotty">
     <img src="https://img.shields.io/badge/scala-v3.x-red">
@@ -39,7 +36,6 @@ This framework relies on several libraries (automatically installed by Lepus).
 - [cats](https://github.com/typelevel/cats)
 - [cats-effect](https://github.com/typelevel/cats-effect)
 - [http4s](https://github.com/http4s/http4s)
-- [doobie](https://github.com/tpolecat/doobie)
 
 ## Documentation
 Coming soon...
@@ -81,26 +77,19 @@ The following is the minimum configuration for routing in the Lepus Framework.
 ```scala
 package sample
 
-import cats.effect._
+import cats.effect.IO
 import cats.data.NonEmptyList
 
-import lepus.router._
-import lepus.router.model.ServerResponse
+import lepus.router.{ *, given }
+import lepus.router.http.Response.*
 
-object HelloRoute extends RouterConstructor[IO, (String)] {
+object HelloApp extends RouterProvider[IO]:
 
-  override def endpoint = "hello" / bindPath[String]("name")
-
-  override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
-  }
-}
-
-object HelloApp extends RouterProvider[IO] {
-
-  override def routes: NonEmptyList[RouterConstructor[IO, _]] =
-    NonEmptyList.of(HelloRoute)
-}
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") -> RouterConstructor.of {
+      case GET => IO(NoContent)
+    }
+  )
 ```
 
 You must set the path of the object that inherits RouterProvider in application.conf.
@@ -115,56 +104,45 @@ Load the required project with build.sbt
 
 ```sbt
 lazy val root = (project in file("."))
-  .settings(
-    ...
-    swaggerTitle   := "project name",
-    swaggerVersion := "project version"
-  )
-  .enablePlugins(Lepus)
+  .settings(...)
   .enablePlugins(LepusSwagger)
 ```
 
 Add the settings for OpenAPI document generation to the routing.
 
 ```scala
-import cats.effect._
+import cats.effect.*
 
-import io.circe._
-import io.circe.generic.semiauto._
+import io.circe.*
+import io.circe.generic.semiauto.*
 
-import lepus.router._
-import lepus.router.http._
+import lepus.router.*
+import lepus.router.http.*
 import lepus.router.model.Schema
-import lepus.router.generic.semiauto._
-import lepus.router.model.ServerResponse
+import lepus.router.generic.semiauto.*
+import lepus.router.http.Response.*
+import lepus.swagger.*
+import lepus.swagger.model.OpenApiResponse
 
 case class Sample(info: String)
-object Sample {
-  implicit val encoder: Encoder[Sample] = deriveEncoder
-  implicit val schema:  Schema[Sample]  = deriveSchemer
-}
+object Sample:
+  given Encoder[Sample] = deriveEncoder
+  given Schema[Sample]  = deriveSchemer
 
-object HelloRoute extends RouterConstructor[IO, (String, Long)] {
+object HelloRoute extends OpenApiConstructor[IO, String]:
 
-  override def endpoint = "hello" / bindPath[String]("name")
+  override val summary     = Some("Sample Paths")
+  override val description = Some("Sample Paths")
 
-  override def summary     = Some("Sample Paths")
-  override def description = Some("Sample Paths")
-
-  override def responses: PartialFunction[RequestMethod, List[Response[_]]] = {
+  override def responses = {
     case GET => List(
-      Response.build[Sample](
-        status      = responseStatus.Ok,
-        headers     = List.empty,
-        description = "Sample information acquisition"
-      )
+      OpenApiResponse[Sample](Status.NoContent, List.empty, "Sample information acquisition")
     )
   }
 
   override def routes = {
-    case GET => req => IO(ServerResponse.NoContent)
+    case GET => IO(NoContent)
   }
-}
 ```
 
 After running Compile, the generateApi command generates OpenApi documentation.

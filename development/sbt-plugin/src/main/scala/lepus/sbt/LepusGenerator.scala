@@ -24,8 +24,8 @@ object LepusGenerator {
   private def convertToUrls(files: Seq[File]): Array[URL] = files.map(_.toURI.toURL).toArray
 
   def lepusGenerateSwagger(
-    title:         SettingKey[String],
-    version:       SettingKey[String],
+    title:         SettingKey[Option[String]],
+    version:       SettingKey[Option[String]],
     sourceManaged: SettingKey[File],
     baseDirectory: SettingKey[File]
   ): Def.Initialize[Task[Seq[File]]] = Def.task {
@@ -49,8 +49,8 @@ object LepusGenerator {
 
     Seq(
       mainObject.generateSwagger(
-        title         = title.value,
-        version       = version.value,
+        title         = title.value.getOrElse(name.value),
+        version       = version.value.getOrElse(sbt.Keys.version.value),
         sourceManaged = sourceManaged.value,
         baseDirectory = baseDirectory.value
       )
