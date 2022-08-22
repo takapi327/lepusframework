@@ -68,7 +68,14 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
     */
   def findHeaderValue(name: Header.FieldName): Option[ContentType] = headers.find(_.is(name)).map(_.getValue)
 
-  def as[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =
+  /** Information contained in the body of an Http request is converted to an arbitrary type and acquired.
+    *
+    * @tparam A
+    *   A type of the result
+    * @return
+    *   the effect which will generate the A
+    */
+  def body[A](using MonadThrow[F], EntityDecoder[F, A]): F[A] =
     request.as[A]
 
 object Request:
