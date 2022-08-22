@@ -31,7 +31,7 @@ case class OpenApiResponse[T: Encoder: Schema](
 
   def toUI(schemaToOpenApiSchema: SchemaToOpenApiSchema): OpenApiResponse.UI =
     val headerList = headers
-      .map(header => header.name -> OpenApiResponse.Header(schemaToOpenApiSchema(header.schema), header.description))
+      .map(header => header.name.name -> OpenApiResponse.Header(schemaToOpenApiSchema(header.schema), header.description))
       .to(ListMap)
     OpenApiResponse.UI(
       headers     = headerList,
