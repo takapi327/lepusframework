@@ -26,10 +26,22 @@ case class Response(
   headers: Seq[Header],
   body:    Option[ConvertResult]
 ):
+  def addHeader(headers: (Header.FieldName, String)*): Response =
+    addHeaders(headers.map {
+      case (name, content) => Header(name, content, None)
+    })
   def addHeader(header: Header): Response =
     copy(headers = headers :+ header)
   def addHeaders(headerList: Seq[Header]): Response =
     copy(headers = headers ++ headerList)
+
+  def bakeCookie(headers: (String, String)*): Response =
+    addHeaders(headers.map {
+      case (key, content) => Header(Header.FieldName.SetCookie, s"$key=$content")
+    })
+  def bakeCookie(header: Header): Response =
+    require(header.getName == Header.FieldName.SetCookie, "To set a cookie, the FieldName value must be SetCookie.")
+    addHeader(header)
 
   def toHttp4sResponse[F[_]](): Http4sResponse[F] =
     Http4sResponse[F](
@@ -42,7 +54,11 @@ object Response:
 
   final class Result(status: Status):
     def apply[C <: ConvertResult](content: C): Response =
-      Response(status, Seq.empty, Some(content))
+      val header = content match
+        case _: ConvertResult.JsValue[?]   => Header.HeaderType.ApplicationJson
+        case _: ConvertResult.PlainText[?] => Header.HeaderType.TextPlain
+        case _                             => throw new IllegalArgumentException("The value received will not match any of the ConvertResult.")
+      Response(status, Seq(header), Some(content))
 
     def apply(content: String): Response =
       Response(status, Seq(Header.HeaderType.TextPlain), Some(ConvertResult.PlainText(content)))
@@ -50,12 +66,12 @@ object Response:
   final class Redirect(status: Status):
     def apply(url: String): Response =
       Uri.fromString(url) match
-        case Right(uri) => Response(status, Seq(Header("location", uri.renderString, Some(uri))), None)
+        case Right(uri) => Response(status, Seq(Header(Header.FieldName.Location, s"location=${uri.renderString}", Some(uri))), None)
         case Left(ex)   => throw new Exception(ex.message)
 
     def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): Response =
       Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match
-        case Right(uri) => Response(status, Seq(Header("location", uri.renderString, Some(uri))), None)
+        case Right(uri) => Response(status, Seq(Header(Header.FieldName.Location, s"location=${uri.renderString}", Some(uri))), None)
         case Left(ex)   => throw new Exception(ex.message)
 
   /** Process for linking URLs to query parameters.
