@@ -13,17 +13,17 @@ import org.http4s.{ Uri, Header as Http4sHeader }
 import lepus.router.model.Schema
 
 import Header.*
-trait Header (
+trait Header(
   name:  FieldName,
   value: String,
-  uri:   Option[Uri] = None,
+  uri:   Option[Uri] = None
 ):
 
   def getName:  FieldName   = name
   def getValue: String      = value
   def getUri:   Option[Uri] = uri
 
-  override def toString: String = s"${name.name}: $value"
+  override def toString: String = s"${ name.name }: $value"
 
   def is(name: FieldName): Boolean = this.name == name
 
@@ -52,38 +52,38 @@ object Header:
     val schema: Schema[T] = summon[Schema[T]]
 
   enum HeaderType(value: String) extends Header(FieldName.ContentType, value):
-    case ApplicationGzip               extends HeaderType( "application/gzip")
-    case ApplicationZip                extends HeaderType( "application/zip")
-    case ApplicationJson               extends HeaderType( "application/json")
-    case ApplicationOctetStream        extends HeaderType( "application/octet-stream")
-    case ApplicationPdf                extends HeaderType( "application/pdf")
-    case ApplicationRtf                extends HeaderType( "application/rtf")
-    case ApplicationXhtml              extends HeaderType( "application/xhtml+xml")
-    case ApplicationXml                extends HeaderType( "application/xml")
-    case ApplicationXWwwFormUrlencoded extends HeaderType( "application/x-www-form-urlencoded")
-    case ImageGif                      extends HeaderType( "image/gif")
-    case ImageJpeg                     extends HeaderType( "image/jpeg")
-    case ImagePng                      extends HeaderType( "image/png")
-    case ImageTiff                     extends HeaderType( "image/tiff")
-    case MultipartFormData             extends HeaderType( "multipart/form-data")
-    case MultipartMixed                extends HeaderType( "multipart/mixed")
-    case MultipartAlternative          extends HeaderType( "multipart/alternative")
-    case TextCacheManifest             extends HeaderType( "text/cache-manifest")
-    case TextCalendar                  extends HeaderType( "text/calendar")
-    case TextCss                       extends HeaderType( "text/css")
-    case TextCsv                       extends HeaderType( "text/csv")
-    case TextEventStream               extends HeaderType( "text/event-stream")
-    case TextJavascript                extends HeaderType( "text/javascript")
-    case TextHtml                      extends HeaderType( "text/html")
-    case TextPlain                     extends HeaderType( "text/plain")
+    case ApplicationGzip               extends HeaderType("application/gzip")
+    case ApplicationZip                extends HeaderType("application/zip")
+    case ApplicationJson               extends HeaderType("application/json")
+    case ApplicationOctetStream        extends HeaderType("application/octet-stream")
+    case ApplicationPdf                extends HeaderType("application/pdf")
+    case ApplicationRtf                extends HeaderType("application/rtf")
+    case ApplicationXhtml              extends HeaderType("application/xhtml+xml")
+    case ApplicationXml                extends HeaderType("application/xml")
+    case ApplicationXWwwFormUrlencoded extends HeaderType("application/x-www-form-urlencoded")
+    case ImageGif                      extends HeaderType("image/gif")
+    case ImageJpeg                     extends HeaderType("image/jpeg")
+    case ImagePng                      extends HeaderType("image/png")
+    case ImageTiff                     extends HeaderType("image/tiff")
+    case MultipartFormData             extends HeaderType("multipart/form-data")
+    case MultipartMixed                extends HeaderType("multipart/mixed")
+    case MultipartAlternative          extends HeaderType("multipart/alternative")
+    case TextCacheManifest             extends HeaderType("text/cache-manifest")
+    case TextCalendar                  extends HeaderType("text/calendar")
+    case TextCss                       extends HeaderType("text/css")
+    case TextCsv                       extends HeaderType("text/csv")
+    case TextEventStream               extends HeaderType("text/event-stream")
+    case TextJavascript                extends HeaderType("text/javascript")
+    case TextHtml                      extends HeaderType("text/html")
+    case TextPlain                     extends HeaderType("text/plain")
 
   trait FieldName(val name: String):
     def toCIString: CIString = CIString(name)
 
   object FieldName:
     /** The values listed in the following sites are defined as variables. see
-     * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-     */
+      * https://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+      */
     case object Accept                        extends FieldName("Accept")
     case object AcceptCharset                 extends FieldName("Accept-Charset")
     case object AcceptEncoding                extends FieldName("Accept-Encoding")
@@ -243,5 +243,5 @@ object Header:
         XForwardedProto,
         XRealIp,
         XRequestedWith,
-        XXssProtection,
+        XXssProtection
       )

@@ -57,7 +57,7 @@ object Response:
       val header = content match
         case _: ConvertResult.JsValue[?]   => Header.HeaderType.ApplicationJson
         case _: ConvertResult.PlainText[?] => Header.HeaderType.TextPlain
-        case _                             => throw new IllegalArgumentException("The value received will not match any of the ConvertResult.")
+        case _ => throw new IllegalArgumentException("The value received will not match any of the ConvertResult.")
       Response(status, Seq(header), Some(content))
 
     def apply(content: String): Response =
@@ -66,13 +66,15 @@ object Response:
   final class Redirect(status: Status):
     def apply(url: String): Response =
       Uri.fromString(url) match
-        case Right(uri) => Response(status, Seq(Header(Header.FieldName.Location, s"location=${uri.renderString}", Some(uri))), None)
-        case Left(ex)   => throw new Exception(ex.message)
+        case Right(uri) =>
+          Response(status, Seq(Header(Header.FieldName.Location, s"location=${ uri.renderString }", Some(uri))), None)
+        case Left(ex) => throw new Exception(ex.message)
 
     def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): Response =
       Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match
-        case Right(uri) => Response(status, Seq(Header(Header.FieldName.Location, s"location=${uri.renderString}", Some(uri))), None)
-        case Left(ex)   => throw new Exception(ex.message)
+        case Right(uri) =>
+          Response(status, Seq(Header(Header.FieldName.Location, s"location=${ uri.renderString }", Some(uri))), None)
+        case Left(ex) => throw new Exception(ex.message)
 
   /** Process for linking URLs to query parameters.
     *
