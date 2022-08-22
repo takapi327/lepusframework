@@ -41,24 +41,8 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
         decoded  <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
         logic    <- OptionT.fromOption[F] { routes(using decoded)(using request).lift(request.method) }
         response <- OptionT.liftF { logic }
-      yield addResponseHeader(response).toHttp4sResponse()
+      yield response.toHttp4sResponse()
     }
-
-  /** Add response headers according to body
-    *
-    * @param response
-    *   Logic return value corresponding to the endpoint
-    * @return
-    *   Response with headers according to the contents of the body
-    */
-  def addResponseHeader(response: Response): Response =
-    response.body match
-      case None => response
-      case Some(body) =>
-        body match
-          case PlainText(_) => response.addHeader(Header.HeaderType.TextPlain)
-          case JsValue(_)   => response.addHeader(Header.HeaderType.ApplicationJson)
-          case _            => response
 
   /** Verify that the actual request matches the endpoint that was intended to be received as a request.
     *
