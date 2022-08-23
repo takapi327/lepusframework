@@ -5,8 +5,8 @@
 package lepus.router.http
 
 import scala.annotation.targetName
-import cats.{Hash, MonadThrow}
-import org.http4s.{EntityDecoder, RequestCookie, Uri, Request as Http4sRequest}
+import cats.MonadThrow
+import org.http4s.{ EntityDecoder, RequestCookie, Uri, Request as Http4sRequest }
 import lepus.router.model.Schema
 
 trait HttpRequest:
@@ -15,9 +15,9 @@ trait HttpRequest:
   private[lepus] def queryParameters: Map[String, Seq[String]]
 
 class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
-  /**
-   * The value of the Method of the Http request converted from a string to an Enum.
-   */
+
+  /** The value of the Method of the Http request converted from a string to an Enum.
+    */
   val method: Method = request.method.name.toUpperCase match
     case "GET"     => Method.Get
     case "HEAD"    => Method.Head
@@ -30,9 +30,8 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
     case "TRACE"   => Method.Trace
     case _         => throw new NoSuchElementException("The request method received did not match the expected value.")
 
-  /**
-   * The value of the URL of the Http request, divided by /.
-   */
+  /** The value of the URL of the Http request, divided by /.
+    */
   private[lepus] val pathSegments: List[String] =
     request.pathInfo.renderString
       .dropWhile(_ == '/')
@@ -40,26 +39,22 @@ class Request[F[_]](request: Http4sRequest[F]) extends HttpRequest:
       .toList
       .map(Uri.decode(_))
 
-  /**
-   * Alias for the query parameter of the Http request.
-   */
+  /** Alias for the query parameter of the Http request.
+    */
   private[lepus] val queryParameters: Map[String, Seq[String]] = request.multiParams
 
-  /**
-   *　Value to treat the Protocol of an Http request as its own type.
-   */
+  /** 　Value to treat the Protocol of an Http request as its own type.
+    */
   opaque type Protocol = String
   extension (prot: Protocol) @targetName("protocolAsString") def asString: String = prot
 
-  /**
-   *　Value to treat the ContentType of an Http request as its own type.
-   */
+  /** 　Value to treat the ContentType of an Http request as its own type.
+    */
   opaque type ContentType = String
   extension (content: ContentType) @targetName("contentTypeAsString") def asString: String = content
 
-  /**
-   *　Value to treat the ContentLength of an Http request as its own type.
-   */
+  /** 　Value to treat the ContentLength of an Http request as its own type.
+    */
   opaque type ContentLength = Long
   extension (content: ContentLength) def asLong: Long = content
 
