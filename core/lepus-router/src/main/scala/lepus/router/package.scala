@@ -11,10 +11,10 @@ import cats.syntax.semigroupk.*
 
 import cats.effect.IO
 
-import org.http4s.HttpRoutes as Http4sRoutes
+import org.http4s.{ HttpRoutes as Http4sRoutes, Request }
 
 import lepus.router.RouterConstructor
-import lepus.router.http.{ Request, RequestEndpoint, Method, Response }
+import lepus.router.http.{ RequestEndpoint, Method, Response }
 
 package object router extends LepusRouter:
 

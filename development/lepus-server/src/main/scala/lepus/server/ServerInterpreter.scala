@@ -35,11 +35,9 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     */
   def bindFromRequest[T](routes: Requestable[F][T], endpoint: RequestEndpoint.Endpoint[?]): Http4sRoutes[F] =
     Kleisli[[K] =>> OptionT[F, K], Http4sRequest[F], Http4sResponse[F]] { (http4sRequest: Http4sRequest[F]) =>
-      val request = Request[F](http4sRequest)
-
       for
-        decoded  <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request).lift(request.method) }
+        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](http4sRequest), endpoint) }
+        logic    <- OptionT.fromOption[F] { routes(using decoded)(using http4sRequest).lift(http4sRequest.method.toEnum) }
         response <- OptionT.liftF { logic }
       yield response.toHttp4sResponse()
     }
@@ -56,7 +54,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     *   If the request and endpoint match, return Some; if not, return None.
     */
   private def decodeRequest[T](
-    request:  HttpRequest,
+    request:  Request,
     endpoint: RequestEndpoint.Endpoint[?]
   ): Option[T] =
     val (decodeEndpointResult, _) = DecodeEndpoint(request, endpoint)
