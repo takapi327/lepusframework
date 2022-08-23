@@ -8,7 +8,7 @@ import cats.data.{ Kleisli, OptionT }
 import cats.implicits.*
 import cats.effect.{ Async, Sync }
 
-import org.http4s.{ Request as Http4sRequest, HttpRoutes as Http4sRoutes, Response as Http4sResponse }
+import org.http4s.{ Request as Request4s, HttpRoutes as Http4sRoutes, Response as Response4s }
 
 import lepus.router.*
 import lepus.router.http.*
@@ -34,10 +34,10 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     *   If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
     */
   def bindFromRequest[T](routes: Requestable[F][T], endpoint: RequestEndpoint.Endpoint[?]): Http4sRoutes[F] =
-    Kleisli[[K] =>> OptionT[F, K], Http4sRequest[F], Http4sResponse[F]] { (http4sRequest: Http4sRequest[F]) =>
+    Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
-        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](http4sRequest), endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using http4sRequest).lift(http4sRequest.method.toEnum) }
+        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
+        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method.toEnum) }
         response <- OptionT.liftF { logic }
       yield response.toHttp4sResponse()
     }

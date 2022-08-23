@@ -33,8 +33,7 @@ object DecodePathRequest:
   * @param querySegments
   *   The value of the query parameter of the Http request stored in Map.
   */
-case class DecodeQueryRequest(request: Request, querySegments: Map[String, Seq[String]])
-  extends DecodeServerRequest:
+case class DecodeQueryRequest(request: Request, querySegments: Map[String, Seq[String]]) extends DecodeServerRequest:
   def nextQuerySegment(key: String): (Option[Seq[String]], DecodeQueryRequest) =
     querySegments.get(key) match
       case Some(value) => (Some(value.flatMap(_.split(","))), DecodeQueryRequest(request, querySegments - key))

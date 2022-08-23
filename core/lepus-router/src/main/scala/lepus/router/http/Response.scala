@@ -34,9 +34,8 @@ case class Response(
   def addCookie(cookie: ResponseCookie): Response =
     copy(headers = this.headers add `Set-Cookie`(cookie))
 
-  /** Add a [[org.http4s.headers.`Set-Cookie`]] which will remove the specified
-   * cookie from the client
-   */
+  /** Add a [[org.http4s.headers.`Set-Cookie`]] which will remove the specified cookie from the client
+    */
   def addCookie(name: String, content: String, expires: Option[HttpDate] = None): Response =
     addCookie(ResponseCookie(name, content, expires))
 

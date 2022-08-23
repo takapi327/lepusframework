@@ -9,14 +9,13 @@ import cats.MonadThrow
 import org.http4s.{ EntityDecoder, RequestCookie, Uri, Request as Http4sRequest }
 import lepus.router.model.Schema
 
-/**
- * Class for Endpoint validation. Generate necessary values from Http4s requests.
- * 
- * @param pathSegments
- *   The value of the URL of the Http request, divided by /.
- * @param queryParameters
- *   Alias for the query parameter of the Http request.
- */
+/** Class for Endpoint validation. Generate necessary values from Http4s requests.
+  *
+  * @param pathSegments
+  *   The value of the URL of the Http request, divided by /.
+  * @param queryParameters
+  *   Alias for the query parameter of the Http request.
+  */
 case class Request(
   pathSegments:    List[String],
   queryParameters: Map[String, Seq[String]]
