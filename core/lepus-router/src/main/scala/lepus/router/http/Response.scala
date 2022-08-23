@@ -6,10 +6,11 @@ package lepus.router.http
 
 import fs2.Stream
 
-import org.http4s.{ Response as Http4sResponse, Uri, Headers as Http4sHeaders }
-import org.http4s.headers.Location
+import org.http4s.{ Response as Http4sResponse, Uri, Headers as Http4sHeaders, Header as Http4sHeader }
+import org.http4s.headers.*
+import org.http4s.*
 
-import lepus.router.http.{ Header, Status }
+import lepus.router.http.Status
 import lepus.router.ConvertResult
 
 /** A model of the response to be returned in response to a received request.
@@ -23,30 +24,30 @@ import lepus.router.ConvertResult
   */
 case class Response(
   status:  Status,
-  headers: Seq[Header],
+  headers: Http4sHeaders,
   body:    Option[ConvertResult]
 ):
-  def addHeader(headers: (Header.FieldName, String)*): Response =
-    addHeaders(headers.map {
-      case (name, content) => Header(name, content, None)
-    })
-  def addHeader(header: Header): Response =
-    copy(headers = headers :+ header)
-  def addHeaders(headerList: Seq[Header]): Response =
-    copy(headers = headers ++ headerList)
+  def addHeader[H: [A] =>> Http4sHeader[A, Http4sHeader.Recurring]](h: H): Response =
+    copy(headers = this.headers put Http4sHeader.ToRaw.modelledHeadersToRaw(h).values)
 
-  def bakeCookie(headers: (String, String)*): Response =
-    addHeaders(headers.map {
-      case (key, content) => Header(Header.FieldName.SetCookie, s"$key=$content")
-    })
-  def bakeCookie(header: Header): Response =
-    require(header.getName == Header.FieldName.SetCookie, "To set a cookie, the FieldName value must be SetCookie.")
-    addHeader(header)
+  /** Add a [[org.http4s.headers.`Set-Cookie`]] header with the provided values */
+  def addCookie(cookie: ResponseCookie): Response =
+    copy(headers = this.headers add `Set-Cookie`(cookie))
+
+  /** Add a [[org.http4s.headers.`Set-Cookie`]] which will remove the specified
+   * cookie from the client
+   */
+  def addCookie(name: String, content: String, expires: Option[HttpDate] = None): Response =
+    addCookie(ResponseCookie(name, content, expires))
+
+  /** Add a [[org.http4s.headers.`Set-Cookie`]] which will remove the specified cookie from the client */
+  def removeCookie(name: String): Response =
+    addCookie(ResponseCookie(name, "").clearCookie)
 
   def toHttp4sResponse[F[_]](): Http4sResponse[F] =
     Http4sResponse[F](
       status  = status.toHttp4sStatus(),
-      headers = Http4sHeaders(headers.map(_.toHttp4sHeader()), headers.flatMap(_.getUri).map(Location(_))),
+      headers = headers,
       body    = body.map(_.toStream()).getOrElse(Stream.empty)
     )
 
@@ -55,25 +56,25 @@ object Response:
   final class Result(status: Status):
     def apply[C <: ConvertResult](content: C): Response =
       val header = content match
-        case _: ConvertResult.JsValue[?]   => Header.HeaderType.ApplicationJson
-        case _: ConvertResult.PlainText[?] => Header.HeaderType.TextPlain
+        case _: ConvertResult.JsValue[?]   => `Content-Type`(MediaType.application.json)
+        case _: ConvertResult.PlainText[?] => `Content-Type`(MediaType.text.plain)
         case _ => throw new IllegalArgumentException("The value received will not match any of the ConvertResult.")
-      Response(status, Seq(header), Some(content))
+      Response(status, Http4sHeaders(header), Some(content))
 
     def apply(content: String): Response =
-      Response(status, Seq(Header.HeaderType.TextPlain), Some(ConvertResult.PlainText(content)))
+      Response(status, Http4sHeaders(`Content-Type`(MediaType.text.plain)), Some(ConvertResult.PlainText(content)))
 
   final class Redirect(status: Status):
     def apply(url: String): Response =
       Uri.fromString(url) match
         case Right(uri) =>
-          Response(status, Seq(Header(Header.FieldName.Location, s"location=${ uri.renderString }", Some(uri))), None)
+          Response(status, Http4sHeaders(Location(uri)), None)
         case Left(ex) => throw new Exception(ex.message)
 
     def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): Response =
       Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match
         case Right(uri) =>
-          Response(status, Seq(Header(Header.FieldName.Location, s"location=${ uri.renderString }", Some(uri))), None)
+          Response(status, Http4sHeaders(Location(uri)), None)
         case Left(ex) => throw new Exception(ex.message)
 
   /** Process for linking URLs to query parameters.
@@ -111,10 +112,10 @@ object Response:
   val NonAuthoritativeInformation = Result(Status.NonAuthoritativeInformation)
 
   /** Generates a ‘204 NO_CONTENT’ result. */
-  val NoContent = Response(Status.NoContent, Seq.empty, None)
+  val NoContent = Response(Status.NoContent, Http4sHeaders.empty, None)
 
   /** Generates a ‘205 RESET_CONTENT’ result. */
-  val ResetContent = Response(Status.ResetContent, Seq.empty, None)
+  val ResetContent = Response(Status.ResetContent, Http4sHeaders.empty, None)
 
   /** Generates a ‘206 PARTIAL_CONTENT’ result. */
   val PartialContent = Result(Status.PartialContent)
