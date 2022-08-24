@@ -61,7 +61,7 @@ private[lepus] object Path:
     val responses = router.responses
       .lift(method)
       .filter(_.nonEmpty)
-      .map(resList => resList.map(res => res.status.enumStatus.toString -> res.toUI(schema)))
+      .map(resList => resList.map(res => res.status.code.toString -> res.toUI(schema)))
       .getOrElse(List("default" -> OpenApiResponse.UI.empty))
 
     Path(

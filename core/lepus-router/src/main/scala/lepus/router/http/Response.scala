@@ -6,11 +6,10 @@ package lepus.router.http
 
 import fs2.Stream
 
-import org.http4s.{ Response as Http4sResponse, Uri, Headers as Http4sHeaders, Header as Http4sHeader }
-import org.http4s.headers.*
 import org.http4s.*
+import org.http4s.headers.*
+import org.http4s.{ Response as Http4sResponse, Header as Http4sHeader }
 
-import lepus.router.http.Status
 import lepus.router.ConvertResult
 
 /** A model of the response to be returned in response to a received request.
@@ -24,7 +23,7 @@ import lepus.router.ConvertResult
   */
 case class Response(
   status:  Status,
-  headers: Http4sHeaders,
+  headers: Headers,
   body:    Option[ConvertResult]
 ):
   def addHeader[H: [A] =>> Http4sHeader[A, Http4sHeader.Recurring]](h: H): Response =
@@ -45,7 +44,7 @@ case class Response(
 
   def toHttp4sResponse[F[_]](): Http4sResponse[F] =
     Http4sResponse[F](
-      status  = status.toHttp4sStatus(),
+      status  = status,
       headers = headers,
       body    = body.map(_.toStream()).getOrElse(Stream.empty)
     )
@@ -58,22 +57,22 @@ object Response:
         case _: ConvertResult.JsValue[?]   => `Content-Type`(MediaType.application.json)
         case _: ConvertResult.PlainText[?] => `Content-Type`(MediaType.text.plain)
         case _ => throw new IllegalArgumentException("The value received will not match any of the ConvertResult.")
-      Response(status, Http4sHeaders(header), Some(content))
+      Response(status, Headers(header), Some(content))
 
     def apply(content: String): Response =
-      Response(status, Http4sHeaders(`Content-Type`(MediaType.text.plain)), Some(ConvertResult.PlainText(content)))
+      Response(status, Headers(`Content-Type`(MediaType.text.plain)), Some(ConvertResult.PlainText(content)))
 
   final class Redirect(status: Status):
     def apply(url: String): Response =
       Uri.fromString(url) match
         case Right(uri) =>
-          Response(status, Http4sHeaders(Location(uri)), None)
+          Response(status, Headers(Location(uri)), None)
         case Left(ex) => throw new Exception(ex.message)
 
     def apply(url: String, queryParams: Map[String, Seq[String]] = Map.empty): Response =
       Uri.fromString(bindUrlAndQueryParams(url, queryParams)) match
         case Right(uri) =>
-          Response(status, Http4sHeaders(Location(uri)), None)
+          Response(status, Headers(Location(uri)), None)
         case Left(ex) => throw new Exception(ex.message)
 
   /** Process for linking URLs to query parameters.
@@ -111,10 +110,10 @@ object Response:
   val NonAuthoritativeInformation = Result(Status.NonAuthoritativeInformation)
 
   /** Generates a ‘204 NO_CONTENT’ result. */
-  val NoContent = Response(Status.NoContent, Http4sHeaders.empty, None)
+  val NoContent = Response(Status.NoContent, Headers.empty, None)
 
   /** Generates a ‘205 RESET_CONTENT’ result. */
-  val ResetContent = Response(Status.ResetContent, Http4sHeaders.empty, None)
+  val ResetContent = Response(Status.ResetContent, Headers.empty, None)
 
   /** Generates a ‘206 PARTIAL_CONTENT’ result. */
   val PartialContent = Result(Status.PartialContent)
@@ -177,10 +176,10 @@ object Response:
   val PreconditionFailed = Result(Status.PreconditionFailed)
 
   /** Generates a ‘413 REQUEST_ENTITY_TOO_LARGE’ result. */
-  val EntityTooLarge = Result(Status.RequestEntityTooLarge)
+  val EntityTooLarge = Result(Status.PayloadTooLarge)
 
   /** Generates a ‘414 REQUEST_URI_TOO_LONG’ result. */
-  val UriTooLong = Result(Status.RequestUriTooLong)
+  val UriTooLong = Result(Status.UriTooLong)
 
   /** Generates a ‘415 UNSUPPORTED_MEDIA_TYPE’ result. */
   val UnsupportedMediaType = Result(Status.UnsupportedMediaType)

@@ -6,7 +6,7 @@ package lepus.router.http
 
 import scala.annotation.targetName
 import cats.MonadThrow
-import org.http4s.{ EntityDecoder, RequestCookie, Uri, Request as Http4sRequest }
+import org.http4s.{ EntityDecoder, RequestCookie, Uri, Request as Request4s }
 import lepus.router.model.Schema
 
 /** Class for Endpoint validation. Generate necessary values from Http4s requests.
@@ -23,7 +23,7 @@ private[lepus] case class Request(
 
 private[lepus] object Request:
 
-  def fromHttp4s[F[_]](request: Http4sRequest[F]): Request =
+  def fromHttp4s[F[_]](request: Request4s[F]): Request =
     val pathSegments = request.pathInfo.renderString
       .dropWhile(_ == '/')
       .split("/")
