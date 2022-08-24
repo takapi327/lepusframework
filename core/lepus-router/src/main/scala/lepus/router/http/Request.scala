@@ -16,12 +16,12 @@ import lepus.router.model.Schema
   * @param queryParameters
   *   Alias for the query parameter of the Http request.
   */
-case class Request(
+private[lepus] case class Request(
   pathSegments:    List[String],
   queryParameters: Map[String, Seq[String]]
 )
 
-object Request:
+private[lepus] object Request:
 
   def fromHttp4s[F[_]](request: Http4sRequest[F]): Request =
     val pathSegments = request.pathInfo.renderString
@@ -31,16 +31,5 @@ object Request:
       .map(Uri.decode(_))
     val queryParameters = request.multiParams
     Request(pathSegments, queryParameters)
-
-  case class Body[T](
-    description:      String
-  )(using val schema: Schema[T])
-
-  object Body:
-
-    def build[T: Schema](
-      description: String
-    ): Body[T] = Body(description)
-  end Body
 
 end Request

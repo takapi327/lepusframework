@@ -33,7 +33,7 @@ final case class Path(
   tags:        Set[String]                         = Set.empty,
   deprecated:  Option[Boolean]                     = None,
   parameters:  List[Parameter]                     = List.empty,
-  requestBody: Option[RequestBody]                 = None,
+  requestBody: Option[RequestBody.UI]              = None,
   responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 
@@ -56,7 +56,7 @@ private[lepus] object Path:
 
     val requestBody = router.bodies
       .lift(method)
-      .map(req => RequestBody.build(req, schema))
+      .map(req => RequestBody.UI(req, schema))
 
     val responses = router.responses
       .lift(method)

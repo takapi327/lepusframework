@@ -11,6 +11,8 @@ import io.circe.generic.semiauto.*
 import io.circe.syntax.EncoderOps
 
 import lepus.swagger.model.*
+import RequestBody.UI as RequestBodyUI
+import OpenApiResponse.UI as OpenApiResponseUI
 
 trait OpenApiEncoder:
   given Encoder[OpenApiSchema.SchemaType]   = { e => Encoder.encodeString(e.toString) }
@@ -25,10 +27,10 @@ trait OpenApiEncoder:
 
   given Encoder[Content] = deriveEncoder
 
-  given Encoder[RequestBody] = deriveEncoder
+  given Encoder[RequestBodyUI] = deriveEncoder
 
   given Encoder[OpenApiResponse.Header] = deriveEncoder
-  given Encoder[OpenApiResponse.UI]     = deriveEncoder
+  given Encoder[OpenApiResponseUI]      = deriveEncoder
 
   given Encoder[Info]      = deriveEncoder
   given Encoder[Contact]   = deriveEncoder
