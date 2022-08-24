@@ -12,8 +12,8 @@ import lepus.router.model.Schema
 import lepus.swagger.SchemaToOpenApiSchema
 
 case class RequestBody[T](
-  description: String,
-  required:    Boolean,
+  description:      String,
+  required:         Boolean
 )(using val schema: Schema[T])
 
 object RequestBody:
@@ -33,10 +33,10 @@ object RequestBody:
     val empty = UI("RequestBody is not specified", false, ListMap.empty)
 
     def apply[T](
-       body:   RequestBody[T],
-       schema: SchemaToOpenApiSchema
-     ): UI = UI(
-       description = body.description,
-       required    = body.required,
-       content     = ListMap("application/json" -> Content.build(body.schema, schema))
-     )
+      body:   RequestBody[T],
+      schema: SchemaToOpenApiSchema
+    ): UI = UI(
+      description = body.description,
+      required    = body.required,
+      content     = ListMap("application/json" -> Content.build(body.schema, schema))
+    )
