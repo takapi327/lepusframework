@@ -43,7 +43,7 @@ private[lepus] object RouterToOpenAPI:
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, router) <- groupEndpoint.toList
-      method      <- allMethods
+      method      <- Method.all
     yield router.responses
       .lift(method)
       .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
@@ -59,7 +59,7 @@ private[lepus] object RouterToOpenAPI:
     route:    OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =
-    val methods = allMethods.filter(route.responses.isDefinedAt)
+    val methods = Method.all.filter(route.responses.isDefinedAt)
     methods
       .map(method => {
         method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)
