@@ -11,6 +11,10 @@ import cats.effect.IO
 import io.circe.*
 import io.circe.generic.semiauto.*
 
+import org.http4s.Method.*
+import org.http4s.{ Response, Status }
+import org.http4s.dsl.io.*
+
 import lepus.router.{ *, given }
 import lepus.router.http.*
 import lepus.router.model.Schema
@@ -36,5 +40,5 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
   }
 
   override def routes = {
-    case GET => IO(Response.NoContent)
+    case GET => Ok(s"hello ${summon[String]}")
   }
