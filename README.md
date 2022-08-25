@@ -80,14 +80,16 @@ package sample
 import cats.effect.IO
 import cats.data.NonEmptyList
 
+import org.http4s.Method.*
+import org.http4s.dsl.io.*
+  
 import lepus.router.{ *, given }
-import lepus.router.http.Response.*
 
 object HelloApp extends RouterProvider[IO]:
 
   override def routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") -> RouterConstructor.of {
-      case GET => IO(NoContent)
+      case GET => Ok(s"Hello ${summon[String]}")
     }
   )
 ```
@@ -116,11 +118,14 @@ import cats.effect.*
 import io.circe.*
 import io.circe.generic.semiauto.*
 
+import org.http4s.Method.*
+import org.http4s.Status.*
+import org.http4s.dsl.io.*
+
 import lepus.router.*
-import lepus.router.http.*
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
-import lepus.router.http.Response.*
+
 import lepus.swagger.*
 import lepus.swagger.model.OpenApiResponse
 
@@ -136,13 +141,19 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
 
   override def responses = {
     case GET => List(
-      OpenApiResponse[Sample](Status.NoContent, List.empty, "Sample information acquisition")
+      OpenApiResponse[Sample](NoContent, List.empty, "Sample information acquisition")
     )
   }
 
   override def routes = {
-    case GET => IO(NoContent)
+    case GET => Ok(s"Hello ${summon[String]}")
   }
+
+object HelloApp extends OpenApiProvider[IO]:
+
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") -> HelloRoute
+  )
 ```
 
 After running Compile, the generateApi command generates OpenApi documentation.
