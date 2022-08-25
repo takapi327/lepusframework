@@ -39,7 +39,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
         decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
         logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method.toEnum) }
         response <- OptionT.liftF { logic }
-      yield response.toHttp4sResponse()
+      yield response
     }
 
   /** Verify that the actual request matches the endpoint that was intended to be received as a request.
