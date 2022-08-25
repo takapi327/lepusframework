@@ -39,7 +39,7 @@ class RequestEndpointTest extends AnyFlatSpec:
       import org.http4s.dsl.io.*
       import lepus.router.{ *, given }
 
-       bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of {
+      bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of {
         case GET => Ok("Hello")
       }
     """.stripMargin)
