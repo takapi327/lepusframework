@@ -6,8 +6,6 @@ package lepus.router.internal
 
 import scala.collection.immutable.{ Vector, ListMap }
 
-import org.http4s.Method as Http4sMethod
-
 import lepus.router.http.*
 
 trait ExtensionMethods:
@@ -60,18 +58,3 @@ trait ExtensionMethods:
         b += x
 
       b.result()
-
-  extension (method: Http4sMethod)
-    /** The value of the Method of the Http request converted from a string to an Enum.
-      */
-    def toEnum: Method = method.name.toUpperCase match
-      case "GET"     => Method.Get
-      case "HEAD"    => Method.Head
-      case "POST"    => Method.Post
-      case "PUT"     => Method.Put
-      case "DELETE"  => Method.Delete
-      case "OPTIONS" => Method.Options
-      case "PATCH"   => Method.Patch
-      case "CONNECT" => Method.Connect
-      case "TRACE"   => Method.Trace
-      case _ => throw new NoSuchElementException("The request method received did not match the expected value.")

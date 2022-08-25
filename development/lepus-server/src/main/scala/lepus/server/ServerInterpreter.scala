@@ -37,7 +37,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
         decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method.toEnum) }
+        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method) }
         response <- OptionT.liftF { logic }
       yield response
     }

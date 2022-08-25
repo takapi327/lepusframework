@@ -11,10 +11,10 @@ import cats.syntax.semigroupk.*
 
 import cats.effect.IO
 
-import org.http4s.{ HttpRoutes as Http4sRoutes, Request, Response }
+import org.http4s.{ HttpRoutes as Http4sRoutes, Request, Response, Method }
 
 import lepus.router.RouterConstructor
-import lepus.router.http.{ RequestEndpoint, Method }
+import lepus.router.http.RequestEndpoint
 
 package object router extends LepusRouter:
 
@@ -26,14 +26,3 @@ package object router extends LepusRouter:
 
   type Routing[F[_]]     = (RequestEndpoint.Endpoint[?], RouterConstructor[F, ?])
   type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> HttpRoutes[F]
-
-  /** Alias of RequestMethod. */
-  final val GET     = Method.Get
-  final val HEAD    = Method.Head
-  final val POST    = Method.Post
-  final val PUT     = Method.Put
-  final val DELETE  = Method.Delete
-  final val OPTIONS = Method.Options
-  final val PATCH   = Method.Patch
-  final val CONNECT = Method.Connect
-  final val TRACE   = Method.Trace

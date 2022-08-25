@@ -8,10 +8,12 @@ import scala.collection.immutable.ListMap
 
 import cats.data.NonEmptyList
 
+import org.http4s.Method
+
 import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
-import lepus.router.http.{ Method, RequestEndpoint }
+import lepus.router.http.RequestEndpoint
 
 import lepus.swagger.model.*
 
@@ -41,7 +43,7 @@ private[lepus] object RouterToOpenAPI:
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, router) <- groupEndpoint.toList
-      method      <- Method.values
+      method      <- allMethods
     yield router.responses
       .lift(method)
       .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
@@ -57,7 +59,7 @@ private[lepus] object RouterToOpenAPI:
     route:    OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =
-    val methods = Method.values.filter(route.responses.isDefinedAt).toList
+    val methods = allMethods.filter(route.responses.isDefinedAt)
     methods
       .map(method => {
         method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, route, schema)

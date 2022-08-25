@@ -6,9 +6,11 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
+import org.http4s.Method
+
 import lepus.router.*
 import lepus.router.internal.*
-import lepus.router.http.{ Method, RequestEndpoint }
+import lepus.router.http.RequestEndpoint
 
 import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
 
