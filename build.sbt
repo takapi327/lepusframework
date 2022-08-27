@@ -62,7 +62,7 @@ lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router
   .dependsOn(LepusProject)
   .enablePlugins(spray.boilerplate.BoilerplatePlugin)
 
-lazy val LepusLogback = LepusSbtProject("Lepus-Logback", "core/lepus-logback")
+lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "core/lepus-logback")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies += logback)
 
@@ -110,7 +110,7 @@ lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
   LepusRouterProject,
-  LepusLogback
+  LepusLogbackProject
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
