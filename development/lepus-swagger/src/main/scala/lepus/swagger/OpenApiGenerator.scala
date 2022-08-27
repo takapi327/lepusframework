@@ -64,7 +64,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
       outputFile.getParentFile.mkdirs()
       outputFile.createNewFile()
 
-    Files.write(outputFile.toPath, scalaSource.getBytes(implicitly[Codec].name))
+    Files.write(outputFile.toPath, scalaSource.getBytes(summon[Codec].name))
 
     outputFile
 
