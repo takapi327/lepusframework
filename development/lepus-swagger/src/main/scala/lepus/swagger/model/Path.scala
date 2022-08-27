@@ -10,7 +10,7 @@ import org.http4s.Method
 
 import lepus.router.*
 import lepus.router.internal.*
-import lepus.router.http.RequestEndpoint
+import lepus.router.http.Endpoint
 
 import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
 
@@ -43,16 +43,16 @@ private[lepus] object Path:
 
   def fromEndpoint[F[_]](
     method:   Method,
-    endpoint: RequestEndpoint.Endpoint[?],
+    endpoint: Endpoint[?],
     router:   OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Path =
-    val endpoints: Vector[RequestEndpoint.Endpoint[?]] = endpoint.asVector()
+    val endpoints: Vector[Endpoint[?]] = endpoint.asVector()
     val parameters: List[Parameter] = endpoints.flatMap {
-      case e: (RequestEndpoint.Path[?] & RequestEndpoint.Param[?]) =>
-        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
-      case e: (RequestEndpoint.Query[?] & RequestEndpoint.Param[?]) =>
-        Some(Parameter.fromRequestEndpoint(e, schema).asInstanceOf[Parameter])
+      case e: (Endpoint.Path[?] & Endpoint.Param[?]) =>
+        Some(Parameter.fromEndpoint(e, schema).asInstanceOf[Parameter])
+      case e: (Endpoint.Query[?] & Endpoint.Param[?]) =>
+        Some(Parameter.fromEndpoint(e, schema).asInstanceOf[Parameter])
       case _ => None
     }.toList
 

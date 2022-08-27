@@ -13,7 +13,7 @@ import org.http4s.Method
 import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
-import lepus.router.http.RequestEndpoint
+import lepus.router.http.Endpoint
 
 import lepus.swagger.model.*
 
@@ -39,7 +39,7 @@ private[lepus] object RouterToOpenAPI:
     OpenApiUI.build(info, endpoints, router.routes.toList.flatMap(_._2.tags).toSet, component)
 
   private def routerToSchemaTuple[F[_]](
-    groupEndpoint: Map[RequestEndpoint.Endpoint[?], OpenApiConstructor[F, ?]]
+    groupEndpoint: Map[Endpoint[?], OpenApiConstructor[F, ?]]
   ): Option[ListMap[Schema.Name, Schema[?]]] =
     val encoded = for
       (_, router) <- groupEndpoint.toList
@@ -55,7 +55,7 @@ private[lepus] object RouterToOpenAPI:
     }
 
   private def routerToPath[F[_]](
-    endpoint: RequestEndpoint.Endpoint[?],
+    endpoint: Endpoint[?],
     route:    OpenApiConstructor[F, ?],
     schema:   SchemaToOpenApiSchema
   ): Map[String, Path] =

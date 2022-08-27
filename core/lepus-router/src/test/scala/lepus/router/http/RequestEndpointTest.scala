@@ -6,12 +6,12 @@ package lepus.router.http
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-class RequestEndpointTest extends AnyFlatSpec:
+class EndpointTest extends AnyFlatSpec:
 
   it should "generate endpoint" in {
     assertCompiles("""
       import lepus.router.{ *, given }
-      import lepus.router.http.RequestEndpoint.*
+      import lepus.router.http.Endpoint.*
 
       val endpoint1: Endpoint[String] = "test1" / bindPath[String]("p1")
       val endpoint2: Endpoint[String] = bindPath[String]("p1") / "test2"
@@ -23,7 +23,7 @@ class RequestEndpointTest extends AnyFlatSpec:
   it should "generate endpoint failure" in {
     assertDoesNotCompile("""
       import lepus.router.{ *, given }
-      import lepus.router.http.RequestEndpoint.*
+      import lepus.router.http.Endpoint.*
 
       val endpoint1: Endpoint[Long] = "test1" / bindPath[String]("p1")
       val endpoint2: Endpoint[Long] = bindPath[String]("p1") / "test2"

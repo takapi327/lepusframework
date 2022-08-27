@@ -10,23 +10,23 @@ import lepus.router.http.*
 
 trait LepusRouter:
 
-  given Conversion[String, RequestEndpoint.FixedPath[Unit]] =
-    v => RequestEndpoint.FixedPath(v, summon)
+  given Conversion[String, Endpoint.FixedPath[Unit]] =
+    v => Endpoint.FixedPath(v, summon)
 
-  given Conversion[Int, RequestEndpoint.FixedPath[Unit]] =
-    v => RequestEndpoint.FixedPath(v.toString, summon)
+  given Conversion[Int, Endpoint.FixedPath[Unit]] =
+    v => Endpoint.FixedPath(v.toString, summon)
 
-  given Conversion[Long, RequestEndpoint.FixedPath[Unit]] =
-    v => RequestEndpoint.FixedPath(v.toString, summon)
+  given Conversion[Long, Endpoint.FixedPath[Unit]] =
+    v => Endpoint.FixedPath(v.toString, summon)
 
-  given Conversion[Short, RequestEndpoint.FixedPath[Unit]] =
-    v => RequestEndpoint.FixedPath(v.toString, summon)
+  given Conversion[Short, Endpoint.FixedPath[Unit]] =
+    v => Endpoint.FixedPath(v.toString, summon)
 
-  def bindPath[T](name: String)(using EndpointConverter[String, T]): RequestEndpoint.PathParam[T] =
-    RequestEndpoint.PathParam(name, summon)
+  def bindPath[T](name: String)(using EndpointConverter[String, T]): Endpoint.PathParam[T] =
+    Endpoint.PathParam(name, summon)
 
-  def bindQuery[T](key: String)(using EndpointConverter[String, T]): RequestEndpoint.QueryParam[T] =
-    RequestEndpoint.QueryParam(key, summon)
+  def bindQuery[T](key: String)(using EndpointConverter[String, T]): Endpoint.QueryParam[T] =
+    Endpoint.QueryParam(key, summon)
 
-  extension [F[_], T](endpoint: RequestEndpoint.Endpoint[T])
+  extension [F[_], T](endpoint: Endpoint[T])
     @targetName("toTuple") def ->(router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
