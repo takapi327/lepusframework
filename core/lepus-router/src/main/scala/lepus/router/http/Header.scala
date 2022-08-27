@@ -17,20 +17,9 @@ trait Header(
   name:  FieldName,
   value: String,
   uri:   Option[Uri] = None
-):
-
-  override def toString: String = s"${ name.name }: $value"
-
-  def is(name: FieldName): Boolean = this.name == name
+)
 
 object Header:
-
-  def apply(
-    name:  FieldName,
-    value: String,
-    uri:   Option[Uri] = None
-  ): Header =
-    new Header(name, value, uri) {}
 
   case class CustomHeader[T: Schema](
     name:        FieldName,
