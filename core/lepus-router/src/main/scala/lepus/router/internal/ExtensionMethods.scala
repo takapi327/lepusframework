@@ -4,11 +4,9 @@
 
 package lepus.router.internal
 
-import scala.collection.immutable.{ Vector, ListMap }
-
 import lepus.router.http.*
 
-trait ExtensionMethods:
+trait ExtensionMethods extends lepus.core.internal.ExtensionMethods:
 
   extension (endpoint: RequestEndpoint.Endpoint[?])
     def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint[?], Vector[T]]): Vector[T] =
@@ -50,11 +48,3 @@ trait ExtensionMethods:
       else
         val clazz = Class.forName("scala.Tuple" + v.size)
         clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
-
-  extension [A](xs: Iterable[A])
-    def toListMap[T, U](implicit ev: A <:< (T, U)): ListMap[T, U] =
-      val b = ListMap.newBuilder[T, U]
-      for (x <- xs)
-        b += x
-
-      b.result()
