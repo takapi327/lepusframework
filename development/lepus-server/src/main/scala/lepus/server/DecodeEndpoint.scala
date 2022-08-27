@@ -16,7 +16,7 @@ object DecodeEndpoint:
   type Result        = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
 
   def apply(
-    request:  HttpRequest,
+    request:  Request,
     endpoint: RequestEndpoint.Endpoint[?]
   ): (DecodeEndpointResult, DecodedResult) =
 

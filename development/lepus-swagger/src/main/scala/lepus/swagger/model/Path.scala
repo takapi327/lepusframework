@@ -6,9 +6,11 @@ package lepus.swagger.model
 
 import scala.collection.immutable.ListMap
 
+import org.http4s.Method
+
 import lepus.router.*
 import lepus.router.internal.*
-import lepus.router.http.{ Method, RequestEndpoint }
+import lepus.router.http.RequestEndpoint
 
 import lepus.swagger.{ OpenApiConstructor, SchemaToOpenApiSchema }
 
@@ -33,7 +35,7 @@ final case class Path(
   tags:        Set[String]                         = Set.empty,
   deprecated:  Option[Boolean]                     = None,
   parameters:  List[Parameter]                     = List.empty,
-  requestBody: Option[RequestBody]                 = None,
+  requestBody: Option[RequestBody.UI]              = None,
   responses:   ListMap[String, OpenApiResponse.UI] = ListMap.empty
 )
 
@@ -56,12 +58,12 @@ private[lepus] object Path:
 
     val requestBody = router.bodies
       .lift(method)
-      .map(req => RequestBody.build(req, schema))
+      .map(req => RequestBody.UI(req, schema))
 
     val responses = router.responses
       .lift(method)
       .filter(_.nonEmpty)
-      .map(resList => resList.map(res => res.status.enumStatus.toString -> res.toUI(schema)))
+      .map(resList => resList.map(res => res.status.code.toString -> res.toUI(schema)))
       .getOrElse(List("default" -> OpenApiResponse.UI.empty))
 
     Path(

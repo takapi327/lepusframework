@@ -8,7 +8,7 @@ import cats.data.{ Kleisli, OptionT }
 import cats.implicits.*
 import cats.effect.{ Async, Sync }
 
-import org.http4s.{ Request as Http4sRequest, HttpRoutes as Http4sRoutes, Response as Http4sResponse }
+import org.http4s.{ Request as Request4s, HttpRoutes as Http4sRoutes, Response as Response4s }
 
 import lepus.router.*
 import lepus.router.http.*
@@ -34,31 +34,13 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     *   If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
     */
   def bindFromRequest[T](routes: Requestable[F][T], endpoint: RequestEndpoint.Endpoint[?]): Http4sRoutes[F] =
-    Kleisli[[K] =>> OptionT[F, K], Http4sRequest[F], Http4sResponse[F]] { (http4sRequest: Http4sRequest[F]) =>
-      val request = Request[F](http4sRequest)
-
+    Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
-        decoded  <- OptionT.fromOption[F] { decodeRequest[T](request, endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request).lift(request.method) }
+        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
+        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method) }
         response <- OptionT.liftF { logic }
-      yield addResponseHeader(response).toHttp4sResponse()
+      yield response
     }
-
-  /** Add response headers according to body
-    *
-    * @param response
-    *   Logic return value corresponding to the endpoint
-    * @return
-    *   Response with headers according to the contents of the body
-    */
-  def addResponseHeader(response: Response): Response =
-    response.body match
-      case None => response
-      case Some(body) =>
-        body match
-          case PlainText(_) => response.addHeader(Header.HeaderType.TextPlain)
-          case JsValue(_)   => response.addHeader(Header.HeaderType.ApplicationJson)
-          case _            => response
 
   /** Verify that the actual request matches the endpoint that was intended to be received as a request.
     *
@@ -72,7 +54,7 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     *   If the request and endpoint match, return Some; if not, return None.
     */
   private def decodeRequest[T](
-    request:  HttpRequest,
+    request:  Request,
     endpoint: RequestEndpoint.Endpoint[?]
   ): Option[T] =
     val (decodeEndpointResult, _) = DecodeEndpoint(request, endpoint)
