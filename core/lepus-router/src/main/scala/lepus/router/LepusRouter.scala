@@ -29,4 +29,4 @@ trait LepusRouter:
     Endpoint.QueryParam(key, summon)
 
   extension [F[_], T](endpoint: Endpoint[T])
-    @targetName("toTuple") def ->(router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
+    @targetName("toTuple") def ->>(router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)
