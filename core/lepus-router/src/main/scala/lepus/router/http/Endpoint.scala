@@ -56,7 +56,7 @@ object Endpoint:
     */
   case class PathParam[T](name: String, converter: EndpointConverter[String, T], description: Option[String] = None)
     extends Path[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = PathParam[T]
     override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Path[T] = ValidatePathParam(name, converter, validator, description)
@@ -72,7 +72,7 @@ object Endpoint:
     */
   case class QueryParam[T](key: String, converter: EndpointConverter[String, T], description: Option[String] = None)
     extends Query[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = QueryParam[T]
     override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Query[T] = ValidateQueryParam(key, converter, validator, description)
@@ -94,7 +94,7 @@ object Endpoint:
     validator:   Validator,
     description: Option[String] = None
   ) extends Path[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = ValidatePathParam[T]
     override def setDescription(content: String): ValidatePathParam[T] = this.copy(description = Some(content))
 
@@ -115,7 +115,7 @@ object Endpoint:
     validator:   Validator,
     description: Option[String] = None
   ) extends Query[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = ValidateQueryParam[T]
     override def setDescription(content: String): ValidateQueryParam[T] = this.copy(description = Some(content))
 
