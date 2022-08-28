@@ -18,8 +18,8 @@ sealed trait Endpoint[T]:
 
   @targetName("splitPath") def /[N, TN](path: Path[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ path
 
-  @targetName("queryQ") def :?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
-  @targetName("query&") def :&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+  @targetName("queryQ") def +?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+  @targetName("query&") def +&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
 
 object Endpoint:
 
