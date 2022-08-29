@@ -9,18 +9,19 @@ import scala.annotation.targetName
 import lepus.router.{ EndpointConverter, Validator }
 import lepus.router.internal.ParamConcat
 
-object RequestEndpoint:
+import Endpoint.*
+sealed trait Endpoint[T]:
+  private[lepus] type TypeParam = T
+  private[lepus] type ThisType <: Endpoint[T]
+  @targetName("and") def ++[N, TN](other: Endpoint[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] =
+    Pair[T, N, TN](this, other)
 
-  sealed trait Endpoint[T]:
-    private[lepus] type TypeParam = T
-    private[lepus] type ThisType <: Endpoint[T]
-    @targetName("and") def ++[N, TN](other: Endpoint[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] =
-      RequestEndpoint.Pair[T, N, TN](this, other)
+  @targetName("splitPath") def /[N, TN](path: Path[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ path
 
-    @targetName("splitPath") def /[N, TN](path: Path[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ path
+  @targetName("queryQ") def +?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+  @targetName("query&") def +&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
 
-    @targetName("queryQ") def :?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
-    @targetName("query&") def :&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+object Endpoint:
 
   sealed trait Param[T] extends Endpoint[T]:
     def converter:   EndpointConverter[String, T]
@@ -55,7 +56,7 @@ object RequestEndpoint:
     */
   case class PathParam[T](name: String, converter: EndpointConverter[String, T], description: Option[String] = None)
     extends Path[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = PathParam[T]
     override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Path[T] = ValidatePathParam(name, converter, validator, description)
@@ -71,7 +72,7 @@ object RequestEndpoint:
     */
   case class QueryParam[T](key: String, converter: EndpointConverter[String, T], description: Option[String] = None)
     extends Query[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = QueryParam[T]
     override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
     def validate(validator: Validator): Query[T] = ValidateQueryParam(key, converter, validator, description)
@@ -93,7 +94,7 @@ object RequestEndpoint:
     validator:   Validator,
     description: Option[String] = None
   ) extends Path[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = ValidatePathParam[T]
     override def setDescription(content: String): ValidatePathParam[T] = this.copy(description = Some(content))
 
@@ -114,21 +115,19 @@ object RequestEndpoint:
     validator:   Validator,
     description: Option[String] = None
   ) extends Query[T],
-      Param[T]:
+            Param[T]:
     override private[lepus] type ThisType = ValidateQueryParam[T]
     override def setDescription(content: String): ValidateQueryParam[T] = this.copy(description = Some(content))
 
-  /** Model to store RequestEndpoint pairs
+  /** Model to store Endpoint pairs
     *
     * @param left
-    *   Pairs of RequestEndpoints are stored from left to right in the HTTP URL path.
+    *   Pairs of Endpoints are stored from left to right in the HTTP URL path.
     * @param right
-    *   The RequestEndpoint currently referenced in the HTTP URL path is stored.
+    *   The Endpoint currently referenced in the HTTP URL path is stored.
     */
   case class Pair[T, N, TN](
     left:  Endpoint[T],
     right: Endpoint[N]
   ) extends Endpoint[TN]:
     override private[lepus] type ThisType = Pair[T, N, TN]
-
-end RequestEndpoint

@@ -10,8 +10,6 @@ import cats.data.NonEmptyList
 
 import cats.effect.IO
 
-import org.http4s.Method.*
-import org.http4s.Response
 import org.http4s.dsl.io.*
 
 import lepus.router.{ *, given }
@@ -19,7 +17,7 @@ import lepus.router.{ *, given }
 object HttpApp extends RouterProvider[IO]:
 
   override def routes = NonEmptyList.of(
-    "hello" / bindPath[String]("name") -> RouterConstructor.of {
+    "hello" / bindPath[String]("name") ->> RouterConstructor.of {
       case GET => Ok(s"hello ${summon[String]}")
     }
   )

@@ -14,8 +14,10 @@ import lepus.router.http.Request
   * {{{
   *  object HttpApp extends RouterProvider[IO]:
   *    override def routes = NonEmptyList.of(
-  *      "hello" / name -> HelloRoute,
-  *      "world" / country -> WorldRoute
+  *      "hello" / name ->> HelloRoute,
+  *      "world" / country ->> RouterConstructor.of {
+  *        case GET => WorldController.get
+  *      }
   *    )
   * }}}
   *

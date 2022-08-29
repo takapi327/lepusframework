@@ -4,41 +4,39 @@
 
 package lepus.router.internal
 
-import scala.collection.immutable.{ Vector, ListMap }
-
 import lepus.router.http.*
 
-trait ExtensionMethods:
+trait ExtensionMethods extends lepus.core.internal.ExtensionMethods:
 
-  extension (endpoint: RequestEndpoint.Endpoint[?])
-    def recursiveEndpoints[T](pf: PartialFunction[RequestEndpoint.Endpoint[?], Vector[T]]): Vector[T] =
+  extension (endpoint: Endpoint[?])
+    def recursiveEndpoints[T](pf: PartialFunction[Endpoint[?], Vector[T]]): Vector[T] =
       endpoint match
-        case RequestEndpoint.Pair(left, right) => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
-        case r: RequestEndpoint.Endpoint[?] if pf.isDefinedAt(r) => pf(r)
-        case _                                                   => Vector.empty
+        case Endpoint.Pair(left, right)          => left.recursiveEndpoints(pf) ++ right.recursiveEndpoints(pf)
+        case r: Endpoint[?] if pf.isDefinedAt(r) => pf(r)
+        case _                                   => Vector.empty
 
-    def asVector(): Vector[RequestEndpoint.Endpoint[?]] =
+    def asVector(): Vector[Endpoint[?]] =
       recursiveEndpoints {
-        case e: RequestEndpoint.Endpoint[?] => Vector(e)
+        case e: Endpoint[?] => Vector(e)
       }
 
     def toPath: String = "/" + asVector()
       .map {
-        case e: RequestEndpoint.FixedPath[?] => e.name
-        case e: RequestEndpoint.Path[?]      => s"{${ e.name }}"
-        case _                               => ""
+        case e: Endpoint.FixedPath[?] => e.name
+        case e: Endpoint.Path[?]      => s"{${ e.name }}"
+        case _                        => ""
       }
       .mkString("/")
 
     def isPath: Boolean =
       endpoint match
-        case _: RequestEndpoint.Path[?] => true
-        case _                          => false
+        case _: Endpoint.Path[?] => true
+        case _                   => false
 
     def isQueryParam: Boolean =
       endpoint match
-        case _: RequestEndpoint.Query[?] => true
-        case _                           => false
+        case _: Endpoint.Query[?] => true
+        case _                    => false
 
   // see https://github.com/scala/bug/issues/12186
   extension [T](v: Vector[T])
@@ -50,11 +48,3 @@ trait ExtensionMethods:
       else
         val clazz = Class.forName("scala.Tuple" + v.size)
         clazz.getConstructors()(0).newInstance(v.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[Any]
-
-  extension [A](xs: Iterable[A])
-    def toListMap[T, U](implicit ev: A <:< (T, U)): ListMap[T, U] =
-      val b = ListMap.newBuilder[T, U]
-      for (x <- xs)
-        b += x
-
-      b.result()

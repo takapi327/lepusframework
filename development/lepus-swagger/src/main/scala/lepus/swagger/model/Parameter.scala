@@ -4,9 +4,9 @@
 
 package lepus.swagger.model
 
-import lepus.router.http.RequestEndpoint
+import lepus.router.http.Endpoint
 import lepus.swagger.SchemaToOpenApiSchema
-import lepus.swagger.internal.RequestEndpointMagnet
+import lepus.swagger.internal.EndpointMagnet
 
 /** Model representing parameters given to Http requests.
   *
@@ -31,8 +31,8 @@ final case class Parameter(
 
 private[lepus] object Parameter:
 
-  def fromRequestEndpoint(
-    magnet:                RequestEndpointMagnet,
+  def fromEndpoint(
+    magnet:                EndpointMagnet,
     schemaToOpenApiSchema: SchemaToOpenApiSchema
   ): magnet.ThisType = magnet.toParameter(schemaToOpenApiSchema)
 

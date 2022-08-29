@@ -15,7 +15,7 @@ package lepus.router
   *     }
   *
   *   // There is also a way to use it without objects.
-  *   "hello" / bindPath[String]("world") -> RouterConstructor.of {
+  *   "hello" / bindPath[String]("world") ->> RouterConstructor.of {
   *     case GET => HelloWorldController.get
   *   }
   * }}}
