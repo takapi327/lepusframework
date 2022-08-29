@@ -11,7 +11,6 @@ import cats.effect.IO
 import io.circe.*
 import io.circe.generic.semiauto.*
 
-import org.http4s.Method.*
 import org.http4s.{ Response, Status }
 import org.http4s.dsl.io.*
 

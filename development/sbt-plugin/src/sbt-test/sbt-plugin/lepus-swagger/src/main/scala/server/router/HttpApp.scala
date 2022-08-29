@@ -18,5 +18,5 @@ import lepus.swagger.OpenApiProvider
 object HttpApp extends OpenApiProvider[IO]:
 
   override def routes = NonEmptyList.of(
-    "hello" / bindPath[String]("name") -> HelloRoute
+    "hello" / bindPath[String]("name") ->> HelloRoute
   )
