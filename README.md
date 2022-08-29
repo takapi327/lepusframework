@@ -80,7 +80,6 @@ package sample
 import cats.effect.IO
 import cats.data.NonEmptyList
 
-import org.http4s.Method.*
 import org.http4s.dsl.io.*
   
 import lepus.router.{ *, given }
@@ -88,7 +87,7 @@ import lepus.router.{ *, given }
 object HelloApp extends RouterProvider[IO]:
 
   override def routes = NonEmptyList.of(
-    "hello" / bindPath[String]("name") -> RouterConstructor.of {
+    "hello" / bindPath[String]("name") ->> RouterConstructor.of {
       case GET => Ok(s"Hello ${summon[String]}")
     }
   )
@@ -118,11 +117,10 @@ import cats.effect.*
 import io.circe.*
 import io.circe.generic.semiauto.*
 
-import org.http4s.Method.*
 import org.http4s.Status.*
 import org.http4s.dsl.io.*
 
-import lepus.router.*
+import lepus.router.{ *, given }
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
 
@@ -149,10 +147,10 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
     case GET => Ok(s"Hello ${summon[String]}")
   }
 
-object HelloApp extends OpenApiProvider[IO]:
+object HelloApp extends RouterProvider[IO]:
 
   override def routes = NonEmptyList.of(
-    "hello" / bindPath[String]("name") -> HelloRoute
+    "hello" / bindPath[String]("name") ->> HelloRoute
   )
 ```
 
