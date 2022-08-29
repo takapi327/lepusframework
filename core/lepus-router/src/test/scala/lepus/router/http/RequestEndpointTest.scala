@@ -35,11 +35,10 @@ class EndpointTest extends AnyFlatSpec:
   it should "compile" in {
     assertCompiles("""
       import cats.effect.IO
-      import org.http4s.Method.*
       import org.http4s.dsl.io.*
       import lepus.router.{ *, given }
 
-      bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of {
+      bindPath[Long]("p1") / bindPath[String]("p2") ->> RouterConstructor.of {
         case GET => Ok("Hello")
       }
     """.stripMargin)
@@ -48,11 +47,10 @@ class EndpointTest extends AnyFlatSpec:
   it should "compile failure" in {
     assertDoesNotCompile("""
       import cats.effect.IO
-      import org.http4s.Method.*
       import org.http4s.dsl.io.*
       import lepus.router.{ *, given }
 
-      bindPath[Long]("p1") / bindPath[String]("p2") -> RouterConstructor.of[IO, (String, String)] {
+      bindPath[Long]("p1") / bindPath[String]("p2") ->> RouterConstructor.of[IO, (String, String)] {
         case GET => Ok("Hello")
       }
     """.stripMargin)
