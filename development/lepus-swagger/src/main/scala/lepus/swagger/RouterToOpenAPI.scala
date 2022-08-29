@@ -36,10 +36,12 @@ private[lepus] object RouterToOpenAPI:
     val endpoints = groupEndpoint.map {
       case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint, route, schemaToOpenApiSchema)
     }
-    val tags = router.routes.toList.flatMap(_._2 match
-      case constructor: OpenApiConstructor[F, ?] => constructor.tags
-      case _ => Set.empty
-    ).toSet
+    val tags = router.routes.toList
+      .flatMap(_._2 match
+        case constructor: OpenApiConstructor[F, ?] => constructor.tags
+        case _                                     => Set.empty
+      )
+      .toSet
     OpenApiUI.build(info, endpoints, tags, component)
 
   private def routerToSchemaTuple[F[_]](
@@ -48,12 +50,12 @@ private[lepus] object RouterToOpenAPI:
     val encoded = for
       (_, router) <- groupEndpoint.toList
       method      <- Method.all
-    yield
-      router match
-        case constructor: OpenApiConstructor[F, ?] => constructor.responses
+    yield router match
+      case constructor: OpenApiConstructor[F, ?] =>
+        constructor.responses
           .lift(method)
           .map(_.flatMap(res => schemaToTuple(res.schema)).toListMap)
-        case _            => None
+      case _ => None
 
     encoded.flatten.foldLeft[Option[ListMap[Schema.Name, Schema[?]]]](Some(ListMap.empty)) { (o, ol) =>
       PartialFunction.condOpt(o, ol) {
@@ -74,4 +76,4 @@ private[lepus] object RouterToOpenAPI:
             method.toString.toLowerCase -> Path.fromEndpoint(method, endpoint, constructor, schema)
           })
           .toMap
-      case _            => Map.empty
+      case _ => Map.empty
