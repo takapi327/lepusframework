@@ -10,7 +10,6 @@ import cats.data.NonEmptyList
 
 import cats.effect.IO
 
-import org.http4s.Response
 import org.http4s.dsl.io.*
 
 import lepus.router.{ *, given }
