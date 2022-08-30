@@ -28,7 +28,7 @@ private[lepus] object EndpointMagnet:
         override def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType = Parameter(
           name        = endpoint.name,
           in          = ParameterInType.PATH,
-          required    = true,
+          required    = endpoint.required,
           schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
           description = endpoint.description
         )
@@ -42,7 +42,7 @@ private[lepus] object EndpointMagnet:
         override def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType = Parameter(
           name        = endpoint.key,
           in          = ParameterInType.QUERY,
-          required    = false,
+          required    = endpoint.required,
           schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
           description = endpoint.description
         )
