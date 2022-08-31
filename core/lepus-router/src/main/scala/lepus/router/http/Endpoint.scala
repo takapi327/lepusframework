@@ -26,8 +26,9 @@ object Endpoint:
   sealed trait Param[T] extends Endpoint[T]:
     def converter:   EndpointConverter[String, T]
     def description: Option[String]
-    def setDescription(content: String): ThisType
     def required: Boolean
+    def setDescription(content: String): ThisType
+    def setRequired(bool: Boolean): ThisType
 
   sealed trait Path[T] extends Endpoint[T]:
     def name: String
@@ -64,6 +65,7 @@ object Endpoint:
             Param[T]:
     override private[lepus] type ThisType = PathParam[T]
     override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
+    override def setRequired(bool: Boolean): PathParam[T] = this.copy(required = bool)
     def validate(validator: Validator): Path[T] = ValidatePathParam(name, converter, validator, required, description)
 
   /** Query parameter
@@ -84,6 +86,7 @@ object Endpoint:
             Param[T]:
     override private[lepus] type ThisType = QueryParam[T]
     override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
+    override def setRequired(bool: Boolean): QueryParam[T] = this.copy(required = bool)
     def validate(validator: Validator): Query[T] = ValidateQueryParam(key, converter, validator, required, description)
 
   /** Validation defined value for dynamically changing path parameters
@@ -107,6 +110,7 @@ object Endpoint:
             Param[T]:
     override private[lepus] type ThisType = ValidatePathParam[T]
     override def setDescription(content: String): ValidatePathParam[T] = this.copy(description = Some(content))
+    override def setRequired(bool: Boolean): ValidatePathParam[T] = this.copy(required = bool)
 
   /** Validation defined value for dynamically changing query parameters
     *
@@ -129,6 +133,7 @@ object Endpoint:
             Param[T]:
     override private[lepus] type ThisType = ValidateQueryParam[T]
     override def setDescription(content: String): ValidateQueryParam[T] = this.copy(description = Some(content))
+    override def setRequired(bool: Boolean): ValidateQueryParam[T] = this.copy(required = bool)
 
   /** Model to store Endpoint pairs
     *
