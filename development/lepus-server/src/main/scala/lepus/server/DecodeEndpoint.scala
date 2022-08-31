@@ -66,7 +66,7 @@ object DecodeEndpoint:
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-          case Endpoint.PathParam(_, converter, _) =>
+          case Endpoint.PathParam(_, converter, _, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
@@ -75,7 +75,7 @@ object DecodeEndpoint:
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-          case Endpoint.ValidatePathParam(_, converter, validator, _) =>
+          case Endpoint.ValidatePathParam(_, converter, validator, _, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
@@ -119,13 +119,19 @@ object DecodeEndpoint:
     endpoints.headAndTail match
       case Some((head, tail)) =>
         head match
-          case Endpoint.QueryParam(key, converter, _) =>
+          case Endpoint.QueryParam(key, converter, required, _) =>
             request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
                 val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
                 tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
+              case (None, decodeServerRequest) =>
+                if required then
+                  (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                else
+                  val newDecoded = decoded :+ ((head, converter.decode("")))
+                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
-          case Endpoint.ValidateQueryParam(key, converter, validator, _) =>
+          case Endpoint.ValidateQueryParam(key, converter, validator, required, _) =>
             request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
                 values.flatMap(validator(_)) match
@@ -135,6 +141,12 @@ object DecodeEndpoint:
                   case decodeResults =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResults.head)
                     (failure, decoded)
+              case (None, decodeServerRequest) =>
+                if required then
+                  (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                else
+                  val newDecoded = decoded :+ ((head, converter.decode("")))
+                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
       case None => (result, decoded)

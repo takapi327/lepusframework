@@ -25,8 +25,14 @@ trait LepusRouter:
   def bindPath[T](name: String)(using EndpointConverter[String, T]): Endpoint.PathParam[T] =
     Endpoint.PathParam(name, summon)
 
+  def bindPath[T](name: String, required: Boolean, description: String)(using EndpointConverter[String, T]): Endpoint.PathParam[T] =
+    Endpoint.PathParam(name, summon, required, Some(description))
+
   def bindQuery[T](key: String)(using EndpointConverter[String, T]): Endpoint.QueryParam[T] =
     Endpoint.QueryParam(key, summon)
+
+  def bindQuery[T](key: String, required: Boolean, description: String)(using EndpointConverter[String, T]): Endpoint.QueryParam[T] =
+    Endpoint.QueryParam(key, summon, required, Some(description))
 
   extension [F[_], T](endpoint: Endpoint[T])
     @targetName("toTuple") def ->>(router: RouterConstructor[F, endpoint.TypeParam]) = (endpoint, router)

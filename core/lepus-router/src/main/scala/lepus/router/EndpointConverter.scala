@@ -51,14 +51,20 @@ object EndpointConverter:
   given EndpointConverter[String, UUID]           = convertT[String, UUID](UUID.fromString)
 
   /** Variables for converting path and query parameter values to arrays of any type. */
-  given [T](using schema: Schema[T]): EndpointConverter[String, Array[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Array[T]] =
     convertT(_.split(",").asInstanceOf)
-  given [T](using schema: Schema[T]): EndpointConverter[String, List[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, List[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toList)
-  given [T](using schema: Schema[T]): EndpointConverter[String, Seq[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Seq[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSeq)
-  given [T](using schema: Schema[T]): EndpointConverter[String, Set[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Set[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSet)
+
+  given [T](using Schema[T])(using converter: EndpointConverter[String, T]): EndpointConverter[String, Option[T]] =
+    convertT(v =>
+      if v.nonEmpty then Some(converter.stringTo(v))
+      else None
+    )
 
   /** Generate an EndpointConverter that performs the conversion of type S to type T.
     *
