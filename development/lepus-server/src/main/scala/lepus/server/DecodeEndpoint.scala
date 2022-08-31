@@ -125,8 +125,7 @@ object DecodeEndpoint:
                 val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
                 tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case (None, decodeServerRequest) =>
-                if required then
-                  (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                if required then (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
                 else
                   val newDecoded = decoded :+ ((head, converter.decode("")))
                   tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
@@ -142,8 +141,7 @@ object DecodeEndpoint:
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResults.head)
                     (failure, decoded)
               case (None, decodeServerRequest) =>
-                if required then
-                  (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                if required then (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
                 else
                   val newDecoded = decoded :+ ((head, converter.decode("")))
                   tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)

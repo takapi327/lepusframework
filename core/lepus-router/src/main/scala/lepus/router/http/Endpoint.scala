@@ -55,8 +55,12 @@ object Endpoint:
     * @tparam T
     *   Parameters of the type you want to convert String to
     */
-  case class PathParam[T](name: String, converter: EndpointConverter[String, T], required: Boolean = true, description: Option[String] = None)
-    extends Path[T],
+  case class PathParam[T](
+    name:        String,
+    converter:   EndpointConverter[String, T],
+    required:    Boolean        = true,
+    description: Option[String] = None
+  ) extends Path[T],
             Param[T]:
     override private[lepus] type ThisType = PathParam[T]
     override def setDescription(content: String): PathParam[T] = this.copy(description = Some(content))
@@ -71,8 +75,12 @@ object Endpoint:
     * @tparam T
     *   Parameters of the type you want to convert String to
     */
-  case class QueryParam[T](key: String, converter: EndpointConverter[String, T], required: Boolean = false, description: Option[String] = None)
-    extends Query[T],
+  case class QueryParam[T](
+    key:         String,
+    converter:   EndpointConverter[String, T],
+    required:    Boolean        = false,
+    description: Option[String] = None
+  ) extends Query[T],
             Param[T]:
     override private[lepus] type ThisType = QueryParam[T]
     override def setDescription(content: String): QueryParam[T] = this.copy(description = Some(content))
@@ -93,7 +101,7 @@ object Endpoint:
     name:        String,
     converter:   EndpointConverter[String, T],
     validator:   Validator,
-    required:    Boolean = true,
+    required:    Boolean        = true,
     description: Option[String] = None
   ) extends Path[T],
             Param[T]:
