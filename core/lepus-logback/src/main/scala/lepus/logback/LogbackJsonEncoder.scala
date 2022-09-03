@@ -34,7 +34,7 @@ class LogbackJsonEncoder extends BaseEncoder:
     val map:  util.HashMap[String, String] = util.HashMap()
     map.put("timeStamp", timeStampToLocalDateTime(event.getTimeStamp).toString)
     map.put("level", colorLevel(event))
-    map.put("maker", event.getMarker.toString)
+    map.put("maker", event.getMarkerList.toArray.mkString(","))
     map.put("thread", event.getThreadName)
     map.put("message", event.getMessage)
     map.put("class", event.getClass.toString)

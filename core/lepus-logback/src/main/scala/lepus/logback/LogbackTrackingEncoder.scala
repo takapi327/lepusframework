@@ -36,9 +36,9 @@ class LogbackTrackingEncoder extends BaseEncoder:
     sbuf.append(" [")
     sbuf.append(event.getThreadName)
     sbuf.append("] ")
-    if event.getMarker != null then
+    if !event.getMarkerList.isEmpty then
       sbuf.append(" ")
-      sbuf.append(event.getMarker)
+      sbuf.append(event.getMarkerList)
       sbuf.append(" ")
     sbuf.append(" [")
     sbuf.append(UUID.randomUUID.toString.replace("-", ""))
