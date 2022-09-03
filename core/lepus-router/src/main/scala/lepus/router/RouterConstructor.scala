@@ -4,6 +4,8 @@
 
 package lepus.router
 
+import org.http4s.server.middleware.CORSPolicy
+
 /** A model that contains one routing information.
   *
   * For example:
@@ -29,8 +31,17 @@ trait RouterConstructor[F[_], T]:
   /** Corresponding logic for each method of this endpoint. */
   def routes: Requestable[F][T]
 
+  def cors: Option[CORSPolicy] = None
+
 object RouterConstructor:
   def of[F[_], T](
     requestable: Requestable[F][T]
   ): RouterConstructor[F, T] = new RouterConstructor[F, T]:
     override def routes: Requestable[F][T] = requestable
+    override def cors: Option[CORSPolicy] = None
+
+  def withCORS[F[_], T](corsPolicy: CORSPolicy)(
+    requestable: Requestable[F][T]
+  ): RouterConstructor[F, T] = new RouterConstructor[F, T]:
+    override def routes: Requestable[F][T] = requestable
+    override def cors: Option[CORSPolicy] = Some(corsPolicy)
