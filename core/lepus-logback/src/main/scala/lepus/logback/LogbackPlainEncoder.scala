@@ -34,9 +34,9 @@ class LogbackPlainEncoder extends BaseEncoder:
     sbuf.append(" [")
     sbuf.append(event.getThreadName)
     sbuf.append("] ")
-    if (event.getMarker != null) {
+    if (!event.getMarkerList.isEmpty) {
       sbuf.append(" ")
-      sbuf.append(event.getMarker)
+      sbuf.append(event.getMarkerList)
       sbuf.append(" ")
     }
     sbuf.append(event.getLoggerName)
