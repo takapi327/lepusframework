@@ -11,8 +11,14 @@ import cats.effect.std.Console
 
 import com.comcast.ip4s.*
 
+import org.legogroup.woof.{ Output, Filter }
+import org.legogroup.woof.given
+
 import org.http4s.*
+import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
+
+import lepus.logger.LepusPrinter
 
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
@@ -32,6 +38,9 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
+    given Filter       = routerProvider.filter
+    given LepusPrinter = routerProvider.printer
+
     val httpApp = (routerProvider.cors match
       case Some(cors) =>
         routerProvider.routes.map {
@@ -46,24 +55,34 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
         }
     ).reduce
 
+    (for
+      logger <- ServerLogger(routerProvider.debugger)
+      server <- buildServer(host, port, httpApp.orNotFound, logger).use(_ => IO.never)
+    yield server).as(ExitCode.Success)
+
+  private def buildServer(
+    host:   String,
+    port:   Int,
+    app:    HttpApp[IO],
+    logger: ServerLogger[IO]
+  ): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
-      .withHttpApp(httpApp.orNotFound)
+      .withHttpApp(app)
       .withErrorHandler {
         case error =>
-          Console[IO]
-            .println(s"Unexpected error: $error")
+          logger
+            .error(error)(s"Unexpected error: $error")
             .as(Response(Status.InternalServerError))
       }
+      .withLogger(logger)
       .build
-      .use(_ => IO.never)
-      .as(ExitCode.Success)
 
   private def loadRouterProvider(): RouterProvider[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
-    val routeClass: Class[_] =
+    val routeClass: Class[?] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
       catch
         case ex: ClassNotFoundException =>
