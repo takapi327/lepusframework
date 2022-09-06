@@ -2,7 +2,8 @@
  * file that was distributed with this source code.
  */
 
-package lepus.logger
+package lepus.server
+
 
 import cats.Monad
 
@@ -13,6 +14,8 @@ import org.legogroup.woof.Logger.StringLocal
 import org.legogroup.woof.local.Local
 
 import org.typelevel.log4cats.Logger as Log4catsLogger
+
+import lepus.logger.{ Logger, LepusPrinter }
 
 class ServerLogger[F[_]: StringLocal: Monad: Clock](
   output:  Output[F],
@@ -38,4 +41,4 @@ object ServerLogger:
     outputs: Output[cats.effect.IO]*
   )(using LepusPrinter, Filter, LogInfo): cats.effect.IO[ServerLogger[cats.effect.IO]] =
     for given StringLocal[cats.effect.IO] <- Local.makeIoLocal[List[(String, String)]]
-    yield new ServerLogger[cats.effect.IO](output, outputs: _*)
+      yield new ServerLogger[cats.effect.IO](output, outputs: _*)
