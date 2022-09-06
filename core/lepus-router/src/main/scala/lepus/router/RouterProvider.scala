@@ -6,7 +6,14 @@ package lepus.router
 
 import cats.data.NonEmptyList
 
+import cats.effect.Async
+import cats.effect.std.Console
+
 import org.http4s.server.middleware.CORSPolicy
+
+import org.legogroup.woof.{ Output, LogLevel as WoofLogLevel, Filter as WoofFilter }
+
+import lepus.logger.LepusPrinter
 
 import lepus.router.http.Request
 
@@ -26,7 +33,39 @@ import lepus.router.http.Request
   * @tparam F
   *   the effect type.
   */
-trait RouterProvider[F[_]]:
+trait RouterProvider[F[_]: Console](using Async[F]):
+
+  /** Alias of [[org.legogroup.woof.LogLevel]] */
+  type LogLevel = WoofLogLevel
+  val LogLevel = WoofLogLevel
+
+  /** Alias of [[org.legogroup.woof.Filter]] */
+  type Filter = WoofFilter
+  val Filter = WoofFilter
+
+  /** A value to adjust the level of logging spit out by the server. Override can be done to filter logs at any level.
+    *
+    * example:
+    * {{{
+    *  override val filter: Filter = Filter.exactLevel(LogLevel.Error)
+    * }}}
+    *
+    * Also, by performing Override, arbitrary filtering can be performed.
+    *
+    * example:
+    * {{{
+    *   override val filter: Filter = logLine => logLine.info.lineNumber % 2 == 0 // only print *even* lines
+    * }}}
+    */
+  val filter: Filter = Filter.everything
+
+  /** A value for string conversion to spit out received strings, etc. as logs. */
+  val printer: LepusPrinter = LepusPrinter()
+
+  /** Value to be processed to display the log on a console or other device. */
+  val debugger: Output[F] = new Output[F]:
+    def output(str: String):      F[Unit] = Console[F].println(str)
+    def outputError(str: String): F[Unit] = Console[F].errorln(str)
 
   /** CORS settings applied to all endpoints */
   def cors: Option[CORSPolicy] = None
