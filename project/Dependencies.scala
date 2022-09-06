@@ -10,8 +10,6 @@ object Dependencies {
 
   val logback = "ch.qos.logback" % "logback-classic" % "1.4.0"
 
-  val log4cats = "org.typelevel" %% "log4cats-core" % "2.4.0"
-
   val woof = "org.legogroup" %% "woof-core" % "0.4.5"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.1"
