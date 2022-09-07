@@ -4,9 +4,9 @@
 
 package lepus.server
 
-
 import cats.Monad
 
+import cats.effect.IO
 import cats.effect.kernel.Clock
 
 import org.legogroup.woof.{ Filter, Output, LogInfo, LogLevel }
@@ -36,9 +36,8 @@ class ServerLogger[F[_]: StringLocal: Monad: Clock](
   override def warn(t: Throwable)(message: => String): F[Unit]  = doLog(LogLevel.Warn, message, t)
 
 object ServerLogger:
-  def apply(
-    output:  Output[cats.effect.IO],
-    outputs: Output[cats.effect.IO]*
-  )(using LepusPrinter, Filter, LogInfo): cats.effect.IO[ServerLogger[cats.effect.IO]] =
-    for given StringLocal[cats.effect.IO] <- Local.makeIoLocal[List[(String, String)]]
-      yield new ServerLogger[cats.effect.IO](output, outputs: _*)
+  def apply[F[_]: StringLocal: Monad: Clock](
+    output:  Output[F],
+    outputs: Output[F]*
+  )(using LepusPrinter, Filter, LogInfo): ServerLogger[F] =
+    new ServerLogger[F](output, outputs: _*)
