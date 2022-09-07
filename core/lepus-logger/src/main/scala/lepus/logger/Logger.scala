@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -18,7 +18,8 @@ import org.legogroup.woof.Logger.StringLocal
 trait Logger[F[_]: StringLocal: Monad: Clock](
   output:  Output[F],
   outputs: Output[F]*
-)(using LepusPrinter, Filter) extends WoofLogger[F]:
+)(using LepusPrinter, Filter)
+  extends WoofLogger[F]:
 
   val stringLocal: StringLocal[F] = summon[StringLocal[F]]
   val printer:     LepusPrinter   = summon[LepusPrinter]
@@ -28,7 +29,7 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
     level:   LogLevel,
     info:    LogInfo,
     message: String,
-    context: List[(String, String)],
+    context: List[(String, String)]
   ): F[String] =
     Clock[F].realTime
       .map(d => EpochMillis(d.toMillis))
@@ -67,9 +68,9 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
 
   def debug(t: Throwable)(message: => String)(using LogInfo): F[Unit] = doLog(LogLevel.Debug, message, t)
   def error(t: Throwable)(message: => String)(using LogInfo): F[Unit] = doLog(LogLevel.Error, message, t)
-  def info(t: Throwable)(message: => String)(using LogInfo): F[Unit]  = doLog(LogLevel.Info, message, t)
+  def info(t: Throwable)(message: => String)(using LogInfo):  F[Unit] = doLog(LogLevel.Info, message, t)
   def trace(t: Throwable)(message: => String)(using LogInfo): F[Unit] = doLog(LogLevel.Trace, message, t)
-  def warn(t: Throwable)(message: => String)(using LogInfo): F[Unit]  = doLog(LogLevel.Warn, message, t)
+  def warn(t: Throwable)(message: => String)(using LogInfo):  F[Unit] = doLog(LogLevel.Warn, message, t)
 
 object Logger:
   def apply[F[_]: StringLocal: Monad: Clock](

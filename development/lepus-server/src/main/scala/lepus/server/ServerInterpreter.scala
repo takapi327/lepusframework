@@ -38,9 +38,9 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
   def bindFromRequest[T](routes: Requestable[F][T], endpoint: Endpoint[?])(using logger: Logger[F]): Http4sRoutes[F] =
     Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
-        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s)(using logger).lift(request4s.method) }
-        response <- OptionT.liftF { logic }
+        decoded  <- OptionT.fromOption[F](decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint))
+        logic    <- OptionT.fromOption[F](routes(using decoded)(using request4s)(using logger).lift(request4s.method))
+        response <- OptionT.liftF(logic)
       yield response
     }
 
