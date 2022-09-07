@@ -13,12 +13,14 @@ import com.comcast.ip4s.*
 
 import org.legogroup.woof.{ Output, Filter }
 import org.legogroup.woof.given
+import org.legogroup.woof.Logger.StringLocal
 
 import org.http4s.*
+import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-import lepus.logger.LepusPrinter
+import lepus.logger.{ Logger, LepusPrinter }
 
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
@@ -41,7 +43,18 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
     given Filter       = routerProvider.filter
     given LepusPrinter = routerProvider.printer
 
-    val httpApp = (routerProvider.cors match
+    (for
+      given StringLocal[IO] <- routerProvider.local
+      logger                <- IO.delay { ServerLogger(routerProvider.debugger) }
+      httpApp               <- IO.delay { buildApp(routerProvider) }
+      server                <- buildServer(host, port, httpApp.orNotFound, logger).use(_ => IO.never)
+    yield server).as(ExitCode.Success)
+
+  private def buildApp(
+    routerProvider: RouterProvider[IO]
+  )(using Filter, LepusPrinter, StringLocal[IO]): Http4sRoutes[IO] =
+    given Logger[IO] = Logger[IO](routerProvider.debugger)
+    (routerProvider.cors match
       case Some(cors) =>
         routerProvider.routes.map {
           case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
@@ -54,11 +67,6 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
               case None       => bindFromRequest(router.routes, endpoint)
         }
     ).reduce
-
-    (for
-      logger <- ServerLogger(routerProvider.debugger)
-      server <- buildServer(host, port, httpApp.orNotFound, logger).use(_ => IO.never)
-    yield server).as(ExitCode.Success)
 
   private def buildServer(
     host:   String,
