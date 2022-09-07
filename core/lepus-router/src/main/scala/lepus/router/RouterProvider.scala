@@ -12,6 +12,8 @@ import cats.effect.std.Console
 import org.http4s.server.middleware.CORSPolicy
 
 import org.legogroup.woof.{ Output, LogLevel as WoofLogLevel, Filter as WoofFilter }
+import org.legogroup.woof.local.Local
+import org.legogroup.woof.Logger.StringLocal as WoofStringLocal
 
 import lepus.logger.LepusPrinter
 
@@ -43,6 +45,9 @@ trait RouterProvider[F[_]: Console](using Async[F]):
   type Filter = WoofFilter
   val Filter = WoofFilter
 
+  /** Alias of [[org.legogroup.woof.Logger.StringLocal]] */
+  type StringLocal = WoofStringLocal[F]
+
   /** A value to adjust the level of logging spit out by the server. Override can be done to filter logs at any level.
     *
     * example:
@@ -61,6 +66,9 @@ trait RouterProvider[F[_]: Console](using Async[F]):
 
   /** A value for string conversion to spit out received strings, etc. as logs. */
   val printer: LepusPrinter = LepusPrinter()
+
+  /** Build [[cats.effect.IOLocal]] with an array of String tuples*/
+  def local: F[StringLocal]
 
   /** Value to be processed to display the log on a console or other device. */
   val debugger: Output[F] = new Output[F]:
