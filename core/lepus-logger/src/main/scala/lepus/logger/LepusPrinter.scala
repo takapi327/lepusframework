@@ -7,11 +7,29 @@ package lepus.logger
 import org.legogroup.woof.{ ColorPrinter, EpochMillis, LogInfo, LogLevel, defaultTimeFormat }
 import org.legogroup.woof.ColorPrinter.Theme
 
+/** @param theme
+  * @param formatTime
+  */
 case class LepusPrinter(
   theme:      Theme                 = Theme.defaultTheme,
   formatTime: EpochMillis => String = defaultTimeFormat
 ) extends ColorPrinter(theme, formatTime):
 
+  /** Methods for receiving Throwables and writing them to the log.
+    *
+    * @param epochMillis
+    *   Time when logging occurs
+    * @param level
+    *   Log level
+    * @param info
+    *   Information on the location where the log occurs
+    * @param message
+    *   Message to be written to the log
+    * @param context
+    *   Logging stored in IOLocal
+    * @param exception
+    *   Exception to be written to the log
+    */
   def toPrint(
     epochMillis: EpochMillis,
     level:       LogLevel,
