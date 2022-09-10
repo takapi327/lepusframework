@@ -7,8 +7,12 @@ package lepus.logger
 import org.legogroup.woof.{ ColorPrinter, EpochMillis, LogInfo, LogLevel, defaultTimeFormat }
 import org.legogroup.woof.ColorPrinter.Theme
 
-/** @param theme
+/** A model for writing out and processing logs.
+  *
+  * @param theme
+  *   Format of the string to be written to the log
   * @param formatTime
+  *   Format of log occurrence time
   */
 case class LepusPrinter(
   theme:      Theme                 = Theme.defaultTheme,
