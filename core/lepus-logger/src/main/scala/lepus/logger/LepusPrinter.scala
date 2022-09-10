@@ -47,14 +47,22 @@ case class LepusPrinter(
       if context.isEmpty then ""
       else
         context
-          .map((key, value) => s"${ theme.contextKey }$key${ theme.reset }=${ theme.contextValue }$value")
+          .map { (key, value) =>
+            s"${ theme.contextKey }$key${ theme.reset }=${ theme.contextValue }$value"
+          }
           .mkString(", ") + theme.reset.getCode
+
     s"""
       |$time $levelColor[$prefix]$reset$contextPart $postfixColor${ info.prefix }$reset: $message $postfixColor${ info.postfix }$reset
       |${ exception.getMessage }
       |${ stackTrace(exception.getStackTrace) }
     """.stripMargin
 
+  /** The process of converting the exception's stack trace into a string so that it can be written to the log.
+    *
+    * @param traces
+    *   Array of stack traces that the exception has
+    */
   private def stackTrace(traces: Array[StackTraceElement]): String =
     traces
       .map { trace =>
