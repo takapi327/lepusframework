@@ -20,13 +20,13 @@ import org.legogroup.woof.Logger.StringLocal
   *   the effect type.
   */
 trait Logger[F[_]: StringLocal: Monad: Clock](
-  output:  Output[F],
-  outputs: Output[F]*
-)(using LepusPrinter, Filter)
+  output:  LepusOutput[F],
+  outputs: LepusOutput[F]*
+)(using Printer, Filter)
   extends WoofLogger[F]:
 
   val stringLocal: StringLocal[F] = summon[StringLocal[F]]
-  val printer:     LepusPrinter   = summon[LepusPrinter]
+  val printer:     Printer        = summon[Printer]
   val filter:      Filter         = summon[Filter]
 
   /** Methods for converting multiple arguments to strings for writing to the log.
@@ -50,31 +50,6 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
       .map(d => EpochMillis(d.toMillis))
       .map(now => printer.toPrint(now, level, info, message, context))
 
-  /** Methods for converting multiple arguments to strings for writing to the log.
-    *
-    * @param level
-    *   Log level
-    * @param info
-    *   Information on the part of the log that was spit out
-    * @param message
-    *   log-displaying message
-    * @param context
-    *   IOLocal internal storage
-    * @param exception
-    *   exception information
-    * @return
-    */
-  private[lepus] def makeLogString(
-    level:     LogLevel,
-    info:      LogInfo,
-    message:   String,
-    context:   List[(String, String)],
-    exception: Throwable
-  ): F[String] =
-    Clock[F].realTime
-      .map(d => EpochMillis(d.toMillis))
-      .map(now => printer.toPrint(now, level, info, message, context, exception))
-
   /** Methods for processing to be written to the log.
     *
     * @param level
@@ -87,6 +62,12 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
     level match
       case LogLevel.Error => allOutputs.traverse_(_.outputError(s))
       case _              => allOutputs.traverse_(_.output(s))
+
+  private[lepus] def doOutputs(level: LogLevel, s: String, exception: Throwable): F[Unit] =
+    val allOutputs = outputs.prepended(output)
+    level match
+      case LogLevel.Error => allOutputs.traverse_(v => v.outputError(s) >> v.outputStackTrace(exception))
+      case _              => allOutputs.traverse_(v => v.output(s) >> v.outputStackTrace(exception))
 
   /** Methods for processing internal storage and formatting and writing logs.
     *
@@ -118,8 +99,8 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
   def doLog(level: LogLevel, message: String, exception: Throwable)(using logInfo: LogInfo): F[Unit] =
     for
       context <- stringLocal.ask
-      logLine <- makeLogString(level, logInfo, message, context, exception)
-      _       <- doOutputs(level, logLine).whenA(filter(LogLine(level, logInfo, logLine, context)))
+      logLine <- makeLogString(level, logInfo, message, context)
+      _       <- doOutputs(level, logLine, exception).whenA(filter(LogLine(level, logInfo, logLine, context)))
     yield ()
 
   /** A method that allows you to specify the level of logging by the method name. */
@@ -131,7 +112,7 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
 
 object Logger:
   def apply[F[_]: StringLocal: Monad: Clock](
-    output:  Output[F],
-    outputs: Output[F]*
-  )(using LepusPrinter, Filter): Logger[F] =
+    output:  LepusOutput[F],
+    outputs: LepusOutput[F]*
+  )(using Printer, Filter): Logger[F] =
     new Logger[F](output, outputs: _*) {}

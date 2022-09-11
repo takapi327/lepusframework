@@ -9,18 +9,18 @@ import cats.Monad
 import cats.effect.IO
 import cats.effect.kernel.Clock
 
-import org.legogroup.woof.{ Filter, Output, LogInfo, LogLevel }
+import org.legogroup.woof.{ Filter, Output, LogInfo, LogLevel, Printer }
 import org.legogroup.woof.Logger.StringLocal
 import org.legogroup.woof.local.Local
 
 import org.typelevel.log4cats.Logger as Log4catsLogger
 
-import lepus.logger.{ Logger, LepusPrinter }
+import lepus.logger.{ Logger, LepusOutput }
 
 private[lepus] class ServerLogger[F[_]: StringLocal: Monad: Clock](
-  output:  Output[F],
-  outputs: Output[F]*
-)(using LepusPrinter, Filter, LogInfo)
+  output:  LepusOutput[F],
+  outputs: LepusOutput[F]*
+)(using Printer, Filter, LogInfo)
   extends Logger[F](output, outputs: _*),
           Log4catsLogger[F]:
 
@@ -38,7 +38,7 @@ private[lepus] class ServerLogger[F[_]: StringLocal: Monad: Clock](
 
 private[lepus] object ServerLogger:
   def apply[F[_]: StringLocal: Monad: Clock](
-    output:  Output[F],
-    outputs: Output[F]*
-  )(using LepusPrinter, Filter, LogInfo): ServerLogger[F] =
+    output:  LepusOutput[F],
+    outputs: LepusOutput[F]*
+  )(using Printer, Filter, LogInfo): ServerLogger[F] =
     new ServerLogger[F](output, outputs: _*)
