@@ -123,11 +123,11 @@ trait Logger[F[_]: StringLocal: Monad: Clock](
     yield ()
 
   /** A method that allows you to specify the level of logging by the method name. */
-  def debug(message: => String)(t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Debug, message, t)
-  def error(message: => String)(t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Error, message, t)
-  def info(message: => String)(t: Throwable)(using LogInfo):  F[Unit] = doLog(LogLevel.Info, message, t)
-  def trace(message: => String)(t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Trace, message, t)
-  def warn(message: => String)(t: Throwable)(using LogInfo):  F[Unit] = doLog(LogLevel.Warn, message, t)
+  def debug(message: => String, t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Debug, message, t)
+  def error(message: => String, t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Error, message, t)
+  def info(message: => String, t: Throwable)(using LogInfo):  F[Unit] = doLog(LogLevel.Info, message, t)
+  def trace(message: => String, t: Throwable)(using LogInfo): F[Unit] = doLog(LogLevel.Trace, message, t)
+  def warn(message: => String, t: Throwable)(using LogInfo):  F[Unit] = doLog(LogLevel.Warn, message, t)
 
 object Logger:
   def apply[F[_]: StringLocal: Monad: Clock](
