@@ -22,7 +22,7 @@ import lepus.router.ConvertResult.*
   * @tparam F
   *   the effect type.
   */
-trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
+private[lepus] trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
 
   /** Receives HTTP requests, compares and verifies them with endpoints, and binds them to server logic.
     *

@@ -26,7 +26,7 @@ import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
 
-object LepusServer extends IOApp, ServerInterpreter[IO]:
+private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"

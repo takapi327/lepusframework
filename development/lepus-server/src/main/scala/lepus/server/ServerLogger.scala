@@ -17,7 +17,7 @@ import org.typelevel.log4cats.Logger as Log4catsLogger
 
 import lepus.logger.{ Logger, LepusPrinter }
 
-class ServerLogger[F[_]: StringLocal: Monad: Clock](
+private[lepus] class ServerLogger[F[_]: StringLocal: Monad: Clock](
   output:  Output[F],
   outputs: Output[F]*
 )(using LepusPrinter, Filter, LogInfo)
@@ -36,7 +36,7 @@ class ServerLogger[F[_]: StringLocal: Monad: Clock](
   override def trace(t: Throwable)(message: => String): F[Unit] = doLog(LogLevel.Trace, message, t)
   override def warn(t: Throwable)(message: => String):  F[Unit] = doLog(LogLevel.Warn, message, t)
 
-object ServerLogger:
+private[lepus] object ServerLogger:
   def apply[F[_]: StringLocal: Monad: Clock](
     output:  Output[F],
     outputs: Output[F]*
