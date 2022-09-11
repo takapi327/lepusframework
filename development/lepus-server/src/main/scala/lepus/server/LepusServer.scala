@@ -11,7 +11,7 @@ import cats.effect.std.Console
 
 import com.comcast.ip4s.*
 
-import org.legogroup.woof.{ Output, Filter }
+import org.legogroup.woof.{ Output, Filter, Printer }
 import org.legogroup.woof.given
 import org.legogroup.woof.Logger.StringLocal
 
@@ -20,10 +20,9 @@ import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-import lepus.logger.{ Logger, LepusPrinter }
-
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
+import lepus.logger.Logger
 import Exception.*
 
 private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
@@ -40,8 +39,8 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    given Filter       = routerProvider.filter
-    given LepusPrinter = routerProvider.printer
+    given Filter  = routerProvider.filter
+    given Printer = routerProvider.printer
 
     (for
       given StringLocal[IO] <- routerProvider.local
@@ -52,7 +51,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
 
   private def buildApp(
     routerProvider: RouterProvider[IO]
-  )(using Filter, LepusPrinter, StringLocal[IO]): Http4sRoutes[IO] =
+  )(using Filter, Printer, StringLocal[IO]): Http4sRoutes[IO] =
     given Logger[IO] = Logger[IO](routerProvider.debugger)
     (routerProvider.cors match
       case Some(cors) =>
