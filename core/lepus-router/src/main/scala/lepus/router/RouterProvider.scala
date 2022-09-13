@@ -67,9 +67,6 @@ trait RouterProvider[F[_]: Console](using Async[F]):
   /** A value for string conversion to spit out received strings, etc. as logs. */
   val printer: Printer = ColorPrinter()
 
-  /** Build [[cats.effect.IOLocal]] with an array of String tuples */
-  def local: F[StringLocal]
-
   /** Value to be processed to display the log on a console or other device. */
   val debugger: LepusOutput[F] = LepusOutput.fromConsole
 

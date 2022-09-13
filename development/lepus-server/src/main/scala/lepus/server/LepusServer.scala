@@ -14,6 +14,7 @@ import com.comcast.ip4s.*
 import org.legogroup.woof.{ Output, Filter, Printer }
 import org.legogroup.woof.given
 import org.legogroup.woof.Logger.StringLocal
+import org.legogroup.woof.local.Local
 
 import org.http4s.*
 import org.http4s.HttpRoutes as Http4sRoutes
@@ -43,7 +44,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
     given Printer = routerProvider.printer
 
     (for
-      given StringLocal[IO] <- routerProvider.local
+      given StringLocal[IO] <- Local.makeIoLocal[List[(String, String)]]
       logger                <- IO.delay { ServerLogger(routerProvider.debugger) }
       httpApp               <- IO.delay { buildApp(routerProvider) }
       server                <- buildServer(host, port, httpApp.orNotFound, logger).use(_ => IO.never)

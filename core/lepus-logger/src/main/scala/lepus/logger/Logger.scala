@@ -116,3 +116,5 @@ object Logger:
     outputs: LepusOutput[F]*
   )(using Printer, Filter): Logger[F] =
     new Logger[F](output, outputs: _*) {}
+
+  def apply[F[_]](using logger: Logger[F]): Logger[F] = logger
