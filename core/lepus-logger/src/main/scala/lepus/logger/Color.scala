@@ -52,6 +52,7 @@ object Color:
   given Show[Style]      = Show.fromToString[Style]
   given Show[Foreground] = Show.fromToString[Foreground]
   given Show[Background] = Show.fromToString[Background]
+  given Show[Composite]  = Show.fromToString[Composite]
 
   extension (color: Color)
     def withStyle(style: Style): Composite = Composite(color.code + style.code)
@@ -60,3 +61,4 @@ object Color:
 export Color.given_Show_Style
 export Color.given_Show_Foreground
 export Color.given_Show_Background
+export Color.given_Show_Composite
