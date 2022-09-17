@@ -4,44 +4,49 @@
 
 package lepus.logger
 
-import cats.Show
+import java.time.format.DateTimeFormatter
+import java.time.{ Instant, ZoneId }
 
-/**
- * An object that summarizes [[scala.io.AnsiColor]] into an enum.
- */
+import scala.io.AnsiColor.RESET
+
+import cats.Show
+import cats.syntax.show.*
+
+import Color.*
+
+trait Formatter:
+
+  @inline def withColor[C <: Color](color: C, msg: String)(using Show[C]): String =
+    show"$color$msg$RESET"
+
+  def format(msg: LogMessage): String
+
 object Formatter:
 
-  enum Style(val code: String):
-    override def toString: String = code
-    def show: Show[Style] = Show.fromToString[Style]
-    case Bold       extends Style(Console.BOLD)
-    case Blink      extends Style(Console.BLINK)
-    case Underlined extends Style(Console.UNDERLINED)
-    case Reversed   extends Style(Console.REVERSED)
-    case Invisible  extends Style(Console.INVISIBLE)
-    case Reset      extends Style(Console.RESET)
+  def formatCtx(context: Map[String, String]): String =
+    if context.isEmpty then ""
+    else context.map(ctx => {
+      val (key, value) = ctx
+      s"$key=$value"
+    }).mkString(",")
 
-  enum Foreground(val code: String):
-    override def toString: String = code
-    def show: Show[Foreground] = Show.fromToString[Foreground]
-    case Black   extends Foreground(Console.BLACK)
-    case Green   extends Foreground(Console.GREEN)
-    case Yellow  extends Foreground(Console.YELLOW)
-    case Red     extends Foreground(Console.RED)
-    case Bold    extends Foreground(Console.BOLD)
-    case Blue    extends Foreground(Console.BLUE)
-    case Magenta extends Foreground(Console.MAGENTA)
-    case Cyan    extends Foreground(Console.CYAN)
-    case White   extends Foreground(Console.WHITE)
+  def formatTimestamp(timestamp: Long): String =
+    DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss")
+      .withZone(ZoneId.systemDefault())
+      .format(Instant.ofEpochMilli(timestamp))
 
-  enum Background(val code: String):
-    override def toString: String = code
-    def show: Show[Background] = Show.fromToString[Background]
-    case Black   extends Background(Console.BLACK_B)
-    case Red     extends Background(Console.RED_B)
-    case Green   extends Background(Console.GREEN_B)
-    case Yellow  extends Background(Console.YELLOW_B)
-    case Blue    extends Background(Console.BLUE_B)
-    case Magenta extends Background(Console.MAGENTA_B)
-    case Cyan    extends Background(Console.CYAN_B)
-    case White   extends Background(Console.WHITE_B)
+object DefaultFormatter extends Formatter:
+  override def format(msg: LogMessage): String =
+    val timestamp = withColor(Foreground.White, Formatter.formatTimestamp(msg.timestamp))
+    val level = msg.level match
+      case Level.Trace => withColor(Foreground.Blue,   msg.level.toString)
+      case Level.Debug => withColor(Foreground.White,  msg.level.toString)
+      case Level.Info  => withColor(Foreground.Blue,   msg.level.toString)
+      case Level.Warn  => withColor(Foreground.Yellow, msg.level.toString)
+      case Level.Error => withColor(Foreground.Red,    msg.level.toString)
+    val context    = withColor(Foreground.White, Formatter.formatCtx(msg.context))
+    val threadName = withColor(Foreground.Green, msg.threadName)
+    val enclosureName = withColor(Foreground.Magenta, msg.execLocation.enclosureName)
+    val fileName = withColor(Foreground.Blue withStyle Style.Underlined, s"${msg.execLocation.fileName}:${msg.execLocation.lineNumber}")
+    val message = withColor(Foreground.White, msg.message.value)
+    s"$timestamp $level [$threadName] $enclosureName: $message ($fileName) $context"
