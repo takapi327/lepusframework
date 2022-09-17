@@ -5,6 +5,7 @@
 package lepus.logger
 
 /**
+ * A class for storing information, such as the class and object that executed the logging.
  *
  * @param fileName
  *   File Name
@@ -21,3 +22,5 @@ case class ExecLocation(
   packageName:   String,
   lineNumber:    Int
 )
+
+type Execute[F[_], T] = ExecLocation ?=> F[T]
