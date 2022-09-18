@@ -59,7 +59,7 @@ lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router
   .settings(libraryDependencies ++= routerDependencies ++ specs2Deps ++ Seq(
     magnolia3
   ))
-  .dependsOn(LepusProject, LepusLoggerProject)
+  .dependsOn(LepusProject)
   .enablePlugins(spray.boilerplate.BoilerplatePlugin)
 
 lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "core/lepus-logback")
@@ -81,7 +81,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusRouterProject)
+  .dependsOn(LepusRouterProject, LepusLoggerProject)
 
 lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
