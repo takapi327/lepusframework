@@ -45,14 +45,14 @@ object FormatterTest extends Specification:
       val timestamp  = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
       val threadName = Thread.currentThread().getName
       val logMessage =
-        LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
+        LogMessage(Level.Info, "test", summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
       val timestampStr     = DefaultFormatter.withColor(Color.Foreground.White, "2022-09-17 20:17:42")
       val levelStr         = DefaultFormatter.withColor(Color.Foreground.Blue, "Info")
       val threadNameStr    = DefaultFormatter.withColor(Color.Foreground.Green, threadName)
       val enclosureNameStr = DefaultFormatter.withColor(Color.Foreground.Magenta, "lepus.logger.FormatterTest$")
       val messageStr       = DefaultFormatter.withColor(Color.Foreground.White, "test")
       val fileNameStr =
-        DefaultFormatter.withColor(Color.Foreground.Blue withStyle Color.Style.Underlined, "FormatterTest.scala:49")
+        DefaultFormatter.withColor(Color.Foreground.Blue withStyle Color.Style.Underlined, "FormatterTest.scala:48")
       val contextStr = DefaultFormatter.withColor(Color.Foreground.White, "")
       DefaultFormatter.format(
         logMessage
@@ -66,6 +66,6 @@ object FormatterTest extends Specification:
         LogMessage(Level.Info, "test", summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
       DefaultFormatter.format(
         logMessage
-      ) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:49)"
+      ) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:48)"
     }
   }
