@@ -4,8 +4,6 @@
 
 package lepus.logger
 
-import cats.Eval
-
 /**
  * A class that summarizes the information needed to write out logs.
  *
@@ -26,7 +24,7 @@ import cats.Eval
  */
 case class LogMessage(
   level:        Level,
-  message:      Eval[String],
+  message:      String,
   execLocation: ExecLocation,
   context:      Map[String, String],
   exception:    Option[Throwable],
