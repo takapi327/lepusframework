@@ -38,10 +38,9 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    (for
-      httpApp <- IO.delay { buildApp(routerProvider) }
-      server  <- buildServer(host, port, httpApp.orNotFound).use(_ => IO.never)
-    yield server).as(ExitCode.Success)
+    buildServer(host, port, buildApp(routerProvider).orNotFound)
+      .use(_ => IO.never)
+      .as(ExitCode.Success)
 
   private def buildApp(
     routerProvider: RouterProvider[IO]

@@ -72,7 +72,6 @@ lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger
 
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= serverDependencies)
   .settings(
     (Compile / unmanagedSourceDirectories) += {
       val suffix = CrossVersion.partialVersion(scalaVersion.value) match {

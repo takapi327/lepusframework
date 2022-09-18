@@ -55,8 +55,6 @@ object Dependencies {
 
   val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
 
-  val serverDependencies = Seq(logback % Test)
-
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
   val routerDependencies = http4s ++ circe ++ testDependencies
