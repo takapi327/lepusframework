@@ -13,8 +13,6 @@ import cats.effect.IO
 
 import org.http4s.{ Method, Request, Response, HttpRoutes as Http4sRoutes }
 
-import lepus.logger.Logger
-
 import lepus.router.RouterConstructor
 import lepus.router.http.Endpoint
 
@@ -27,4 +25,4 @@ package object router extends LepusRouter:
   given Semigroup[Http4sRoutes[IO]] = _ combineK _
 
   type Routing[F[_]]     = (Endpoint[?], RouterConstructor[F, ?])
-  type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> Logger[F] ?=> HttpRoutes[F]
+  type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> HttpRoutes[F]

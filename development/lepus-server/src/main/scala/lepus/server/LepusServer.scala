@@ -11,22 +11,20 @@ import cats.effect.std.Console
 
 import com.comcast.ip4s.*
 
-import org.legogroup.woof.{ Output, Filter, Printer }
-import org.legogroup.woof.given
-import org.legogroup.woof.Logger.StringLocal
-import org.legogroup.woof.local.Local
+import org.typelevel.log4cats.Logger as Log4catsLogger
 
 import org.http4s.*
 import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
+import lepus.logger.given
+
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
-import lepus.logger.Logger
 import Exception.*
 
-private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
+private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLogging[IO]:
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"
@@ -40,20 +38,14 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    given Filter  = routerProvider.filter
-    given Printer = routerProvider.printer
-
     (for
-      given StringLocal[IO] <- Local.makeIoLocal[List[(String, String)]]
-      logger                <- IO.delay { ServerLogger(routerProvider.debugger) }
-      httpApp               <- IO.delay { buildApp(routerProvider) }
-      server                <- buildServer(host, port, httpApp.orNotFound, logger).use(_ => IO.never)
+      httpApp <- IO.delay { buildApp(routerProvider) }
+      server  <- buildServer(host, port, httpApp.orNotFound).use(_ => IO.never)
     yield server).as(ExitCode.Success)
 
   private def buildApp(
     routerProvider: RouterProvider[IO]
-  )(using Filter, Printer, StringLocal[IO]): Http4sRoutes[IO] =
-    given Logger[IO] = Logger[IO](routerProvider.debugger)
+  ): Http4sRoutes[IO] =
     (routerProvider.cors match
       case Some(cors) =>
         routerProvider.routes.map {
@@ -69,10 +61,9 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
     ).reduce
 
   private def buildServer(
-    host:   String,
-    port:   Int,
-    app:    HttpApp[IO],
-    logger: ServerLogger[IO]
+    host: String,
+    port: Int,
+    app:  HttpApp[IO],
   ): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
@@ -82,10 +73,10 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO]:
       .withErrorHandler {
         case error =>
           logger
-            .error(error)(s"Unexpected error: $error")
+            .error(s"Unexpected error: $error", error)
             .as(Response(Status.InternalServerError))
       }
-      .withLogger(logger)
+      .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
       .build
 
   private def loadRouterProvider(): RouterProvider[IO] =

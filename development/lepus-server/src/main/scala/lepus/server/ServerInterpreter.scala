@@ -10,8 +10,6 @@ import cats.effect.{ Async, Sync }
 
 import org.http4s.{ Request as Request4s, HttpRoutes as Http4sRoutes, Response as Response4s }
 
-import lepus.logger.Logger
-
 import lepus.router.*
 import lepus.router.http.*
 import lepus.router.internal.*
@@ -35,11 +33,11 @@ private[lepus] trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
     * @return
     *   If the request and endpoint match, http4s HttpRoutes are returned and the server logic is executed.
     */
-  def bindFromRequest[T](routes: Requestable[F][T], endpoint: Endpoint[?])(using logger: Logger[F]): Http4sRoutes[F] =
+  def bindFromRequest[T](routes: Requestable[F][T], endpoint: Endpoint[?]): Http4sRoutes[F] =
     Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
         decoded  <- OptionT.fromOption[F](decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint))
-        logic    <- OptionT.fromOption[F](routes(using decoded)(using request4s)(using logger).lift(request4s.method))
+        logic    <- OptionT.fromOption[F](routes(using decoded)(using request4s).lift(request4s.method))
         response <- OptionT.liftF(logic)
       yield response
     }
