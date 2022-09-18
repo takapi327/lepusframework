@@ -10,14 +10,13 @@ import cats.syntax.all.*
 import cats.effect.kernel.Clock
 import cats.effect.std.Console
 
-/**
- * An object to enforce the minimum required values for log output.
- *
- * @tparam F
- *   the effect type.
- *   
- * example: [[LoggingIO]]
- */
+/** An object to enforce the minimum required values for log output.
+  *
+  * @tparam F
+  *   the effect type.
+  *
+  * example: [[LoggingIO]]
+  */
 trait Logging[F[_]]:
 
   def output:    Output[F]
