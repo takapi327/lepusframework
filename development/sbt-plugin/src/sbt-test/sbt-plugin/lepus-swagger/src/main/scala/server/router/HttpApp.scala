@@ -10,15 +10,11 @@ import cats.data.NonEmptyList
 
 import cats.effect.IO
 
-import org.legogroup.woof.local.Local
-
 import lepus.router.{ *, given }
 
 import lepus.swagger.*
 
 object HttpApp extends RouterProvider[IO]:
-
-  override def local: IO[StringLocal] = Local.makeIoLocal[List[(String, String)]]
 
   override def routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> HelloRoute
