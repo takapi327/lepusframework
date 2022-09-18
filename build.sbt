@@ -68,7 +68,7 @@ lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "core/lepus-logb
 
 lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= Seq(woof) ++ specs2Deps)
+  .settings(libraryDependencies ++= Seq(catsEffect) ++ specs2Deps)
 
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
