@@ -63,7 +63,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
   private def buildServer(
     host: String,
     port: Int,
-    app:  HttpApp[IO],
+    app:  HttpApp[IO]
   ): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]

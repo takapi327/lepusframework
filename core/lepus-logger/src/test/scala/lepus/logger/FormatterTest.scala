@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -44,23 +44,30 @@ object FormatterTest extends Specification:
     }
 
     "The formatting process of DefaultFormatter becomes the specified string." in {
-      val timestamp        = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
-      val threadName       = Thread.currentThread().getName
-      val logMessage       = LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
+      val timestamp  = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
+      val threadName = Thread.currentThread().getName
+      val logMessage =
+        LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
       val timestampStr     = DefaultFormatter.withColor(Color.Foreground.White, "2022-09-17 20:17:42")
       val levelStr         = DefaultFormatter.withColor(Color.Foreground.Blue, "Info")
       val threadNameStr    = DefaultFormatter.withColor(Color.Foreground.Green, threadName)
       val enclosureNameStr = DefaultFormatter.withColor(Color.Foreground.Magenta, "lepus.logger.FormatterTest$")
       val messageStr       = DefaultFormatter.withColor(Color.Foreground.White, "test")
-      val fileNameStr      = DefaultFormatter.withColor(Color.Foreground.Blue withStyle Color.Style.Underlined, "FormatterTest.scala:49")
-      val contextStr       = DefaultFormatter.withColor(Color.Foreground.White, "")
-      DefaultFormatter.format(logMessage) === s"$timestampStr $levelStr [$threadNameStr] $enclosureNameStr: $messageStr ($fileNameStr) $contextStr"
+      val fileNameStr =
+        DefaultFormatter.withColor(Color.Foreground.Blue withStyle Color.Style.Underlined, "FormatterTest.scala:49")
+      val contextStr = DefaultFormatter.withColor(Color.Foreground.White, "")
+      DefaultFormatter.format(
+        logMessage
+      ) === s"$timestampStr $levelStr [$threadNameStr] $enclosureNameStr: $messageStr ($fileNameStr) $contextStr"
     }
 
     "DefaultFormatter formatting process does not result in the specified string." in {
       val timestamp  = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
       val threadName = Thread.currentThread().getName
-      val logMessage = LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
-      DefaultFormatter.format(logMessage) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:49)"
+      val logMessage =
+        LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
+      DefaultFormatter.format(
+        logMessage
+      ) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:49)"
     }
   }

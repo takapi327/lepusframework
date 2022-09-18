@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -10,9 +10,8 @@ import cats.syntax.show.*
 trait Color:
   def code: String
 
-/**
- * An object that summarizes [[scala.io.AnsiColor]] into an enum.
- */
+/** An object that summarizes [[scala.io.AnsiColor]] into an enum.
+  */
 object Color:
   enum Style(val code: String) extends Color:
     override def toString: String = code
@@ -55,7 +54,7 @@ object Color:
   given Show[Composite]  = Show.fromToString[Composite]
 
   extension (color: Color)
-    def withStyle(style: Style): Composite = Composite(color.code + style.code)
+    def withStyle(style: Style):                Composite = Composite(color.code + style.code)
     def withBackground(background: Background): Composite = Composite(color.code + background.code)
 
 export Color.given_Show_Style
