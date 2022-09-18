@@ -9,7 +9,6 @@ import cats.effect.std.Console
 /**
  * Object to write out logs using Cats effect's Console.
  *
- * @param console$F$0
  * @tparam F
  *   the effect type.
  */

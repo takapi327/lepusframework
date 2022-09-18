@@ -16,7 +16,7 @@ import Color.*
 
 trait Formatter:
 
-  @inline def withColor[C <: Color](color: C, msg: String)(using Show[C]): String =
+  inline def withColor[C <: Color](color: C, msg: String)(using Show[C]): String =
     show"$color$msg$RESET"
 
   def format(msg: LogMessage): String
@@ -39,7 +39,7 @@ object DefaultFormatter extends Formatter:
   override def format(msg: LogMessage): String =
     val timestamp = withColor(Foreground.White, Formatter.formatTimestamp(msg.timestamp))
     val level = msg.level match
-      case Level.Trace => withColor(Foreground.Blue,   msg.level.toString)
+      case Level.Trace => withColor(Foreground.Cyan,   msg.level.toString)
       case Level.Debug => withColor(Foreground.White,  msg.level.toString)
       case Level.Info  => withColor(Foreground.Blue,   msg.level.toString)
       case Level.Warn  => withColor(Foreground.Yellow, msg.level.toString)
@@ -48,5 +48,5 @@ object DefaultFormatter extends Formatter:
     val threadName = withColor(Foreground.Green, msg.threadName)
     val enclosureName = withColor(Foreground.Magenta, msg.execLocation.enclosureName)
     val fileName = withColor(Foreground.Blue withStyle Style.Underlined, s"${msg.execLocation.fileName}:${msg.execLocation.lineNumber}")
-    val message = withColor(Foreground.White, msg.message.value)
+    val message = withColor(Foreground.White, msg.message)
     s"$timestamp $level [$threadName] $enclosureName: $message ($fileName) $context"
