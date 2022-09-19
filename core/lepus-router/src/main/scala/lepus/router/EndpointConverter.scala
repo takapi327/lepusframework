@@ -16,13 +16,29 @@ import Schema.*
 @implicitNotFound("Could not find an implicit EndpointConverter[${S}, ${T}]")
 trait EndpointConverter[S, T]:
 
+  /** Methods for converting from type S to type T.
+    *
+    * @param from
+    *   S type mainly String type
+    * @return
+    *   Type T converted from type S
+    */
   def stringTo(from: S): T
 
+  /** Convert the model from type S to type T, depending on success or failure.
+    *
+    * @param str
+    *   S type mainly String type
+    * @return
+    *   DecodeResult model with T as a parameter.
+    */
   def decode(str: S): DecodeResult[T] =
     Try { stringTo(str) } match
       case Success(s) => DecodeResult.Success(s)
       case Failure(e) => DecodeResult.InvalidValue(str.toString, Some(e))
 
+  /** Value for generating an arbitrary model from the type of T.
+    */
   def schema: Schema[T]
 
 object EndpointConverter:
@@ -51,14 +67,21 @@ object EndpointConverter:
   given EndpointConverter[String, UUID]           = convertT[String, UUID](UUID.fromString)
 
   /** Variables for converting path and query parameter values to arrays of any type. */
-  given [T](using schema: Schema[T]): EndpointConverter[String, Array[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Array[T]] =
     convertT(_.split(",").asInstanceOf)
-  given [T](using schema: Schema[T]): EndpointConverter[String, List[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, List[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toList)
-  given [T](using schema: Schema[T]): EndpointConverter[String, Seq[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Seq[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSeq)
-  given [T](using schema: Schema[T]): EndpointConverter[String, Set[T]] =
+  given [T](using Schema[T]): EndpointConverter[String, Set[T]] =
     convertT(summon[EndpointConverter[String, Array[T]]].stringTo(_).toSet)
+
+  /** Variable for converting path and query parameter values to any type of Option. */
+  given [T](using Schema[T])(using converter: EndpointConverter[String, T]): EndpointConverter[String, Option[T]] =
+    convertT(v =>
+      if v.nonEmpty then Some(converter.stringTo(v))
+      else None
+    )
 
   /** Generate an EndpointConverter that performs the conversion of type S to type T.
     *

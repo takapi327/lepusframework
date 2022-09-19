@@ -1,7 +1,7 @@
 ![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/lepus-v0.3.0-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.3.1-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -80,14 +80,15 @@ package sample
 import cats.effect.IO
 import cats.data.NonEmptyList
 
+import org.http4s.dsl.io.*
+  
 import lepus.router.{ *, given }
-import lepus.router.http.Response.*
 
 object HelloApp extends RouterProvider[IO]:
 
   override def routes = NonEmptyList.of(
-    "hello" / bindPath[String]("name") -> RouterConstructor.of {
-      case GET => IO(NoContent)
+    "hello" / bindPath[String]("name") ->> RouterConstructor.of {
+      case GET => Ok(s"Hello ${summon[String]}")
     }
   )
 ```
@@ -116,11 +117,13 @@ import cats.effect.*
 import io.circe.*
 import io.circe.generic.semiauto.*
 
-import lepus.router.*
-import lepus.router.http.*
+import org.http4s.Status.*
+import org.http4s.dsl.io.*
+
+import lepus.router.{ *, given }
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
-import lepus.router.http.Response.*
+
 import lepus.swagger.*
 import lepus.swagger.model.OpenApiResponse
 
@@ -136,13 +139,19 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
 
   override def responses = {
     case GET => List(
-      OpenApiResponse[Sample](Status.NoContent, List.empty, "Sample information acquisition")
+      OpenApiResponse[Sample](NoContent, List.empty, "Sample information acquisition")
     )
   }
 
   override def routes = {
-    case GET => IO(NoContent)
+    case GET => Ok(s"Hello ${summon[String]}")
   }
+
+object HelloApp extends RouterProvider[IO]:
+
+  override def routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") ->> HelloRoute
+  )
 ```
 
 After running Compile, the generateApi command generates OpenApi documentation.
