@@ -8,7 +8,9 @@ import scala.collection.immutable.ListMap
 
 import io.circe.Encoder
 
-import lepus.router.http.{ Header as RouteHeader, Status }
+import org.http4s.Status
+
+import lepus.router.http.Header as RouteHeader
 import lepus.router.model.Schema
 
 import lepus.swagger.SchemaToOpenApiSchema
@@ -31,7 +33,9 @@ case class OpenApiResponse[T: Encoder: Schema](
 
   def toUI(schemaToOpenApiSchema: SchemaToOpenApiSchema): OpenApiResponse.UI =
     val headerList = headers
-      .map(header => header.name -> OpenApiResponse.Header(schemaToOpenApiSchema(header.schema), header.description))
+      .map(header =>
+        header.name.name -> OpenApiResponse.Header(schemaToOpenApiSchema(header.schema), header.description)
+      )
       .to(ListMap)
     OpenApiResponse.UI(
       headers     = headerList,

@@ -8,7 +8,7 @@ import lepus.router.RouterConstructor
 import lepus.router.Http
 import lepus.router.http.Request
 
-import lepus.swagger.model.{ Tag, OpenApiResponse }
+import lepus.swagger.model.{ Tag, OpenApiResponse, RequestBody }
 
 /** Model for generating OpenApi documentation.
   *
@@ -48,7 +48,7 @@ trait OpenApiConstructor[F[_], T] extends RouterConstructor[F, T]:
   def tags: Set[Tag] = Set.empty[Tag]
 
   /** The body that each method request receives */
-  def bodies: Http[Request.Body[?]] = PartialFunction.empty
+  def bodies: Http[RequestBody[?]] = PartialFunction.empty
 
   /** An array of responses returned by each method. */
   def responses: Http[List[OpenApiResponse[?]]] = PartialFunction.empty

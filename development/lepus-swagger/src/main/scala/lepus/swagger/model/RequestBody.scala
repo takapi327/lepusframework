@@ -7,22 +7,36 @@ package lepus.swagger.model
 import scala.collection.immutable.ListMap
 
 import lepus.router.http.Request
+import lepus.router.model.Schema
 
 import lepus.swagger.SchemaToOpenApiSchema
 
-case class RequestBody(
-  description: String,
-  required:    Boolean,
-  content:     ListMap[String, Content]
-)
+case class RequestBody[T](
+  description:      String,
+  required:         Boolean
+)(using val schema: Schema[T])
 
-private[lepus] object RequestBody:
+object RequestBody:
 
-  val empty = RequestBody("RequestBody is not specified", false, ListMap.empty)
+  def apply[T: Schema](
+    description: String,
+    required:    Boolean = true
+  ): RequestBody[T] = RequestBody(description, required)
 
-  def build[T](body: Request.Body[T], schemaToOpenApiSchema: SchemaToOpenApiSchema): RequestBody =
-    RequestBody(
+  private[lepus] case class UI(
+    description: String,
+    required:    Boolean,
+    content:     ListMap[String, Content]
+  )
+
+  private[lepus] object UI:
+    val empty = UI("RequestBody is not specified", false, ListMap.empty)
+
+    def apply[T](
+      body:   RequestBody[T],
+      schema: SchemaToOpenApiSchema
+    ): UI = UI(
       description = body.description,
-      required    = true,
-      content     = ListMap("application/json" -> Content.build(body.schema, schemaToOpenApiSchema))
+      required    = body.required,
+      content     = ListMap("application/json" -> Content.build(body.schema, schema))
     )

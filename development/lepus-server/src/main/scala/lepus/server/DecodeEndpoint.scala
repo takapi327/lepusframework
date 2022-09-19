@@ -12,12 +12,12 @@ import lepus.router.internal.*
 
 object DecodeEndpoint:
 
-  type DecodedResult = Vector[(RequestEndpoint.Endpoint[?], DecodeResult[?])]
+  type DecodedResult = Vector[(Endpoint[?], DecodeResult[?])]
   type Result        = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
 
   def apply(
-    request:  HttpRequest,
-    endpoint: RequestEndpoint.Endpoint[?]
+    request:  Request,
+    endpoint: Endpoint[?]
   ): (DecodeEndpointResult, DecodedResult) =
 
     val endpoints = endpoint.asVector()
@@ -48,14 +48,14 @@ object DecodeEndpoint:
     */
   @tailrec private def tailrecMatchPath(
     request:   DecodePathRequest,
-    endpoints: Vector[RequestEndpoint.Endpoint[?]],
+    endpoints: Vector[Endpoint[?]],
     result:    DecodeEndpointResult.Success,
     decoded:   DecodedResult
   ): (DecodeEndpointResult, DecodedResult) =
     endpoints.headAndTail match
       case Some((head, tail)) =>
         head match
-          case RequestEndpoint.FixedPath(name, _) =>
+          case Endpoint.FixedPath(name, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
@@ -66,7 +66,7 @@ object DecodeEndpoint:
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-          case RequestEndpoint.PathParam(_, converter, _) =>
+          case Endpoint.PathParam(_, converter, _, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
@@ -75,7 +75,7 @@ object DecodeEndpoint:
               case None =>
                 val failure = DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing)
                 (failure, decoded)
-          case RequestEndpoint.ValidatePathParam(_, converter, validator, _) =>
+          case Endpoint.ValidatePathParam(_, converter, validator, _, _) =>
             val (nextSegment, decodeServerRequest) = request.nextPathSegment
             nextSegment match
               case Some(segment) =>
@@ -112,20 +112,25 @@ object DecodeEndpoint:
     */
   @tailrec private def tailrecMatchQuery(
     request:   DecodeQueryRequest,
-    endpoints: Vector[RequestEndpoint.Endpoint[?]],
+    endpoints: Vector[Endpoint[?]],
     result:    DecodeEndpointResult.Success,
     decoded:   DecodedResult
   ): (DecodeEndpointResult, DecodedResult) =
     endpoints.headAndTail match
       case Some((head, tail)) =>
         head match
-          case RequestEndpoint.QueryParam(key, converter, _) =>
+          case Endpoint.QueryParam(key, converter, required, _) =>
             request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
                 val newDecoded = decoded :+ ((head, converter.decode(values.mkString(","))))
                 tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
+              case (None, decodeServerRequest) =>
+                if required then (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                else
+                  val newDecoded = decoded :+ ((head, converter.decode("")))
+                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
-          case RequestEndpoint.ValidateQueryParam(key, converter, validator, _) =>
+          case Endpoint.ValidateQueryParam(key, converter, validator, required, _) =>
             request.nextQuerySegment(key) match
               case (Some(values), decodeServerRequest) =>
                 values.flatMap(validator(_)) match
@@ -135,6 +140,11 @@ object DecodeEndpoint:
                   case decodeResults =>
                     val failure = DecodeEndpointResult.ValidationError(head, decodeResults.head)
                     (failure, decoded)
+              case (None, decodeServerRequest) =>
+                if required then (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
+                else
+                  val newDecoded = decoded :+ ((head, converter.decode("")))
+                  tailrecMatchQuery(decodeServerRequest, tail, result, newDecoded)
               case _ => (DecodeEndpointResult.NoSuchElement(head, DecodeResult.Missing), decoded)
           case _ => throw new IllegalStateException("The received value does not match any of the Endpoints.")
       case None => (result, decoded)
@@ -149,7 +159,7 @@ object DecodeEndpoint:
     *   Value resulting from decoding the endpoint
     */
   @tailrec private def tailrecDecode(
-    decodedEndpoints: Vector[(RequestEndpoint.Endpoint[?], DecodeResult[?])],
+    decodedEndpoints: Vector[(Endpoint[?], DecodeResult[?])],
     decodeResult:     DecodeEndpointResult.Success
   ): DecodeEndpointResult = {
     decodedEndpoints.headAndTail match
@@ -184,8 +194,8 @@ object DecodeEndpointResult:
 
   sealed trait Failure extends DecodeEndpointResult
 
-  case class Error(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)           extends Failure
-  case class MissMatch(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)       extends Failure
-  case class NoSuchElement(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure)   extends Failure
-  case class ValidationError(endpoint: RequestEndpoint.Endpoint[?], failure: DecodeResult.Failure) extends Failure
-  case class PathMissPatch(path: String)                                                           extends Failure
+  case class Error(endpoint: Endpoint[?], failure: DecodeResult.Failure)           extends Failure
+  case class MissMatch(endpoint: Endpoint[?], failure: DecodeResult.Failure)       extends Failure
+  case class NoSuchElement(endpoint: Endpoint[?], failure: DecodeResult.Failure)   extends Failure
+  case class ValidationError(endpoint: Endpoint[?], failure: DecodeResult.Failure) extends Failure
+  case class PathMissPatch(path: String)                                           extends Failure

@@ -48,7 +48,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
           |
           |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
-          |    val routerProvider: RouterProvider[IO] & OpenApiProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
+          |    val routerProvider: RouterProvider[IO] = OpenApiGenerator.loadRouterProvider(config)
           |
           |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), routerProvider)
           |
@@ -56,15 +56,14 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
           |      file.getParentFile.mkdirs()
           |      file.createNewFile()
           |
-          |    Files.write(file.toPath, openAPIUI.toYaml.getBytes(implicitly[Codec].name))
+          |    Files.write(file.toPath, openAPIUI.toYaml.getBytes(summon[Codec].name))
           |
           |""".stripMargin
 
     if !outputFile.exists() then
       outputFile.getParentFile.mkdirs()
       outputFile.createNewFile()
-
-    Files.write(outputFile.toPath, scalaSource.getBytes(implicitly[Codec].name))
+      Files.write(outputFile.toPath, scalaSource.getBytes(summon[Codec].name))
 
     outputFile
 
@@ -81,7 +80,6 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
      |import cats.effect.IO
      |import lepus.core.util.Configuration
      |import lepus.router.RouterProvider
-     |import lepus.swagger.OpenApiProvider
      |import lepus.swagger.model.Info
      |import lepus.swagger.{ RouterToOpenAPI, OpenApiEncoder }
      |import Exception.GenerateSwaggerException
@@ -94,7 +92,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
     * @return
     *   Value of RouterProvider registered in the app
     */
-  private[lepus] def loadRouterProvider(config: Configuration): RouterProvider[IO] & OpenApiProvider[IO] =
+  private[lepus] def loadRouterProvider(config: Configuration): RouterProvider[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
@@ -102,9 +100,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
         case ex: ClassNotFoundException =>
           throw GenerateSwaggerException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
 
-    if !classOf[OpenApiProvider[IO]]
-        .isAssignableFrom(routeClass) && !classOf[RouterProvider[IO]].isAssignableFrom(routeClass)
-    then
+    if !classOf[RouterProvider[IO]].isAssignableFrom(routeClass) then
       throw GenerateSwaggerException(
         s"""
           |Class ${ routeClass.getName } must implement RouterProvider interface
@@ -119,7 +115,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
       )
 
     val constructor =
-      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO] & OpenApiProvider[IO]]
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO]]
       catch
         case ex: NoSuchMethodException =>
           throw GenerateSwaggerException(

@@ -4,45 +4,45 @@
 
 package lepus.swagger.internal
 
-import lepus.router.http.RequestEndpoint.*
+import lepus.router.http.Endpoint.*
 
 import lepus.swagger.model.Parameter
 import lepus.swagger.SchemaToOpenApiSchema
 
 import Parameter.ParameterInType
 
-trait RequestEndpointMagnet:
+trait EndpointMagnet:
   type ThisType
   def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType
 
-private[lepus] object RequestEndpointMagnet:
+private[lepus] object EndpointMagnet:
 
   type PathParam  = Path[?] & Param[?]
   type QueryParam = Query[?] & Param[?]
 
-  given Conversion[PathParam, RequestEndpointMagnet] with
-    override def apply(endpoint: PathParam): RequestEndpointMagnet =
-      new RequestEndpointMagnet {
+  given Conversion[PathParam, EndpointMagnet] with
+    override def apply(endpoint: PathParam): EndpointMagnet =
+      new EndpointMagnet {
         override type ThisType = Parameter
 
         override def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType = Parameter(
           name        = endpoint.name,
           in          = ParameterInType.PATH,
-          required    = true,
+          required    = endpoint.required,
           schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
           description = endpoint.description
         )
       }
 
-  given Conversion[QueryParam, RequestEndpointMagnet] with
-    override def apply(endpoint: QueryParam): RequestEndpointMagnet =
-      new RequestEndpointMagnet {
+  given Conversion[QueryParam, EndpointMagnet] with
+    override def apply(endpoint: QueryParam): EndpointMagnet =
+      new EndpointMagnet {
         override type ThisType = Parameter
 
         override def toParameter(schemaToOpenApiSchema: SchemaToOpenApiSchema): ThisType = Parameter(
           name        = endpoint.key,
           in          = ParameterInType.QUERY,
-          required    = false,
+          required    = endpoint.required,
           schema      = schemaToOpenApiSchema(endpoint.converter.schema, false, false),
           description = endpoint.description
         )
