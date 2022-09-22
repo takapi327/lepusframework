@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -12,7 +12,7 @@ object JsonFormatter extends Formatter:
     val timestamp = Formatter.formatTimestamp(msg.timestamp)
     val context   = Formatter.formatCtx(msg.context)
     val fileName  = s"${ msg.execLocation.fileName }:${ msg.execLocation.lineNumber }"
-    val json      = Json.obj(
+    val json = Json.obj(
       "timestamp"     -> timestamp.asJson,
       "level"         -> msg.level.toString.asJson,
       "threadName"    -> msg.threadName.asJson,
