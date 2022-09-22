@@ -4,7 +4,7 @@
 
 package lepus.server
 
-import cats.Monad
+import cats.{ Eval, Monad }
 import cats.syntax.all.*
 
 import cats.effect.IO
@@ -28,7 +28,7 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends Logging[F]:
       ctx:   Map[String, String]
     ): Execute[F, LogMessage] =
       Clock[F].realTime.map(now =>
-        LogMessage(level, msg.toString, summon[ExecLocation], ctx, ex, Thread.currentThread().getName, now.toMillis)
+        LogMessage(level, Eval.later(msg.toString), summon[ExecLocation], ctx, ex, Thread.currentThread().getName, now.toMillis)
       )
 
     private def doOutput(msg: LogMessage): Execute[F, Unit] =
