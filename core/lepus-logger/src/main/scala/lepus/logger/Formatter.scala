@@ -12,8 +12,6 @@ import scala.io.AnsiColor.RESET
 import cats.Show
 import cats.syntax.show.*
 
-import Color.*
-
 /** An object for converting a [[LogMessage]] to a string in a specified format.
   *
   * example: [[DefaultFormatter]]
@@ -84,22 +82,3 @@ object Formatter:
       .ofPattern("YYYY-MM-dd HH:mm:ss")
       .withZone(ZoneId.systemDefault())
       .format(Instant.ofEpochMilli(timestamp))
-
-object DefaultFormatter extends Formatter:
-  override def format(msg: LogMessage): String =
-    val timestamp = withColor(Foreground.White, Formatter.formatTimestamp(msg.timestamp))
-    val level = msg.level match
-      case Level.Trace => withColor(Foreground.Cyan, msg.level.toString)
-      case Level.Debug => withColor(Foreground.White, msg.level.toString)
-      case Level.Info  => withColor(Foreground.Blue, msg.level.toString)
-      case Level.Warn  => withColor(Foreground.Yellow, msg.level.toString)
-      case Level.Error => withColor(Foreground.Red, msg.level.toString)
-    val context       = withColor(Foreground.White, Formatter.formatCtx(msg.context))
-    val threadName    = withColor(Foreground.Green, msg.threadName)
-    val enclosureName = withColor(Foreground.Magenta, msg.execLocation.enclosureName)
-    val fileName = withColor(
-      Foreground.Blue withStyle Style.Underlined,
-      s"${ msg.execLocation.fileName }:${ msg.execLocation.lineNumber }"
-    )
-    val message = withColor(Foreground.White, msg.message)
-    s"$timestamp $level [$threadName] $enclosureName: $message ($fileName) $context"
