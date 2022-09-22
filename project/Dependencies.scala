@@ -50,7 +50,7 @@ object Dependencies {
   ).map("org.specs2" %% _ % specs2Version % Test)
 
   val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.11"   % Test
-  val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.15.4"   % Test
+  val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.16.0"   % Test
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
   val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
