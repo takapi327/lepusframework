@@ -12,13 +12,16 @@ object JsonFormatter extends Formatter:
     val timestamp = Formatter.formatTimestamp(msg.timestamp)
     val context   = Formatter.formatCtx(msg.context)
     val fileName  = s"${ msg.execLocation.fileName }:${ msg.execLocation.lineNumber }"
-    val json = Json.obj(
-      "timestamp"     -> timestamp.asJson,
-      "level"         -> msg.level.toString.asJson,
-      "threadName"    -> msg.threadName.asJson,
-      "enclosureName" -> msg.execLocation.enclosureName.asJson,
-      "message"       -> msg.message.value.asJson,
-      "fileName"      -> fileName.asJson,
-      "context"       -> context.asJson
-    ).dropNullValues.dropEmptyValues
+    val json = Json
+      .obj(
+        "timestamp"     -> timestamp.asJson,
+        "level"         -> msg.level.toString.asJson,
+        "threadName"    -> msg.threadName.asJson,
+        "enclosureName" -> msg.execLocation.enclosureName.asJson,
+        "message"       -> msg.message.value.asJson,
+        "fileName"      -> fileName.asJson,
+        "context"       -> context.asJson
+      )
+      .dropNullValues
+      .dropEmptyValues
     json.toString

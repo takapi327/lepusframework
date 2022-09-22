@@ -93,6 +93,8 @@ object FormatterTest extends Specification:
       val threadName = Thread.currentThread().getName
       val logMessage =
         LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
-      JsonFormatter.format(logMessage) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:50)"
+      JsonFormatter.format(
+        logMessage
+      ) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:50)"
     }
   }
