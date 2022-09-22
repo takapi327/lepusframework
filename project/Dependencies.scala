@@ -21,7 +21,7 @@ object Dependencies {
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.3"
 
-  val http4sVersion = "0.23.14"
+  val http4sVersion = "0.23.16"
   val http4s = Seq(
     "http4s-dsl",
     "http4s-ember-server"
