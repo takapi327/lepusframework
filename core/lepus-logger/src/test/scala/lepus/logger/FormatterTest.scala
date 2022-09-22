@@ -70,4 +70,29 @@ object FormatterTest extends Specification:
         logMessage
       ) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:50)"
     }
+
+    "The formatting process of JsonFormatter becomes the specified string." in {
+      val timestamp  = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
+      val threadName = Thread.currentThread().getName
+      val logMessage =
+        LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
+      JsonFormatter.format(logMessage) ===
+        s"""{
+           |  "timestamp" : "2022-09-17 20:17:42",
+           |  "level" : "Info",
+           |  "threadName" : "$threadName",
+           |  "enclosureName" : "lepus.logger.FormatterTest$$",
+           |  "message" : "test",
+           |  "fileName" : "FormatterTest.scala:78",
+           |  "context" : ""
+           |}""".stripMargin
+    }
+
+    "JsonFormatter formatting process does not result in the specified string." in {
+      val timestamp  = Timestamp.valueOf(LocalDateTime.of(2022, 9, 17, 20, 17, 42))
+      val threadName = Thread.currentThread().getName
+      val logMessage =
+        LogMessage(Level.Info, Eval.later("test"), summon[ExecLocation], Map.empty, None, threadName, timestamp.getTime)
+      JsonFormatter.format(logMessage) !== s"2022-09-17 20:17:42 Info lepus.logger.FormatterTest$$: test (FormatterTest.scala:50)"
+    }
   }

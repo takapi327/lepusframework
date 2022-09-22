@@ -20,5 +20,5 @@ object JsonFormatter extends Formatter:
       "message"       -> msg.message.value.asJson,
       "fileName"      -> fileName.asJson,
       "context"       -> context.asJson
-    )
+    ).dropNullValues.dropEmptyValues
     json.toString
