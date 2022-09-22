@@ -10,7 +10,7 @@ object Dependencies {
 
   val logback = "ch.qos.logback" % "logback-classic" % "1.4.0"
 
-  val typesafeConfig = "com.typesafe" % "config" % "1.4.1"
+  val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
   val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
 
