@@ -32,9 +32,19 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    val httpApp = routerProvider.routes.map {
-      case (endpoint, router) => bindFromRequest(router.routes, endpoint)
-    }.reduce
+    val httpApp = (routerProvider.cors match
+      case Some(cors) =>
+        routerProvider.routes.map {
+          case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
+        }
+      case None =>
+        routerProvider.routes.map {
+          case (endpoint, router) =>
+            router.cors match
+              case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
+              case None       => bindFromRequest(router.routes, endpoint)
+        }
+    ).reduce
 
     EmberServerBuilder
       .default[IO]
