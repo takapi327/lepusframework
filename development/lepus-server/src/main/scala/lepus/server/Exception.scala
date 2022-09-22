@@ -4,7 +4,7 @@
 
 package lepus.server
 
-object Exception:
+private[lepus] object Exception:
 
   /** Indicates an issue with starting a server, e.g. a problem reading its configuration.
     */

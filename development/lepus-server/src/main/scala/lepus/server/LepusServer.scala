@@ -11,14 +11,20 @@ import cats.effect.std.Console
 
 import com.comcast.ip4s.*
 
+import org.typelevel.log4cats.Logger as Log4catsLogger
+
 import org.http4s.*
+import org.http4s.HttpRoutes as Http4sRoutes
+import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
+
+import lepus.logger.given
 
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
 
-object LepusServer extends IOApp, ServerInterpreter[IO]:
+private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLogging[IO]:
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"
@@ -32,28 +38,49 @@ object LepusServer extends IOApp, ServerInterpreter[IO]:
 
     val routerProvider: RouterProvider[IO] = loadRouterProvider()
 
-    val httpApp = routerProvider.routes.map {
-      case (endpoint, router) => bindFromRequest(router.routes, endpoint)
-    }.reduce
+    buildServer(host, port, buildApp(routerProvider).orNotFound)
+      .use(_ => IO.never)
+      .as(ExitCode.Success)
 
+  private def buildApp(
+    routerProvider: RouterProvider[IO]
+  ): Http4sRoutes[IO] =
+    (routerProvider.cors match
+      case Some(cors) =>
+        routerProvider.routes.map {
+          case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
+        }
+      case None =>
+        routerProvider.routes.map {
+          case (endpoint, router) =>
+            router.cors match
+              case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
+              case None       => bindFromRequest(router.routes, endpoint)
+        }
+    ).reduce
+
+  private def buildServer(
+    host: String,
+    port: Int,
+    app:  HttpApp[IO]
+  ): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
-      .withHttpApp(httpApp.orNotFound)
+      .withHttpApp(app)
       .withErrorHandler {
         case error =>
-          Console[IO]
-            .println(s"Unexpected error: $error")
+          logger
+            .error(s"Unexpected error: $error", error)
             .as(Response(Status.InternalServerError))
       }
+      .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
       .build
-      .use(_ => IO.never)
-      .as(ExitCode.Success)
 
   private def loadRouterProvider(): RouterProvider[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
-    val routeClass: Class[_] =
+    val routeClass: Class[?] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
       catch
         case ex: ClassNotFoundException =>
