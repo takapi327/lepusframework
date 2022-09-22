@@ -29,10 +29,10 @@ object Dependencies {
 
   val circeVersion = "0.14.1"
   val circe = Seq(
-    "io.circe" %% "circe-core",
-    "io.circe" %% "circe-generic",
-    "io.circe" %% "circe-parser"
-  ).map(_ % circeVersion)
+    "circe-core",
+    "circe-generic",
+    "circe-parser"
+  ).map("io.circe" %% _ % circeVersion)
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
 
@@ -54,8 +54,6 @@ object Dependencies {
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
   val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
-
-  val serverDependencies = Seq(logback % Test)
 
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 

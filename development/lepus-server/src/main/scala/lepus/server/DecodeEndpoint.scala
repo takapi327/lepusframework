@@ -10,7 +10,7 @@ import lepus.router.http.*
 import lepus.router.model.*
 import lepus.router.internal.*
 
-object DecodeEndpoint:
+private[lepus] object DecodeEndpoint:
 
   type DecodedResult = Vector[(Endpoint[?], DecodeResult[?])]
   type Result        = (DecodeEndpointResult.Success, DecodedResult) => (DecodeEndpointResult, DecodedResult)
@@ -187,7 +187,7 @@ object DecodeEndpoint:
       case _ => (result, decoded)
 
 sealed trait DecodeEndpointResult
-object DecodeEndpointResult:
+private[lepus] object DecodeEndpointResult:
   case class Success(decodedEndpoints: Vector[Any]) extends DecodeEndpointResult:
     def update(decodedEndpoint: Any): Success =
       copy(decodedEndpoints :+ decodedEndpoint)

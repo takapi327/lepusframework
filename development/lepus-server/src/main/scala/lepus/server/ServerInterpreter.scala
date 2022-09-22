@@ -20,7 +20,7 @@ import lepus.router.ConvertResult.*
   * @tparam F
   *   the effect type.
   */
-trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
+private[lepus] trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
 
   /** Receives HTTP requests, compares and verifies them with endpoints, and binds them to server logic.
     *
@@ -36,9 +36,9 @@ trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
   def bindFromRequest[T](routes: Requestable[F][T], endpoint: Endpoint[?]): Http4sRoutes[F] =
     Kleisli[[K] =>> OptionT[F, K], Request4s[F], Response4s[F]] { (request4s: Request4s[F]) =>
       for
-        decoded  <- OptionT.fromOption[F] { decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint) }
-        logic    <- OptionT.fromOption[F] { routes(using decoded)(using request4s).lift(request4s.method) }
-        response <- OptionT.liftF { logic }
+        decoded  <- OptionT.fromOption[F](decodeRequest[T](Request.fromHttp4s[F](request4s), endpoint))
+        logic    <- OptionT.fromOption[F](routes(using decoded)(using request4s).lift(request4s.method))
+        response <- OptionT.liftF(logic)
       yield response
     }
 

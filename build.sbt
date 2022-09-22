@@ -66,9 +66,15 @@ lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "core/lepus-logb
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies += logback)
 
+lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger")
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= Seq(
+    catsEffect,
+    "io.circe" %% "circe-core" % circeVersion
+  ) ++ specs2Deps)
+
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= serverDependencies)
   .settings(
     (Compile / unmanagedSourceDirectories) += {
       val suffix = CrossVersion.partialVersion(scalaVersion.value) match {
@@ -78,7 +84,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusRouterProject)
+  .dependsOn(LepusRouterProject, LepusLoggerProject)
 
 lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
@@ -110,7 +116,8 @@ lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
   LepusRouterProject,
-  LepusLogbackProject
+  LepusLogbackProject,
+  LepusLoggerProject
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](

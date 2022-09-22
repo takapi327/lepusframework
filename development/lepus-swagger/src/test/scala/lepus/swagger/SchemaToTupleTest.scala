@@ -48,7 +48,6 @@ object SchemaToTupleTest extends Specification:
       val schemaNameAddress  = Schema.Name("lepus.swagger.Address", List())
       val userSchemaTuple    = (schemaNameUser, summon[Schema[User]])
       val addressSchemaTuple = (schemaNameAddress, summon[Schema[Address]])
-      println(userSchemaTuples.map(_._1))
       userSchemaTuples.map(_._1).contains(schemaNameUser) &&
       userSchemaTuples.map(_._1).contains(schemaNameAddress) &&
       userSchemaTuples.contains(userSchemaTuple) &&
