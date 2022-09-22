@@ -16,7 +16,7 @@ object Dependencies {
 
   val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.1.5"
 
-  val catsVersion = "2.6.1"
+  val catsVersion = "2.8.0"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.3"
 
