@@ -6,8 +6,6 @@ package lepus.router
 
 import cats.data.NonEmptyList
 
-import cats.effect.Async
-
 import org.http4s.server.middleware.CORSPolicy
 
 import lepus.router.http.Request
@@ -28,7 +26,7 @@ import lepus.router.http.Request
   * @tparam F
   *   the effect type.
   */
-trait RouterProvider[F[_]](using Async[F]):
+trait RouterProvider[F[_]]:
 
   /** CORS settings applied to all endpoints */
   def cors: Option[CORSPolicy] = None
