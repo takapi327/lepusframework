@@ -22,5 +22,5 @@ object DefaultFormatter extends Formatter:
       Foreground.Blue withStyle Style.Underlined,
       s"${ msg.execLocation.fileName }:${ msg.execLocation.lineNumber }"
     )
-    val message = withColor(Foreground.White, msg.message)
+    val message = withColor(Foreground.White, msg.message.value)
     s"$timestamp $level [$threadName] $enclosureName: $message ($fileName) $context"

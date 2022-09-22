@@ -17,7 +17,7 @@ object JsonFormatter extends Formatter:
       "level"         -> msg.level.toString.asJson,
       "threadName"    -> msg.threadName.asJson,
       "enclosureName" -> msg.execLocation.enclosureName.asJson,
-      "message"       -> msg.message.asJson,
+      "message"       -> msg.message.value.asJson,
       "fileName"      -> fileName.asJson,
       "context"       -> context.asJson
     )
