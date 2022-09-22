@@ -29,10 +29,10 @@ object Dependencies {
 
   val circeVersion = "0.14.1"
   val circe = Seq(
-    "io.circe" %% "circe-core",
-    "io.circe" %% "circe-generic",
-    "io.circe" %% "circe-parser"
-  ).map(_ % circeVersion)
+    "circe-core",
+    "circe-generic",
+    "circe-parser"
+  ).map("io.circe" %% _ % circeVersion)
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
 
