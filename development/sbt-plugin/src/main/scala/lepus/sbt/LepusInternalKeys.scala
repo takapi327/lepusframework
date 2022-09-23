@@ -9,7 +9,14 @@ import sbt.Keys._
 
 object LepusInternalKeys {
 
-  val baseClassloader = taskKey[ClassLoader](
+  val background = InputKey[AppProcess]("background", "Starts the application in a forked JVM (in the background).")
+
+  val stop = TaskKey[Unit]("stop", "Stops the application if it is currently running in the background")
+
+  val appProcessForkOptions = TaskKey[ForkOptions]("app-process-fork-options", "The options needed for the start task for forking")
+
+  val baseClassloader = TaskKey[ClassLoader](
+    "baseClassloader",
     "The base classloader"
   )
 
