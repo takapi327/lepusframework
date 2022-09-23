@@ -21,6 +21,7 @@ object LepusSettings {
 
   lazy val serverSettings = Def.settings(
     onLoadMessage := {
+      val javaVersion = System.getProperty("java.version")
       """|
          |      __      ______  ____    __  __  ______
          |     / /     / __  / / __ \  / / / / / ___ /
@@ -34,9 +35,17 @@ object LepusSettings {
            |
            |  Version Information
            |    - Lepus ${ LepusVersion.current }
-           |    - Java  ${ System.getProperty("java.version") }
+           |    - Java  $javaVersion
            |
-           |""".stripMargin
+           |""".stripMargin +
+        (if (javaVersion != "1.8" && javaVersion != "11")
+          s"""
+             |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             |  Java version is $javaVersion. Lepus supports only 8 or 11.
+             |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             |
+             |""".stripMargin.linesIterator.map(v => YELLOW + v + RESET).mkString("\n")
+        else "")
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     libraryDependencies ++= Seq(lepusServer),
