@@ -39,18 +39,18 @@ object LepusSettings {
            |
            |""".stripMargin +
         (if (javaVersion != "1.8" && javaVersion != "11")
-          s"""
+           s"""
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              |  Java version is $javaVersion. Lepus supports only 8 or 11.
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              |
              |""".stripMargin.linesIterator.map(v => YELLOW + v + RESET).mkString("\n")
-        else "")
+         else "")
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     libraryDependencies ++= Seq(lepusServer),
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
-    appProcessForkOptions     := {
+    appProcessForkOptions := {
       taskTemporaryDirectory.value
       ForkOptions(
         javaHome         = javaHome.value,
@@ -62,15 +62,18 @@ object LepusSettings {
         envVars          = envVars.value
       )
     },
-    background := Def.inputTask {
-      Actions.startBackground(
-        projectRef = thisProjectRef.value,
-        options    = forkOptions.value,
-        mainClass  = (Compile / run / mainClass).value,
-        classpath  = (Runtime / fullClasspath).value
-      )
-    }.dependsOn(Compile / products).evaluated,
-    stop := Actions.stopApp(thisProjectRef.value),
+    background := Def
+      .inputTask {
+        Actions.startBackground(
+          projectRef = thisProjectRef.value,
+          options    = forkOptions.value,
+          mainClass  = (Compile / run / mainClass).value,
+          classpath  = (Runtime / fullClasspath).value
+        )
+      }
+      .dependsOn(Compile / products)
+      .evaluated,
+    stop                        := Actions.stopApp(thisProjectRef.value),
     lepusDependencyClasspath    := (Runtime / externalDependencyClasspath).value,
     Compile / resourceDirectory := baseDirectory(_ / "conf").value,
     externalizedResources := {

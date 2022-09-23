@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.sbt
 
@@ -43,10 +43,11 @@ object Actions {
 
   def stopApp(projectRef: ProjectRef): Unit = {
     state.getProcess(projectRef) match {
-      case Some(process) => if (process.isRunning) {
-        logger.info("Stopping application %s (by killing the forked JVM) ..." format process.projectRef.project)
-        process.stop
-      }
+      case Some(process) =>
+        if (process.isRunning) {
+          logger.info("Stopping application %s (by killing the forked JVM) ..." format process.projectRef.project)
+          process.stop
+        }
       case None => logger.info("Application %s not yet started" format projectRef.project)
     }
     removeState(projectRef)
@@ -74,7 +75,7 @@ object Actions {
     logger.info("")
 
     val scalaOptions = Seq("-classpath", Path.makeString(classpath), mainClass)
-    val newOptions = options.withOutputStrategy(options.outputStrategy getOrElse LoggedOutput(logger))
+    val newOptions   = options.withOutputStrategy(options.outputStrategy getOrElse LoggedOutput(logger))
 
     Fork.java.fork(newOptions, scalaOptions)
   }
