@@ -39,7 +39,7 @@ object LepusSettings {
            |""".stripMargin
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
-    libraryDependencies ++= Seq(lepusServer, lepusRouter),
+    libraryDependencies ++= Seq(lepusServer),
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
     appProcessForkOptions     := {
       taskTemporaryDirectory.value
