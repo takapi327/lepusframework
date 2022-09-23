@@ -36,6 +36,7 @@ object LepusSettings {
            |  Version Information
            |    - Lepus ${ LepusVersion.current }
            |    - Java  $javaVersion
+           |    - Scala ${ (Compile / scalaVersion).value }
            |
            |""".stripMargin +
         (if (javaVersion != "1.8" && javaVersion != "11")
@@ -45,7 +46,19 @@ object LepusSettings {
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              |
              |""".stripMargin.linesIterator.map(v => YELLOW + v + RESET).mkString("\n")
-         else "")
+         else "") +
+        (CrossVersion.partialVersion((Compile / scalaVersion).value) match {
+          case Some((2, _)) =>
+            s"""
+              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              |  Scala version is ${ (Compile / scalaVersion).value }. Lepus supports only 3.x.x
+              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              |
+              |If you wish to use Scala2 series, please use Lepus Framework v0.2.x or earlier.
+              |
+              |""".stripMargin
+          case _ => ""
+        })
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
     libraryDependencies ++= Seq(lepusServer),
