@@ -22,10 +22,10 @@ class ProcessLogger extends Logger {
 
   def log(level: Level.Value, message: => String): Unit = {
     val levelStr = level match {
-      case Level.Debug => s"[${GREEN}DEBUG$RESET]"
-      case Level.Info  => s"[${BLUE}INFO$RESET]"
-      case Level.Warn  => s"[${YELLOW}WARN$RESET]"
-      case Level.Error => s"[${RED}ERROR$RESET]"
+      case Level.Debug => s"[${GREEN}debug$RESET]"
+      case Level.Info  => s"[${BLUE}info$RESET]"
+      case Level.Warn  => s"[${YELLOW}warn$RESET]"
+      case Level.Error => s"[${RED}error$RESET]"
       case _           => ""
     }
     println(s"$levelStr $message")
