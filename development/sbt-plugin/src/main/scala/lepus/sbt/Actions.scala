@@ -85,7 +85,7 @@ object Actions {
     */
   private[lepus] def registerState(projectRef: ProjectRef, process: Process): Unit =
     ProcessState.update { state =>
-      val oldProcess = state.processes.get(projectRef)
+      val oldProcess = state.getProcess(projectRef)
       if (oldProcess.nonEmpty) oldProcess.get.stop
       state.updateProcesses(projectRef, process)
     }
