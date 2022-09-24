@@ -124,12 +124,11 @@ object Actions {
     Fork.java.fork(newOptions, scalaOptions)
   }
 
-  /**
-   * Extension method of Process.
-   *
-   * @param process
-   *   Object for managing application processes.
-   */
+  /** Extension method of Process.
+    *
+    * @param process
+    *   Object for managing application processes.
+    */
   implicit class ProcessOpt(process: Process) {
     def stop: Int = {
       process.destroy()
