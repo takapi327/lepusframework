@@ -68,7 +68,8 @@ object BuildSettings {
     licenses     := Seq("MIT" -> url("https://img.shields.io/badge/license-MIT-green")),
     Test / fork  := true,
     run  / fork  := true,
-    scalacOptions ++= baseScalaSettings
+    scalacOptions ++= baseScalaSettings,
+    developers += Developer("takapi327", "Takahiko Tominaga", "t.takapi0327@gmail.com", url("https://github.com/takapi327"))
   )
 
   /** A project that runs in the sbt runtime. */
