@@ -4,12 +4,14 @@
 
 package lepus.sbt
 
+import scala.sys.process.Process
+
 import sbt._
 import sbt.Keys._
 
 object LepusInternalKeys {
 
-  val background = InputKey[AppProcess]("background", "Starts the application in a forked JVM (in the background).")
+  val background = InputKey[Process]("background", "Starts the application in a forked JVM (in the background).")
 
   val stop = TaskKey[Unit]("stop", "Stops the application if it is currently running in the background")
 

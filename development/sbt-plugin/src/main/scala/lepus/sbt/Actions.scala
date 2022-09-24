@@ -34,7 +34,7 @@ object Actions {
     options:    ForkOptions,
     mainClass:  Option[String],
     classpath:  Classpath
-  ): AppProcess = {
+  ): Process = {
     stopApp(projectRef)
     startApp(projectRef, options, mainClass, classpath)
   }
@@ -55,15 +55,10 @@ object Actions {
     options:    ForkOptions,
     mainClass:  Option[String],
     classpath:  Classpath
-  ): AppProcess = {
-    assert(!state.getProcess(projectRef).exists(_.isRunning))
-    val appProcess = AppProcess(
-      projectRef = projectRef,
-      logger     = logger,
-      process    = forkRun(options, mainClass.getOrElse(sys.error("No main class detected!")), classpath.map(_.data))
-    )
-    registerState(projectRef, appProcess)
-    appProcess
+  ): Process = {
+    val process = forkRun(options, mainClass.getOrElse(sys.error("No main class detected!")), classpath.map(_.data))
+    registerState(projectRef, process)
+    process
   }
 
   /** Stop the application.
@@ -74,10 +69,8 @@ object Actions {
   def stopApp(projectRef: ProjectRef): Unit = {
     state.getProcess(projectRef) match {
       case Some(process) =>
-        if (process.isRunning) {
-          logger.info("Stopping application %s (by killing the forked JVM) ..." format process.projectRef.project)
-          process.stop
-        }
+        logger.info("Stopping application %s (by killing the forked JVM) ..." format projectRef.project)
+        process.stop
       case None => logger.info("Application %s not yet started" format projectRef.project)
     }
     removeState(projectRef)
@@ -90,10 +83,10 @@ object Actions {
     * @param process
     *   Represents a process that is running or has finished running.
     */
-  private def registerState(projectRef: ProjectRef, process: AppProcess): Unit =
+  private[lepus] def registerState(projectRef: ProjectRef, process: Process): Unit =
     ProcessState.update { state =>
       val oldProcess = state.processes.get(projectRef)
-      if (oldProcess.exists(_.isRunning)) oldProcess.get.stop
+      if (oldProcess.nonEmpty) oldProcess.get.stop
       state.updateProcesses(projectRef, process)
     }
 
@@ -102,7 +95,7 @@ object Actions {
     * @param projectRef
     *   Class for uniquely referencing a project by URI and project identifier (String).
     */
-  private def removeState(projectRef: ProjectRef): Unit =
+  private[lepus] def removeState(projectRef: ProjectRef): Unit =
     ProcessState.update { state =>
       state.removeProcess(projectRef)
     }
@@ -116,7 +109,7 @@ object Actions {
     * @param classpath
     *   A path that includes the main class package.
     */
-  private def forkRun(options: ForkOptions, mainClass: String, classpath: Seq[File]): Process = {
+  private[lepus] def forkRun(options: ForkOptions, mainClass: String, classpath: Seq[File]): Process = {
     logger.info("")
     logger.info("      Lepus Server started. To stop the server, execute the stop command.")
     logger.info("")
@@ -129,5 +122,18 @@ object Actions {
     val newOptions   = options.withOutputStrategy(options.outputStrategy getOrElse LoggedOutput(logger))
 
     Fork.java.fork(newOptions, scalaOptions)
+  }
+
+  /**
+   * Extension method of Process.
+   *
+   * @param process
+   *   Object for managing application processes.
+   */
+  implicit class ProcessOpt(process: Process) {
+    def stop: Int = {
+      process.destroy()
+      process.exitValue()
+    }
   }
 }

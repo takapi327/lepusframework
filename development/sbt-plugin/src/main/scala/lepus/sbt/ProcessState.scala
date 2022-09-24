@@ -7,6 +7,7 @@ package lepus.sbt
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
+import scala.sys.process.Process
 
 import sbt.ProjectRef
 
@@ -15,16 +16,16 @@ import sbt.ProjectRef
   * @param processes
   *   Map with sbt project as key and application process as value.
   */
-case class ProcessState(processes: Map[ProjectRef, AppProcess]) {
+case class ProcessState(processes: Map[ProjectRef, Process]) {
 
   /** Update the application process corresponding to the sbt project.
     *
     * @param projectRef
     *   Class for uniquely referencing a project by URI and project identifier (String).
     * @param process
-    *   Class for managing application processes.
+    *   Object for managing application processes.
     */
-  def updateProcesses(projectRef: ProjectRef, process: AppProcess): ProcessState =
+  def updateProcesses(projectRef: ProjectRef, process: Process): ProcessState =
     copy(processes + (projectRef -> process))
 
   /** Remove the application process corresponding to the sbt project.
@@ -43,7 +44,7 @@ case class ProcessState(processes: Map[ProjectRef, AppProcess]) {
     * @param projectRef
     *   Class for uniquely referencing a project by URI and project identifier (String).
     */
-  def getProcess(projectRef: ProjectRef): Option[AppProcess] =
+  def getProcess(projectRef: ProjectRef): Option[Process] =
     processes.get(projectRef)
 }
 
