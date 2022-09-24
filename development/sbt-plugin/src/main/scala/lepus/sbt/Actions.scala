@@ -57,9 +57,11 @@ object Actions {
     classpath:  Classpath
   ): AppProcess = {
     assert(!state.getProcess(projectRef).exists(_.isRunning))
-    val appProcess = AppProcess(projectRef, logger) {
-      forkRun(options, mainClass.getOrElse(sys.error("No main class detected!")), classpath.map(_.data))
-    }
+    val appProcess = AppProcess(
+      projectRef = projectRef,
+      logger     = logger,
+      process    = forkRun(options, mainClass.getOrElse(sys.error("No main class detected!")), classpath.map(_.data))
+    )
     registerState(projectRef, appProcess)
     appProcess
   }

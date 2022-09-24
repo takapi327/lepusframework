@@ -19,8 +19,9 @@ import sbt.{ ProjectRef, Logger }
   */
 case class AppProcess(
   projectRef: ProjectRef,
-  logger:     Logger
-)(process:    Process) {
+  logger:     Logger,
+  process:    Process
+) {
 
   @volatile var finishState: Option[Int] = None
 
