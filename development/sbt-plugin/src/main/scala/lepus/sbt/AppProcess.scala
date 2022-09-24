@@ -24,19 +24,8 @@ case class AppProcess(
 
   @volatile var finishState: Option[Int] = None
 
-  val shutdownHook = shutdownHookThread
-
-  /** Start a thread to stop the application process. */
-  def shutdownHookThread = new Thread(new Runnable {
-    override def run(): Unit = if (isRunning) {
-      logger.info("...killing process...")
-      process.destroy()
-    }
-  })
-
   /** Stop the application process. */
   def stop: Int = {
-    Runtime.getRuntime.removeShutdownHook(shutdownHook)
     process.destroy()
     process.exitValue()
   }
