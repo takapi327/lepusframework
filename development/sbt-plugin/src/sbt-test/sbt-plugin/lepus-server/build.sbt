@@ -9,7 +9,7 @@ import scala.collection.mutable.ListBuffer
 lazy val root = (project in file("."))
   .settings(
     name         := "lepus-server-scripted-test",
-    scalaVersion := sys.props.get("scala.version").getOrElse("3.1.3"),
+    scalaVersion := sys.props.get("scala.version").getOrElse("3.2.0"),
     version      := "0.1",
     run / fork   := true,
     javaOptions ++= Seq(
