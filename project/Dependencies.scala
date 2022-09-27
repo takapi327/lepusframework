@@ -14,7 +14,7 @@ object Dependencies {
 
   val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
 
-  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.1.5"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
 
   val catsVersion = "2.8.0"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
