@@ -21,6 +21,7 @@ object LepusSettings {
 
   lazy val serverSettings = Def.settings(
     onLoadMessage := {
+      val javaVersion = System.getProperty("java.version")
       """|
          |      __      ______  ____    __  __  ______
          |     / /     / __  / / __ \  / / / / / ___ /
@@ -34,13 +35,58 @@ object LepusSettings {
            |
            |  Version Information
            |    - Lepus ${ LepusVersion.current }
-           |    - Java  ${ System.getProperty("java.version") }
+           |    - Java  $javaVersion
+           |    - Scala ${ (Compile / scalaVersion).value }
            |
-           |""".stripMargin
+           |""".stripMargin +
+        (if (javaVersion != "1.8" && javaVersion != "11")
+           s"""
+             |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             |  Java version is $javaVersion. Lepus supports only 8 or 11.
+             |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             |
+             |""".stripMargin.linesIterator.map(v => YELLOW + v + RESET).mkString("\n")
+         else "") +
+        (CrossVersion.partialVersion((Compile / scalaVersion).value) match {
+          case Some((2, _)) =>
+            s"""
+              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              |  Scala version is ${ (Compile / scalaVersion).value }. Lepus supports only 3.x.x
+              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              |
+              |If you wish to use Scala2 series, please use Lepus Framework v0.2.x or earlier.
+              |
+              |""".stripMargin
+          case _ => ""
+        })
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
-    libraryDependencies ++= Seq(lepusServer, lepusRouter),
-    Compile / run / mainClass   := Some("lepus.server.LepusServer"),
+    libraryDependencies ++= Seq(lepusServer),
+    Compile / run / mainClass := Some("lepus.server.LepusServer"),
+    appProcessForkOptions := {
+      taskTemporaryDirectory.value
+      ForkOptions(
+        javaHome         = javaHome.value,
+        outputStrategy   = outputStrategy.value,
+        bootJars         = Vector.empty[File],
+        workingDirectory = Option(baseDirectory.value),
+        runJVMOptions    = javaOptions.value.toVector,
+        connectInput     = false,
+        envVars          = envVars.value
+      )
+    },
+    background := Def
+      .inputTask {
+        Actions.startBackground(
+          projectRef = thisProjectRef.value,
+          options    = forkOptions.value,
+          mainClass  = (Compile / run / mainClass).value,
+          classpath  = (Runtime / fullClasspath).value
+        )
+      }
+      .dependsOn(Compile / products)
+      .evaluated,
+    stop                        := Actions.stopApp(thisProjectRef.value),
     lepusDependencyClasspath    := (Runtime / externalDependencyClasspath).value,
     Compile / resourceDirectory := baseDirectory(_ / "conf").value,
     externalizedResources := {

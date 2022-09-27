@@ -1,7 +1,7 @@
 ![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/lepus-v0.4.0-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.4.1-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -98,6 +98,26 @@ You must set the path of the object that inherits RouterProvider in application.
 ※ We plan to eliminate the need for configuration in the near future.
 ```text
 lepus.server.routes = "sample.HelloApp"
+```
+
+### Launch applications in the background
+
+Run the application in the background.
+
+```shell
+$ sbt background
+```
+
+To enable automatic compilation, run the ~background command.
+
+```shell
+$ sbt ~background
+```
+
+To stop an application started in the background, execute the stop command.
+
+```shell
+$ stop
 ```
 
 ### Generate OpenAPI documentation
