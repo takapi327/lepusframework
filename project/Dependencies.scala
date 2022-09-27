@@ -8,13 +8,13 @@ import sbt._
 
 object Dependencies {
 
-  val logback = "ch.qos.logback" % "logback-classic" % "1.4.0"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.4.1"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
   val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
 
-  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.1.5"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
 
   val catsVersion = "2.8.0"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
@@ -49,7 +49,7 @@ object Dependencies {
   ).map("org.specs2" %% _ % specs2Version % Test)
 
   val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.12"   % Test
-  val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.16.0"   % Test
+  val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.17.0"   % Test
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
   val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
