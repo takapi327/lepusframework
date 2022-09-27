@@ -33,7 +33,7 @@ object Dependencies {
     "circe-parser"
   ).map("io.circe" %% _ % circeVersion)
 
-  val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.0"
+  val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.1"
 
   val doobieVersion = "1.0.0-RC1"
   val doobie = Seq(
