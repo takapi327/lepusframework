@@ -122,7 +122,8 @@ lazy val userProjects = Seq[ProjectReference](
   LepusProject,
   LepusRouterProject,
   LepusLogbackProject,
-  LepusLoggerProject
+  LepusLoggerProject,
+  LepusDoobieProject
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
