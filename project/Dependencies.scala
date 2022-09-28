@@ -35,7 +35,7 @@ object Dependencies {
 
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.1"
 
-  val doobieVersion = "1.0.0-RC1"
+  val doobieVersion = "1.0.0-RC2"
   val doobie = Seq(
     "doobie-core",
     "doobie-hikari"
