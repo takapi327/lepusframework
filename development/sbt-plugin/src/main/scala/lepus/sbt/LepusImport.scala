@@ -18,6 +18,8 @@ object LepusImport {
 
   val lepusLogger = component("lepus-logger")
 
+  val lepusdoobie = component("lepus-doobie")
+
   val lepusServer = component("lepus-server")
 
   val lepusSwagger = component("lepus-swagger")
