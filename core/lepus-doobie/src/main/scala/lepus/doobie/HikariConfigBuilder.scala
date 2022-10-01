@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.doobie
 
@@ -123,10 +123,12 @@ trait HikariConfigBuilder:
 
   protected def getTransactionIsolation: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](TRANSACTION_ISOLATION)).map { v =>
-      if v == "TRANSACTION_NONE" || v == "TRANSACTION_READ_UNCOMMITTED" || v == "TRANSACTION_READ_COMMITTED" || v == "TRANSACTION_REPEATABLE_READ" || v == "TRANSACTION_SERIALIZABLE" then
-        v
+      if v == "TRANSACTION_NONE" || v == "TRANSACTION_READ_UNCOMMITTED" || v == "TRANSACTION_READ_COMMITTED" || v == "TRANSACTION_REPEATABLE_READ" || v == "TRANSACTION_SERIALIZABLE"
+      then v
       else
-        throw new IllegalArgumentException("TransactionIsolation must be TRANSACTION_NONE,TRANSACTION_READ_UNCOMMITTED,TRANSACTION_READ_COMMITTED,TRANSACTION_REPEATABLE_READ,TRANSACTION_SERIALIZABLE.")
+        throw new IllegalArgumentException(
+          "TransactionIsolation must be TRANSACTION_NONE,TRANSACTION_READ_UNCOMMITTED,TRANSACTION_READ_COMMITTED,TRANSACTION_REPEATABLE_READ,TRANSACTION_SERIALIZABLE."
+        )
     }
 
   final protected def readConfig[T](func: Configuration => Option[T]): DatabaseCF[Option[T]] =
@@ -137,34 +139,36 @@ trait HikariConfigBuilder:
       dataSource.path + "." + dataSource.hostspec,
       dataSource.path
     ).foldLeft[Option[T]](None) {
-      case (prev, path) => prev.orElse {
-        config.get[Option[Configuration]](path).flatMap(func(_))
-      }
+      case (prev, path) =>
+        prev.orElse {
+          config.get[Option[Configuration]](path).flatMap(func(_))
+        }
     }
 
-  val connectionTimeout: DatabaseCF[Long] = getConnectionTimeout.getOrElse(Duration(30, TimeUnit.SECONDS)).toMillis
-  val idleTimeout: DatabaseCF[Long] = getIdleTimeout.getOrElse(Duration(10, TimeUnit.MINUTES)).toMillis
+  val connectionTimeout:      DatabaseCF[Long] = getConnectionTimeout.getOrElse(Duration(30, TimeUnit.SECONDS)).toMillis
+  val idleTimeout:            DatabaseCF[Long] = getIdleTimeout.getOrElse(Duration(10, TimeUnit.MINUTES)).toMillis
   val leakDetectionThreshold: DatabaseCF[Long] = getLeakDetectionThreshold.getOrElse(Duration.Zero).toMillis
-  val maximumPoolSize: DatabaseCF[Int] = getMaximumPoolSize.getOrElse(maxCore * 2)
-  val maxLifetime: DatabaseCF[Long] = getMaxLifetime.getOrElse(Duration(30, TimeUnit.MINUTES)).toMillis
-  val minimumIdle: DatabaseCF[Int] = getMinimumIdle.getOrElse(10)
-  val validationTimeout: DatabaseCF[Long] = getValidationTimeout.getOrElse(Duration(5, TimeUnit.SECONDS)).toMillis
+  val maximumPoolSize:        DatabaseCF[Int]  = getMaximumPoolSize.getOrElse(maxCore * 2)
+  val maxLifetime:            DatabaseCF[Long] = getMaxLifetime.getOrElse(Duration(30, TimeUnit.MINUTES)).toMillis
+  val minimumIdle:            DatabaseCF[Int]  = getMinimumIdle.getOrElse(10)
+  val validationTimeout:      DatabaseCF[Long] = getValidationTimeout.getOrElse(Duration(5, TimeUnit.SECONDS)).toMillis
   val allowPoolSuspension: DatabaseCF[Boolean] = getAllowPoolSuspension.getOrElse(false)
-  val autoCommit: DatabaseCF[Boolean] = getAutoCommit.getOrElse(true)
-  val initializationFailTimeout: DatabaseCF[Long] = getInitializationFailTimeout.getOrElse(Duration(1, TimeUnit.MILLISECONDS)).toMillis
+  val autoCommit:          DatabaseCF[Boolean] = getAutoCommit.getOrElse(true)
+  val initializationFailTimeout: DatabaseCF[Long] =
+    getInitializationFailTimeout.getOrElse(Duration(1, TimeUnit.MILLISECONDS)).toMillis
   val isolateInternalQueries: DatabaseCF[Boolean] = getIsolateInternalQueries.getOrElse(false)
-  val readonly: DatabaseCF[Boolean] = getReadonly.getOrElse(false)
-  val registerMbeans: DatabaseCF[Boolean] = getRegisterMbeans.getOrElse(false)
+  val readonly:               DatabaseCF[Boolean] = getReadonly.getOrElse(false)
+  val registerMbeans:         DatabaseCF[Boolean] = getRegisterMbeans.getOrElse(false)
 
   def makeFromDatabaseConfig(
-    dataSource: Option[DataSource] = None,
-    dataSourceProperties: Option[Properties] = None,
+    dataSource:            Option[DataSource] = None,
+    dataSourceProperties:  Option[Properties] = None,
     healthCheckProperties: Option[Properties] = None,
-    healthCheckRegistry: Option[Object] = None,
-    metricRegistry: Option[Object] = None,
+    healthCheckRegistry:   Option[Object] = None,
+    metricRegistry:        Option[Object] = None,
     metricsTrackerFactory: Option[MetricsTrackerFactory] = None,
-    scheduledExecutor: Option[ScheduledExecutorService] = None,
-    threadFactory: Option[ThreadFactory] = None,
+    scheduledExecutor:     Option[ScheduledExecutorService] = None,
+    threadFactory:         Option[ThreadFactory] = None
   ): DatabaseCF[HikariConfig] =
     val hikariConfig = new HikariConfig()
 
