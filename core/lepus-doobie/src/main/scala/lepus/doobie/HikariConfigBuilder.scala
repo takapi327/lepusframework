@@ -161,6 +161,7 @@ trait HikariConfigBuilder:
   val registerMbeans:         DatabaseCF[Boolean] = getRegisterMbeans.getOrElse(false)
 
   def makeFromDatabaseConfig(
+    databaseConfig:        DatabaseConfig,
     dataSource:            Option[DataSource] = None,
     dataSourceProperties:  Option[Properties] = None,
     healthCheckProperties: Option[Properties] = None,
@@ -169,7 +170,8 @@ trait HikariConfigBuilder:
     metricsTrackerFactory: Option[MetricsTrackerFactory] = None,
     scheduledExecutor:     Option[ScheduledExecutorService] = None,
     threadFactory:         Option[ThreadFactory] = None
-  ): DatabaseCF[HikariConfig] =
+  ): HikariConfig =
+    given DatabaseConfig = databaseConfig
     val hikariConfig = new HikariConfig()
 
     getCatalog foreach hikariConfig.setCatalog
@@ -208,3 +210,6 @@ trait HikariConfigBuilder:
     threadFactory foreach hikariConfig.setThreadFactory
 
     hikariConfig
+
+object HikariConfigBuilder:
+  def default: HikariConfigBuilder = new HikariConfigBuilder {}
