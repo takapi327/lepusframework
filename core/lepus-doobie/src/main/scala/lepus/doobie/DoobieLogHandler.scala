@@ -15,7 +15,7 @@ trait DoobieLogHandler[F[_]](using ExecLocation):
 
   private val slowThreshold = 200.millis
 
-  given LogHandler = LogHandler {
+  protected val logHandler: LogHandler = LogHandler {
     case Success(sql, args, exec, processing) =>
       if exec > slowThreshold || processing > slowThreshold then
         self.logger.warn(
