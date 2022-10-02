@@ -36,10 +36,7 @@ object Dependencies {
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.0.1"
 
   val doobieVersion = "1.0.0-RC2"
-  val doobie = Seq(
-    "doobie-core",
-    "doobie-hikari"
-  ).map("org.tpolecat" %% _ % doobieVersion)
+  val doobie = "org.tpolecat" %% "doobie-core" % doobieVersion
 
   val specs2VersionForScala2 = "4.12.12"
   val specs2Version = "5.0.0"
