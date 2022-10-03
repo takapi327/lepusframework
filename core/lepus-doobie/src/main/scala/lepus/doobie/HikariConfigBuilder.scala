@@ -134,7 +134,7 @@ trait HikariConfigBuilder:
   final protected def readConfig[T](func: Configuration => Option[T]): DatabaseCF[Option[T]] =
     val dataSource = summon[DatabaseConfig]
     Seq(
-      dataSource.path + "." + dataSource.database + "." + dataSource.hostspec,
+      dataSource.path + "." + dataSource.hostspec + "." + dataSource.database,
       dataSource.path + "." + dataSource.database,
       dataSource.path + "." + dataSource.hostspec,
       dataSource.path
@@ -172,7 +172,7 @@ trait HikariConfigBuilder:
     threadFactory:         Option[ThreadFactory] = None
   ): HikariConfig =
     given DatabaseConfig = databaseConfig
-    val hikariConfig = new HikariConfig()
+    val hikariConfig     = new HikariConfig()
 
     getCatalog foreach hikariConfig.setCatalog
     hikariConfig.setConnectionTimeout(connectionTimeout)
