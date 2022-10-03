@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.doobie
+package lepus.database
 
 import java.util.Properties
 import java.util.concurrent.{ ScheduledExecutorService, ThreadFactory, TimeUnit }

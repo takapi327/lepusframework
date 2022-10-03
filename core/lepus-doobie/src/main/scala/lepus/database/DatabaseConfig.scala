@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.doobie
+package lepus.database
 
 case class DatabaseConfig(
   path:     String,
