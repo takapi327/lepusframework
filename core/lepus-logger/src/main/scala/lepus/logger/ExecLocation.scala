@@ -22,4 +22,5 @@ case class ExecLocation(
   lineNumber:    Int
 )
 
-type Execute[F[_], T] = ExecLocation ?=> F[T]
+type ExecuteF[F[_], T] = ExecLocation ?=> F[T]
+type Execute[T] = ExecLocation ?=> T
