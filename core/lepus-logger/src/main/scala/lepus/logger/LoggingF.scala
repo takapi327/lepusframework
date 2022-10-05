@@ -28,8 +28,8 @@ trait LoggingF[F[_]]:
 trait LoggingIO[F[_]: Monad: Clock: Console] extends LoggingF[F]:
 
   override val output:    OutputF[F] = ConsoleOutput[F]
-  override val filter:    Filter    = Filter.everything
-  override val formatter: Formatter = DefaultFormatter
+  override val filter:    Filter     = Filter.everything
+  override val formatter: Formatter  = DefaultFormatter
 
   val logger: LoggerF[F] = new LoggerF[F]:
 

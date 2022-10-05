@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -10,18 +10,18 @@ import cats.~>
 trait Logger:
 
   /** A method to receive all information and perform logging.
-   *
-   * @param level
-   *   Log Level
-   * @param msg
-   *   Log Message
-   * @param ex
-   *   Exceptions to be included in the log
-   * @param ctx
-   *   Context information to be included in the log
-   * @tparam M
-   *   Types that can be converted to String
-   */
+    *
+    * @param level
+    *   Log Level
+    * @param msg
+    *   Log Message
+    * @param ex
+    *   Exceptions to be included in the log
+    * @param ctx
+    *   Context information to be included in the log
+    * @tparam M
+    *   Types that can be converted to String
+    */
   protected def log[M](
     level: Level,
     msg:   => M,
@@ -30,10 +30,10 @@ trait Logger:
   ): Execute[Unit]
 
   /** Methods for receiving LogMessage and executing logging.
-   *
-   * @param msg
-   *   A class that summarizes the information needed to write out logs.
-   */
+    *
+    * @param msg
+    *   A class that summarizes the information needed to write out logs.
+    */
   protected def log(msg: LogMessage): Execute[Unit]
 
   /** A set of alias methods to log trace levels. */

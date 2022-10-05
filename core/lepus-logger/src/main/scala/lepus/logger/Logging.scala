@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.logger
 
@@ -45,11 +45,11 @@ trait DefaultLogging extends Logging:
         case (Level.Error, Some(ex)) =>
           output.outputError(formatter.format(msg))
           output.outputStackTrace(ex)
-        case (Level.Error, None)     => output.outputError(formatter.format(msg))
-        case (_, Some(ex))           =>
+        case (Level.Error, None) => output.outputError(formatter.format(msg))
+        case (_, Some(ex)) =>
           output.output(formatter.format(msg))
           output.outputStackTrace(ex)
-        case _                       => output.output(formatter.format(msg))
+        case _ => output.output(formatter.format(msg))
 
     override protected def log[M](
       level: Level,
@@ -59,9 +59,9 @@ trait DefaultLogging extends Logging:
     ): Execute[Unit] = log(buildLogMessage(level, msg, ex, ctx))
 
     /** Methods for receiving LogMessage and executing logging.
-     *
-     * @param msg
-     * A class that summarizes the information needed to write out logs.
-     */
+      *
+      * @param msg
+      *   A class that summarizes the information needed to write out logs.
+      */
     override protected def log(msg: LogMessage): Execute[Unit] =
       if filter(msg) then doOutput(msg) else ()

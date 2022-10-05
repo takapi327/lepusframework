@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.database
 
@@ -12,12 +12,12 @@ import cats.effect.std.Console
 
 import cats.implicits.*
 
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 
 import doobie.*
 import doobie.implicits.*
 
-import lepus.logger.{ExecLocation, LoggingIO, given}
+import lepus.logger.{ ExecLocation, LoggingIO, given }
 
 private[lepus] final case class Database[F[_]: Sync: Async: Console](
   databaseConfig: DatabaseConfig
@@ -43,11 +43,10 @@ private[lepus] final case class Database[F[_]: Sync: Async: Console](
     }.toResource
 
   def testConnection(xa: Transactor[F]): F[Unit] =
-    (testQuery(xa) >> logger.info(s"$databaseConfig Database connection test complete")).onError {
-      (ex: Throwable) =>
-        logger.warn(s"$databaseConfig Database not available, waiting 5 seconds to retry...", ex) >>
-          Sync[F].sleep(5.seconds) >>
-          testConnection(xa)
+    (testQuery(xa) >> logger.info(s"$databaseConfig Database connection test complete")).onError { (ex: Throwable) =>
+      logger.warn(s"$databaseConfig Database not available, waiting 5 seconds to retry...", ex) >>
+        Sync[F].sleep(5.seconds) >>
+        testConnection(xa)
     }
 
   def testQuery(xa: Transactor[F]): F[Unit] =

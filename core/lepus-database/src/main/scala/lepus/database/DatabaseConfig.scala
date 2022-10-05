@@ -13,9 +13,9 @@ case class DatabaseConfig(
   override final def equals(other: Any): Boolean = other match
     case that: DatabaseConfig =>
       (that _equal this) &&
-        (this.path     == that.path)     &&
-        (this.hostspec == that.hostspec) &&
-        (this.database == that.database)
+      (this.path == that.path) &&
+      (this.hostspec == that.hostspec) &&
+      (this.database == that.database)
     case _ => false
   private def _equal(other: Any) = other.isInstanceOf[DatabaseConfig]
 
