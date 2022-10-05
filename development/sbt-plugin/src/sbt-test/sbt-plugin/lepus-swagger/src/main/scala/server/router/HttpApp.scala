@@ -10,11 +10,12 @@ import cats.data.NonEmptyList
 
 import cats.effect.IO
 
-import lepus.router.{ *, given }
+import lepus.router.given
+import lepus.server.LepusApp
 
 import lepus.swagger.*
 
-object HttpApp extends RouterProvider[IO]:
+object HttpApp extends LepusApp[IO]:
 
   override def routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> HelloRoute
