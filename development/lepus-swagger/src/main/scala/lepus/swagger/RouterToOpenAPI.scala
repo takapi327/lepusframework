@@ -32,7 +32,7 @@ private[lepus] object RouterToOpenAPI:
     router: LepusApp[F]
   ): OpenApiUI =
     given Map[DatabaseConfig, Transactor[F]] = Map.empty
-    val groupEndpoint = router.routes.toList.toMap
+    val groupEndpoint                        = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 
