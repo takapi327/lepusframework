@@ -10,10 +10,16 @@ import cats.data.NonEmptyList
 
 import org.http4s.Method
 
+import doobie.Transactor
+
+import lepus.database.DatabaseConfig
+
 import lepus.router.*
 import model.Schema
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
+
+import lepus.server.LepusApp
 
 import lepus.swagger.model.*
 
@@ -23,8 +29,9 @@ private[lepus] object RouterToOpenAPI:
 
   def generateOpenAPIDocs[F[_]](
     info:   Info,
-    router: RouterProvider[F]
+    router: LepusApp[F]
   ): OpenApiUI =
+    given Map[DatabaseConfig, Transactor[F]] = Map.empty
     val groupEndpoint = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)

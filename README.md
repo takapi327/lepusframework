@@ -82,9 +82,10 @@ import cats.data.NonEmptyList
 
 import org.http4s.dsl.io.*
   
-import lepus.router.{ *, given }
+import lepus.given
+import lepus.server.LepusApp
 
-object HelloApp extends RouterProvider[IO]:
+object HelloApp extends LepusApp[IO]:
 
   override def routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> RouterConstructor.of {
@@ -93,7 +94,7 @@ object HelloApp extends RouterProvider[IO]:
   )
 ```
 
-You must set the path of the object that inherits RouterProvider in application.conf.
+You must set the path of the object that inherits LepusApp in application.conf.
 
 ※ We plan to eliminate the need for configuration in the near future.
 ```text
@@ -144,6 +145,8 @@ import lepus.router.{ *, given }
 import lepus.router.model.Schema
 import lepus.router.generic.semiauto.*
 
+import lepus.server.LepusApp
+
 import lepus.swagger.*
 import lepus.swagger.model.OpenApiResponse
 
@@ -167,7 +170,7 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
     case GET => Ok(s"Hello ${summon[String]}")
   }
 
-object HelloApp extends RouterProvider[IO]:
+object HelloApp extends LepusApp[IO]:
 
   override def routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> HelloRoute
