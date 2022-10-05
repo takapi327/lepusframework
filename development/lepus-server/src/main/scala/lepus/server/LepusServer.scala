@@ -18,11 +18,13 @@ import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-import lepus.logger.given
+import doobie.Transactor
 
+import lepus.logger.given
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
+import lepus.database.{ Database, DatabaseConfig, DBTransactor }
 
 private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLogging[IO]:
 
@@ -36,22 +38,37 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
     val port: Int    = config.get[Int](SERVER_PORT)
     val host: String = config.get[String](SERVER_HOST)
 
-    val routerProvider: RouterProvider[IO] = loadRouterProvider()
+    val lepusApp: LepusApp[IO] = loadLepusApp()
 
-    buildServer(host, port, buildApp(routerProvider).orNotFound)
-      .use(_ => IO.never)
-      .as(ExitCode.Success)
+    val databaseResources: Resource[IO, Map[DatabaseConfig, Transactor[IO]]] = buildDatabases(lepusApp.databases)
+
+    databaseResources.use(dbTransactor => {
+      buildServer(host, port, buildApp(lepusApp)(using dbTransactor).orNotFound)
+        .use(_ => IO.never)
+        .as(ExitCode.Success)
+    })
+
+  private def buildDatabases[F[_]: Sync: Async: Console](
+    databases: Set[DatabaseConfig]
+  ): Resource[F, DBTransactor[F]] =
+    val default = Resource.eval(Sync[F].delay(Map.empty[DatabaseConfig, Transactor[F]]))
+    databases.foldLeft(default) { (resource, db) => {
+      for
+        r <- resource
+        b <- Database(db).resource
+      yield r + (db -> b)
+    }}
 
   private def buildApp(
-    routerProvider: RouterProvider[IO]
-  ): Http4sRoutes[IO] =
-    (routerProvider.cors match
+    lepusApp: LepusApp[IO],
+  )(using Map[DatabaseConfig, Transactor[IO]]): Http4sRoutes[IO] =
+    (lepusApp.cors match
       case Some(cors) =>
-        routerProvider.routes.map {
+        lepusApp.routes.map {
           case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
         }
       case None =>
-        routerProvider.routes.map {
+        lepusApp.routes.map {
           case (endpoint, router) =>
             router.cors match
               case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
@@ -78,23 +95,23 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
       .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
       .build
 
-  private def loadRouterProvider(): RouterProvider[IO] =
+  private def loadLepusApp(): LepusApp[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[?] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
       catch
         case ex: ClassNotFoundException =>
-          throw ServerStartException(s"Couldn't find RouterProvider class '$routesClassName'", Some(ex))
+          throw ServerStartException(s"Couldn't find LepusApp class '$routesClassName'", Some(ex))
 
-    if !classOf[RouterProvider[IO]].isAssignableFrom(routeClass) then
-      throw ServerStartException(s"Class ${ routeClass.getName } must implement RouterProvider interface")
+    if !classOf[LepusApp[IO]].isAssignableFrom(routeClass) then
+      throw ServerStartException(s"Class ${ routeClass.getName } must implement LepusApp interface")
 
     val constructor =
-      try routeClass.getField("MODULE$").get(null).asInstanceOf[RouterProvider[IO]]
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[LepusApp[IO]]
       catch
         case ex: NoSuchMethodException =>
           throw ServerStartException(
-            s"RouterProvider class ${ routeClass.getName } must have a public default constructor",
+            s"LepusApp class ${ routeClass.getName } must have a public default constructor",
             Some(ex)
           )
 
