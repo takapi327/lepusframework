@@ -17,17 +17,17 @@ import cats.effect.std.Console
   *
   * example: [[LoggingIO]]
   */
-trait Logging[F[_]]:
+trait LoggingF[F[_]]:
 
-  def output:    Output[F]
+  def output:    OutputF[F]
   def filter:    Filter
   def formatter: Formatter
 
   def logger: LoggerF[F]
 
-trait LoggingIO[F[_]: Monad: Clock: Console] extends Logging[F]:
+trait LoggingIO[F[_]: Monad: Clock: Console] extends LoggingF[F]:
 
-  override val output:    Output[F] = ConsoleOutput[F]
+  override val output:    OutputF[F] = ConsoleOutput[F]
   override val filter:    Filter    = Filter.everything
   override val formatter: Formatter = DefaultFormatter
 
@@ -38,7 +38,7 @@ trait LoggingIO[F[_]: Monad: Clock: Console] extends Logging[F]:
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, LogMessage] =
+    ): ExecuteF[F, LogMessage] =
       Clock[F].realTime.map(now =>
         LogMessage(
           level,
@@ -51,7 +51,7 @@ trait LoggingIO[F[_]: Monad: Clock: Console] extends Logging[F]:
         )
       )
 
-    private def doOutput(msg: LogMessage): Execute[F, Unit] =
+    private def doOutput(msg: LogMessage): ExecuteF[F, Unit] =
       (msg.level, msg.exception) match
         case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
         case (Level.Error, None)     => output.outputError(formatter.format(msg))
@@ -63,8 +63,8 @@ trait LoggingIO[F[_]: Monad: Clock: Console] extends Logging[F]:
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, Unit] =
+    ): ExecuteF[F, Unit] =
       buildLogMessage(level, msg, ex, ctx).flatMap(log)
 
-    override protected def log(msg: LogMessage): Execute[F, Unit] =
+    override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
