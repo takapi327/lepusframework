@@ -10,7 +10,7 @@ import cats.data.NonEmptyList
 
 import cats.effect.IO
 
-import lepus.router.given
+import lepus.router.{ *, given }
 import lepus.server.LepusApp
 
 import lepus.swagger.*

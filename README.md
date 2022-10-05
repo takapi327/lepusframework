@@ -81,8 +81,8 @@ import cats.effect.IO
 import cats.data.NonEmptyList
 
 import org.http4s.dsl.io.*
-  
-import lepus.given
+
+import lepus.router.{ *, given }
 import lepus.server.LepusApp
 
 object HelloApp extends LepusApp[IO]:
