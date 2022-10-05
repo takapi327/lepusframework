@@ -73,7 +73,7 @@ lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger
     "io.circe" %% "circe-core" % circeVersion
   ) ++ specs2Deps)
 
-lazy val LepusDoobieProject = LepusSbtProject("Lepus-doobie", "core/lepus-doobie")
+lazy val LepusDatabaseProject = LepusSbtProject("Lepus-Database", "core/lepus-database")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= Seq(doobie, hikariCP))
   .dependsOn(LepusProject, LepusLoggerProject)
@@ -89,7 +89,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusRouterProject, LepusLoggerProject)
+  .dependsOn(LepusRouterProject, LepusDatabaseProject)
 
 lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
@@ -123,7 +123,7 @@ lazy val userProjects = Seq[ProjectReference](
   LepusRouterProject,
   LepusLogbackProject,
   LepusLoggerProject,
-  LepusDoobieProject
+  LepusDatabaseProject
 )
 
 lazy val nonUserProjects = Seq[ProjectReference](
