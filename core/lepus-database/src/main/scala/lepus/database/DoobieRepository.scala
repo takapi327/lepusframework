@@ -21,7 +21,7 @@ trait DoobieRepository[F[_]: Async](using DBTransactor[F]) extends DoobieLogHand
   given LogHandler = logHandler
 
   def database: DatabaseConfig
-  def table: String
+  def table:    String
 
   private val connection: Option[Transactor[F]] = summon[DBTransactor[F]]
     .flatMap((db, xa) => {
