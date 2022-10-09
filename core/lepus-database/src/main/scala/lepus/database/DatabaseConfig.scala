@@ -4,16 +4,15 @@
 
 package lepus.database
 
-/**
- * Configuration of database settings to be retrieved from Conf file
- *
- * @param path
- *   Key values for conf file.
- * @param hostspec
- *   A value to distinguish between relational databases.
- * @param database
- *   Database Name
- */
+/** Configuration of database settings to be retrieved from Conf file
+  *
+  * @param path
+  *   Key values for conf file.
+  * @param hostspec
+  *   A value to distinguish between relational databases.
+  * @param database
+  *   Database Name
+  */
 case class DatabaseConfig(
   path:     String,
   hostspec: String,
