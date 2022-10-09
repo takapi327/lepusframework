@@ -4,6 +4,16 @@
 
 package lepus.database
 
+/**
+ * Configuration of database settings to be retrieved from Conf file
+ *
+ * @param path
+ *   Key values for conf file.
+ * @param hostspec
+ *   A value to distinguish between relational databases.
+ * @param database
+ *   Database Name
+ */
 case class DatabaseConfig(
   path:     String,
   hostspec: String,
@@ -23,18 +33,16 @@ case class DatabaseConfig(
 
 object DatabaseConfig:
 
-  val SYNTAX_DATA_SOURCE = """^([.\w]+)://(\w+?)/(\w+)$""".r
+  val SYNTAX_DATABASE_CONFIG = """^([.\w]+)://(\w+?)/(\w+)$""".r
 
   def apply(str: String): DatabaseConfig = str match
-    case SYNTAX_DATA_SOURCE(path, hostspec, database) => DatabaseConfig(path, hostspec, database)
+    case SYNTAX_DATABASE_CONFIG(path, hostspec, database) => DatabaseConfig(path, hostspec, database)
     case _ =>
       throw new IllegalArgumentException(
         s"""
-         |$str does not match DataSource format
+         |$str does not match DatabaseConfig format
          |
          |example:
          |  path://hostspec/database
          |""".stripMargin
       )
-
-type DatabaseCF[T] = DatabaseConfig ?=> T
