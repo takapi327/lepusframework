@@ -10,6 +10,8 @@ import doobie.util.log.{ ExecFailure, LogHandler, ProcessingFailure, Success }
 
 import lepus.logger.{ ExecLocation, DefaultLogging }
 
+/** Trait to output logs according to the results of doobie and database processing
+  */
 trait DoobieLogHandler(using ExecLocation) extends DefaultLogging:
 
   private val slowThreshold = 200.millis

@@ -12,10 +12,10 @@ import scala.util.Try
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.*
 
-import lepus.core.util.Configuration
-
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.metrics.MetricsTrackerFactory
+
+import lepus.core.util.Configuration
 
 /** Build the Configuration of HikariCP.
   */
