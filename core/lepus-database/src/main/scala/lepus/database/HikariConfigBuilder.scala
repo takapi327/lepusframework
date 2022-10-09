@@ -17,10 +17,13 @@ import lepus.core.util.Configuration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.metrics.MetricsTrackerFactory
 
+/** Build the Configuration of HikariCP.
+  */
 trait HikariConfigBuilder:
 
   protected val config: Configuration = Configuration.load()
 
+  /** List of keys to retrieve from conf file. */
   final private val CATALOG                     = "catalog"
   final private val CONNECTION_TIMEOUT          = "connection_timeout"
   final private val IDLE_TIMEOUT                = "idle_timeout"
@@ -47,80 +50,106 @@ trait HikariConfigBuilder:
   final private val DRIVER_CLASS_NAME           = "driver_class_name"
   final private val TRANSACTION_ISOLATION       = "transaction_isolation"
 
+  /** Number of application cores */
   private val maxCore: Int = Runtime.getRuntime.availableProcessors()
 
+  /** Method to retrieve catalog information from the conf file. */
   private def getCatalog: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](CATALOG))
 
+  /** Method to retrieve connection timeout information from the conf file. */
   private def getConnectionTimeout: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](CONNECTION_TIMEOUT))
 
+  /** Method to retrieve idle timeout information from the conf file. */
   private def getIdleTimeout: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](IDLE_TIMEOUT))
 
+  /** Method to retrieve leak detection threshold information from the conf file. */
   private def getLeakDetectionThreshold: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](LEAK_DETECTION_THRESHOLD))
 
+  /** Method to retrieve maximum pool size information from the conf file. */
   private def getMaximumPoolSize: DatabaseCF[Option[Int]] =
     readConfig(_.get[Option[Int]](MAXIMUM_POOL_SIZE))
 
+  /** Method to retrieve max life time information from the conf file. */
   private def getMaxLifetime: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](MAX_LIFETIME))
 
+  /** Method to retrieve minimum idle information from the conf file. */
   private def getMinimumIdle: DatabaseCF[Option[Int]] =
     readConfig(_.get[Option[Int]](MINIMUM_IDLE))
 
+  /** Method to retrieve pool name information from the conf file. */
   private def getPoolName: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](POOL_NAME))
 
+  /** Method to retrieve validation timeout information from the conf file. */
   private def getValidationTimeout: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](VALIDATION_TIMEOUT))
 
+  /** Method to retrieve allow pool suspension information from the conf file. */
   private def getAllowPoolSuspension: DatabaseCF[Option[Boolean]] =
     readConfig(_.get[Option[Boolean]](ALLOW_POOL_SUSPENSION))
 
+  /** Method to retrieve auto commit information from the conf file. */
   private def getAutoCommit: DatabaseCF[Option[Boolean]] =
     readConfig(_.get[Option[Boolean]](AUTO_COMMIT))
 
+  /** Method to retrieve connection init sql information from the conf file. */
   private def getConnectionInitSql: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](CONNECTION_INIT_SQL))
 
+  /** Method to retrieve connection test query information from the conf file. */
   private def getConnectionTestQuery: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](CONNECTION_TEST_QUERY))
 
+  /** Method to retrieve data source class name information from the conf file. */
   private def getDataSourceClassname: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](DATA_SOURCE_CLASSNAME))
 
+  /** Method to retrieve data source jndi information from the conf file. */
   private def getDatasourceJndi: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](DATASOURCE_JNDI))
 
+  /** Method to retrieve initialization fail time out information from the conf file. */
   private def getInitializationFailTimeout: DatabaseCF[Option[Duration]] =
     readConfig(_.get[Option[Duration]](INITIALIZATION_FAIL_TIMEOUT))
 
+  /** Method to retrieve isolate internal queries information from the conf file. */
   private def getIsolateInternalQueries: DatabaseCF[Option[Boolean]] =
     readConfig(_.get[Option[Boolean]](ISOLATE_INTERNAL_QUERIES))
 
+  /** Method to retrieve jdbc url information from the conf file. */
   private def getJdbcUrl: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](JDBC_URL))
 
+  /** Method to retrieve readonly information from the conf file. */
   private def getReadonly: DatabaseCF[Option[Boolean]] =
     readConfig(_.get[Option[Boolean]](READONLY))
 
+  /** Method to retrieve register mbeans information from the conf file. */
   private def getRegisterMbeans: DatabaseCF[Option[Boolean]] =
     readConfig(_.get[Option[Boolean]](REGISTER_MBEANS))
 
+  /** Method to retrieve schema information from the conf file. */
   private def getSchema: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](SCHEMA))
 
+  /** Method to retrieve user name information from the conf file. */
   protected def getUserName: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](USERNAME))
 
+  /** Method to retrieve password information from the conf file. */
   protected def getPassWord: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](PASSWORD))
 
+  /** Method to retrieve driver class name information from the conf file. */
   protected def getDriverClassName: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](DRIVER_CLASS_NAME))
 
+  /** Method to retrieve transaction isolation information from the conf file. */
   protected def getTransactionIsolation: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](TRANSACTION_ISOLATION)).map { v =>
       if v == "TRANSACTION_NONE" || v == "TRANSACTION_READ_UNCOMMITTED" || v == "TRANSACTION_READ_COMMITTED" || v == "TRANSACTION_REPEATABLE_READ" || v == "TRANSACTION_SERIALIZABLE"
@@ -131,6 +160,14 @@ trait HikariConfigBuilder:
         )
     }
 
+  /** Method to retrieve values matching any key from the conf file from the DatabaseConfig configuration, with any
+    * type.
+    *
+    * @param func
+    *   Process to get values from Configuration wrapped in Option
+    * @tparam T
+    *   Type of value retrieved from conf file
+    */
   final protected def readConfig[T](func: Configuration => Option[T]): DatabaseCF[Option[T]] =
     val dataSource = summon[DatabaseConfig]
     Seq(
@@ -145,6 +182,7 @@ trait HikariConfigBuilder:
         }
     }
 
+  /** List of variables predefined as default settings. */
   val connectionTimeout:      DatabaseCF[Long] = getConnectionTimeout.getOrElse(Duration(30, TimeUnit.SECONDS)).toMillis
   val idleTimeout:            DatabaseCF[Long] = getIdleTimeout.getOrElse(Duration(10, TimeUnit.MINUTES)).toMillis
   val leakDetectionThreshold: DatabaseCF[Long] = getLeakDetectionThreshold.getOrElse(Duration.Zero).toMillis
@@ -160,6 +198,27 @@ trait HikariConfigBuilder:
   val readonly:               DatabaseCF[Boolean] = getReadonly.getOrElse(false)
   val registerMbeans:         DatabaseCF[Boolean] = getRegisterMbeans.getOrElse(false)
 
+  /** Method to generate HikariConfig based on DatabaseConfig and other settings.
+    *
+    * @param databaseConfig
+    *   Configuration of database settings to be retrieved from Conf file
+    * @param dataSource
+    *   Factories for connection to physical data sources
+    * @param dataSourceProperties
+    *   Properties (name/value pairs) used to configure DataSource/java.sql.Driver
+    * @param healthCheckProperties
+    *   Properties (name/value pairs) used to configure HealthCheck/java.sql.Driver
+    * @param healthCheckRegistry
+    *   Set the HealthCheckRegistry that will be used for registration of health checks by HikariCP.
+    * @param metricRegistry
+    *   Set a MetricRegistry instance to use for registration of metrics used by HikariCP.
+    * @param metricsTrackerFactory
+    *   Set a MetricsTrackerFactory instance to use for registration of metrics used by HikariCP.
+    * @param scheduledExecutor
+    *   Set the ScheduledExecutorService used for housekeeping.
+    * @param threadFactory
+    *   Set the thread factory to be used to create threads.
+    */
   def makeFromDatabaseConfig(
     databaseConfig:        DatabaseConfig,
     dataSource:            Option[DataSource] = None,
