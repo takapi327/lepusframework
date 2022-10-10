@@ -17,10 +17,10 @@ trait DoobieQueryHelper:
   def insert(params: String*): LepusQuery.Insert = LepusQuery.insert(table, params*)
   def insert[T: Schema]:       LepusQuery.Insert = LepusQuery.insert[T](table)
 
-  def insert[T: Write: Schema](value: T): ConnectionIO[Int] =
+  def insert[T: Write](value: T)(using schema: Schema[T]): ConnectionIO[Int] =
     given LogHandler = log.logHandler
     Update[T](
-      s"INSERT INTO $table (${ schemaFieldNames(summon[Schema[T]]) }) VALUES (${ buildAnyValues(schemaFieldSize(summon[Schema[T]])) })"
+      s"INSERT INTO $table (${ schemaFieldNames(schema) }) VALUES (${ buildAnyValues(schemaFieldSize(schema)) })"
     ).run(value)
 
   private[lepus] def schemaFieldNames[T](schema: Schema[T]): String =
@@ -34,4 +34,4 @@ trait DoobieQueryHelper:
       case _            => 0
 
   private def buildAnyValues(size: Int): String =
-    Vector.fill(size)("?").mkString(",")
+    Vector.fill(size)("?").mkString(", ")
