@@ -21,15 +21,12 @@ trait DoobieRepository[F[_]: Async](using DBTransactor[F]) extends DoobieLogHand
   given LogHandler = logHandler
 
   def database: DatabaseConfig
-  def table:    String
 
   private val connection: Option[Transactor[F]] = summon[DBTransactor[F]]
     .flatMap((db, xa) => {
       if db equals database then Some(xa) else None
     })
     .headOption
-
-  def select(params: String*): LepusQuery.Select = LepusQuery.select(table, params*)
 
   object Action:
     @targetName("default") def apply[T](func: Transactor[F] => F[T]): F[T] =
