@@ -143,7 +143,7 @@ import org.http4s.dsl.io.*
 
 import lepus.router.{ *, given }
 import lepus.core.generic.Schema
-import lepus.router.generic.semiauto.*
+import lepus.core.generic.semiauto.*
 
 import lepus.server.LepusApp
 
