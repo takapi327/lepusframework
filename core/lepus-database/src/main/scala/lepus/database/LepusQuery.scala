@@ -19,9 +19,17 @@ object LepusQuery:
   case class Select(fragment: Fragment) extends LepusQuery:
     def where(other: Fragment): Where =
       Where(fragment ++ fr"WHERE" ++ other)
+    def limit(num: Long): Limit =
+      require(num > 0, "The LIMIT condition must be a number greater than 0.")
+      Limit(fragment ++ fr"LIMIT" ++ Fragment.const(num.toString))
 
   case class Where(fragment: Fragment) extends LepusQuery:
     def and(other: Fragment): Where =
       this.copy(fragment ++ fr"AND" ++ other)
     def or(other: Fragment): Where =
       this.copy(fragment ++ fr"OR" ++ other)
+    def limit(num: Long): Limit =
+      require(num > 0, "The LIMIT condition must be a number greater than 0.")
+      Limit(fragment ++ fr"LIMIT" ++ Fragment.const(num.toString))
+
+  case class Limit(fragment: Fragment) extends LepusQuery
