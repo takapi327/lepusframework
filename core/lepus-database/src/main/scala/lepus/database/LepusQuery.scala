@@ -4,12 +4,20 @@
 
 package lepus.database
 
+import scala.annotation.targetName
+
 import cats.implicits.*
 
 import doobie.util.fragment.Fragment
 
 trait LepusQuery:
   def fragment: Fragment
+
+  /** Alias for the method that Fragment has. */
+  def query[B: Read](using h: LogHandler = LogHandler.nop): Query0[B] =
+    fragment.query[B]
+  def update(using h: LogHandler = LogHandler.nop): Update0 =
+    fragment.update
 
 object LepusQuery:
 
