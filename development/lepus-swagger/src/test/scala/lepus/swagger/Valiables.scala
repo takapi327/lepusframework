@@ -4,7 +4,7 @@
 
 package lepus.swagger
 
-import lepus.router.model.Schema
+import lepus.core.generic.Schema
 import lepus.router.generic.semiauto.*
 
 case class Address(zipCode: String, country: String, prefecture: String)

@@ -51,14 +51,13 @@ lazy val LepusProject = LepusSbtProject("Lepus", "core/lepus")
     libraryDependencies ++= Seq(
       cats,
       typesafeConfig,
+      magnolia3
     ) ++ specs2Deps
   )
 
 lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= routerDependencies ++ specs2Deps ++ Seq(
-    magnolia3
-  ))
+  .settings(libraryDependencies ++= routerDependencies ++ specs2Deps)
   .dependsOn(LepusProject)
   .enablePlugins(spray.boilerplate.BoilerplatePlugin)
 

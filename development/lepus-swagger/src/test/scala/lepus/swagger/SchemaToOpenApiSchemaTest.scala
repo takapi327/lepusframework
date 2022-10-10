@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 import org.specs2.mutable.Specification
 
-import lepus.router.model.Schema
+import lepus.core.generic.Schema
 import lepus.swagger.model.OpenApiSchema.{ SchemaFormat, SchemaType }
 
 object SchemaToOpenApiSchemaTest extends Specification:

@@ -12,10 +12,11 @@ import org.http4s.Method
 
 import doobie.Transactor
 
+import lepus.core.generic.Schema
+
 import lepus.database.DatabaseConfig
 
 import lepus.router.*
-import model.Schema
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
 

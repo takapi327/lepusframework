@@ -10,7 +10,7 @@ import org.typelevel.ci.CIString
 
 import org.http4s.{ Uri, Header as Http4sHeader }
 
-import lepus.router.model.Schema
+import lepus.core.generic.Schema
 
 import Header.*
 trait Header(

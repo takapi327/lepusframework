@@ -11,7 +11,7 @@ import io.circe.Encoder
 import org.http4s.Status
 
 import lepus.router.http.Header as RouteHeader
-import lepus.router.model.Schema
+import lepus.core.generic.Schema
 
 import lepus.swagger.SchemaToOpenApiSchema
 
