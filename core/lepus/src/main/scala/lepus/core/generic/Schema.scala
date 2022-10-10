@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.core.generic
 
@@ -31,8 +31,8 @@ final case class Schema[T](
     )
 
   /** Returns an array version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets `isOptional`
-   * to true as the collection might be empty.
-   */
+    * to true as the collection might be empty.
+    */
   def asArray: Schema[Array[T]] =
     Schema(
       schemaType = SArray(this),
@@ -40,8 +40,8 @@ final case class Schema[T](
     )
 
   /** Returns a collection version of this schema, with the schema type wrapped in [[SchemaType.SArray]]. Sets
-   * `isOptional` to true as the collection might be empty.
-   */
+    * `isOptional` to true as the collection might be empty.
+    */
   def asIterable[C[X] <: Iterable[X]]: Schema[C[T]] =
     Schema(
       schemaType = SArray(this),
