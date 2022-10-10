@@ -58,4 +58,4 @@ object LepusQuery:
   private[lepus] def schemaFieldNames[T](schema: Schema[T]): Fragment =
     schema.schemaType match
       case v: Entity[T] => Fragment.const(v.fields.map(_.name.name).mkString(", "))
-      case _ => Fragment.const("*")
+      case _            => Fragment.const("*")
