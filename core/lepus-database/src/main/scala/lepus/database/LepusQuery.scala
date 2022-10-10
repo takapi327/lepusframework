@@ -15,6 +15,8 @@ object LepusQuery:
 
   def select(table: String, params: String*): Select =
     Select(fr"SELECT" ++ Fragment.const(params.mkString(",")) ++ fr"FROM" ++ Fragment.const(table))
+  def insert(table: String, params: String*): Insert =
+    Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ Fragment.const(params.mkString(",")) ++ fr")")
 
   case class Select(fragment: Fragment) extends LepusQuery:
     def where(other: Fragment): Where =
@@ -33,3 +35,7 @@ object LepusQuery:
       Limit(fragment ++ fr"LIMIT" ++ Fragment.const(num.toString))
 
   case class Limit(fragment: Fragment) extends LepusQuery
+
+  case class Insert(fragment: Fragment) extends LepusQuery:
+    def values(params: Fragment*): Insert =
+      this.copy(fragment ++ fr"values" ++ fr"(" ++ params.intercalate(fr",") ++ fr")")
