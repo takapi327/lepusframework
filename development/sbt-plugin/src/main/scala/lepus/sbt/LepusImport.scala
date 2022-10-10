@@ -18,7 +18,7 @@ object LepusImport {
 
   val lepusLogger = component("lepus-logger")
 
-  val lepusdoobie = component("lepus-doobie")
+  val lepusDatabase = component("lepus-database")
 
   val lepusServer = component("lepus-server")
 
