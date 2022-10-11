@@ -18,8 +18,6 @@ import doobie.util.fragment.Fragment
 
 trait DoobieRepository[F[_]: Async](using DBTransactor[F]) extends DoobieLogHandler:
 
-  given LogHandler = logHandler
-
   def database: DatabaseConfig
 
   private val connection: Option[Transactor[F]] = summon[DBTransactor[F]]

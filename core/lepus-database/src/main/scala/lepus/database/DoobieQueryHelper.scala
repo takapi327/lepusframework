@@ -17,11 +17,15 @@ trait DoobieQueryHelper:
   def insert(params: String*): LepusQuery.Insert = LepusQuery.insert(table, params*)
   def insert[T: Schema]:       LepusQuery.Insert = LepusQuery.insert[T](table)
 
-  def insert[T: Write](value: T)(using schema: Schema[T]): ConnectionIO[Int] =
-    given LogHandler = log.logHandler
+  def insert[T: Write: Schema](value: T): ConnectionIO[Int] =
+    update[T].run(value)
+  def insert[T: Write: Schema](values: T*): ConnectionIO[Int] =
+    update[T].updateMany(values)
+
+  private def update[T: Write](using schema: Schema[T]): Update[T] =
     Update[T](
       s"INSERT INTO $table (${ schemaFieldNames(schema) }) VALUES (${ buildAnyValues(schemaFieldSize(schema)) })"
-    ).run(value)
+    )
 
   private[lepus] def schemaFieldNames[T](schema: Schema[T]): String =
     schema.schemaType match

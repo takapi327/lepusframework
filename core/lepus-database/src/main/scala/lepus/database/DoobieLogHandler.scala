@@ -16,6 +16,8 @@ trait DoobieLogHandler(using ExecLocation) extends DefaultLogging:
 
   private val slowThreshold = 200.millis
 
+  given LogHandler = logHandler
+
   protected val logHandler: LogHandler = LogHandler {
     case Success(sql, args, exec, processing) =>
       if exec > slowThreshold || processing > slowThreshold then
