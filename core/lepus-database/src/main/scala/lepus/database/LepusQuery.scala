@@ -9,6 +9,7 @@ import scala.annotation.targetName
 import cats.implicits.*
 
 import lepus.core.generic.Schema
+import lepus.core.format.Naming
 
 trait LepusQuery:
   def fragment: Fragment
@@ -25,10 +26,14 @@ object LepusQuery extends SchemaHelper:
     Select(fr"SELECT" ++ Fragment.const(params.mkString(",")) ++ fr"FROM" ++ Fragment.const(table))
   def select[T: Schema](table: String): Select =
     Select(fr"SELECT" ++ schemaToFragment(summon[Schema[T]]) ++ fr"FROM" ++ Fragment.const(table))
+  def select[T: Schema](table: String, naming: Naming): Select =
+    Select(fr"SELECT" ++ schemaToFragment(summon[Schema[T]], naming) ++ fr"FROM" ++ Fragment.const(table))
   def insert(table: String, params: String*): Insert =
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ Fragment.const(params.mkString(",")) ++ fr")")
   def insert[T: Schema](table: String): Insert =
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]]) ++ fr")")
+  def insert[T: Schema](table: String, naming: Naming): Insert =
+    Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]], naming) ++ fr")")
 
   case class Select(fragment: Fragment) extends LepusQuery:
     def where(other: Fragment): Where =

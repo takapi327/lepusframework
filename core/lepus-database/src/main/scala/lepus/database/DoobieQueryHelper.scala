@@ -11,10 +11,12 @@ trait DoobieQueryHelper extends SchemaHelper:
 
   def table: String
 
-  def select(params: String*): LepusQuery.Select = LepusQuery.select(table, params*)
-  def select[T: Schema]:       LepusQuery.Select = LepusQuery.select[T](table)
-  def insert(params: String*): LepusQuery.Insert = LepusQuery.insert(table, params*)
-  def insert[T: Schema]:       LepusQuery.Insert = LepusQuery.insert[T](table)
+  def select(params: String*):           LepusQuery.Select = LepusQuery.select(table, params*)
+  def select[T: Schema]:                 LepusQuery.Select = LepusQuery.select[T](table)
+  def select[T: Schema](naming: Naming): LepusQuery.Select = LepusQuery.select[T](table, naming)
+  def insert(params: String*):           LepusQuery.Insert = LepusQuery.insert(table, params*)
+  def insert[T: Schema]:                 LepusQuery.Insert = LepusQuery.insert[T](table)
+  def insert[T: Schema](naming: Naming): LepusQuery.Insert = LepusQuery.insert[T](table, naming)
 
   def insert[T: Write: Schema](value: T): ConnectionIO[Int] =
     update[T].run(value)
