@@ -9,9 +9,7 @@ import org.specs2.mutable.Specification
 import lepus.core.generic.Schema
 import lepus.core.generic.semiauto.*
 
-object DoobieQueryHelperTest extends Specification, DoobieQueryHelper:
-
-  override val table = "test"
+object SchemaHelperTest extends Specification, SchemaHelper:
 
   "Testing the DoobieQueryHelper buildAnyValues method" should {
 

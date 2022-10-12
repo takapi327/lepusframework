@@ -8,10 +8,7 @@ import scala.annotation.targetName
 
 import cats.implicits.*
 
-import doobie.util.fragment.Fragment
-
 import lepus.core.generic.Schema
-import lepus.core.generic.SchemaType.Entity
 
 trait LepusQuery:
   def fragment: Fragment
@@ -22,16 +19,16 @@ trait LepusQuery:
   def update(using h: LogHandler = LogHandler.nop): Update0 =
     fragment.update
 
-object LepusQuery:
+object LepusQuery extends SchemaHelper:
 
   def select(table: String, params: String*): Select =
     Select(fr"SELECT" ++ Fragment.const(params.mkString(",")) ++ fr"FROM" ++ Fragment.const(table))
   def select[T: Schema](table: String): Select =
-    Select(fr"SELECT" ++ schemaFieldNames(summon[Schema[T]]) ++ fr"FROM" ++ Fragment.const(table))
+    Select(fr"SELECT" ++ schemaToFragment(summon[Schema[T]]) ++ fr"FROM" ++ Fragment.const(table))
   def insert(table: String, params: String*): Insert =
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ Fragment.const(params.mkString(",")) ++ fr")")
   def insert[T: Schema](table: String): Insert =
-    Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaFieldNames(summon[Schema[T]]) ++ fr")")
+    Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]]) ++ fr")")
 
   case class Select(fragment: Fragment) extends LepusQuery:
     def where(other: Fragment): Where =
@@ -54,8 +51,3 @@ object LepusQuery:
   case class Insert(fragment: Fragment) extends LepusQuery:
     def values(params: Fragment*): Insert =
       this.copy(fragment ++ fr"VALUES" ++ fr"(" ++ params.intercalate(fr",") ++ fr")")
-
-  private[lepus] def schemaFieldNames[T](schema: Schema[T]): Fragment =
-    schema.schemaType match
-      case v: Entity[T] => Fragment.const(v.fields.map(_.name.name).mkString(", "))
-      case _            => Fragment.const("*")
