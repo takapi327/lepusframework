@@ -6,9 +6,8 @@ package lepus.core.format
 
 import scala.annotation.tailrec
 
-/**
- * Enum of naming rules
- */
+/** Enum of naming rules
+  */
 enum Naming:
   case CAMEL, PASCAL, SNAKE, KEBAB
 
