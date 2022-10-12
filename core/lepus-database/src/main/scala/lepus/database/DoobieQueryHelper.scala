@@ -6,11 +6,17 @@ package lepus.database
 
 import lepus.core.generic.Schema
 import lepus.core.generic.SchemaType.Entity
+import lepus.core.format.Naming
 
 trait DoobieQueryHelper:
-  log: DoobieLogHandler =>
 
   def table: String
+
+  /** Naming Rule Aliases */
+  protected final val CAMEL  = Naming.CAMEL
+  protected final val PASCAL = Naming.PASCAL
+  protected final val SNAKE  = Naming.SNAKE
+  protected final val KEBAB  = Naming.KEBAB
 
   def select(params: String*): LepusQuery.Select = LepusQuery.select(table, params*)
   def select[T: Schema]:       LepusQuery.Select = LepusQuery.select[T](table)
@@ -21,10 +27,19 @@ trait DoobieQueryHelper:
     update[T].run(value)
   def insert[T: Write: Schema](values: T*): ConnectionIO[Int] =
     update[T].updateMany(values)
+  def insert[T: Write: Schema](value: T, naming: Naming): ConnectionIO[Int] =
+    update[T](naming).run(value)
+  def insert[T: Write: Schema](naming: Naming)(values: T*): ConnectionIO[Int] =
+    update[T](naming).updateMany(values)
 
   private def update[T: Write](using schema: Schema[T]): Update[T] =
     Update[T](
       s"INSERT INTO $table (${ schemaFieldNames(schema) }) VALUES (${ buildAnyValues(schemaFieldSize(schema)) })"
+    )
+
+  private def update[T: Write](naming: Naming)(using schema: Schema[T]): Update[T] =
+    Update[T](
+      s"INSERT INTO $table (${ schemaFieldNames(schema, naming) }) VALUES (${ buildAnyValues(schemaFieldSize(schema)) })"
     )
 
   private[lepus] def schemaFieldNames[T](schema: Schema[T]): String =
@@ -32,10 +47,15 @@ trait DoobieQueryHelper:
       case v: Entity[T] => v.fields.map(_.name.name).mkString(", ")
       case _            => ""
 
+  private[lepus] def schemaFieldNames[T](schema: Schema[T], naming: Naming): String =
+    schema.schemaType match
+      case v: Entity[T] => v.fields.map(s => naming.format(s.name.name)).mkString(", ")
+      case _            => ""
+
   private[lepus] def schemaFieldSize[T](schema: Schema[T]): Int =
     schema.schemaType match
       case v: Entity[T] => v.fields.size
       case _            => 0
 
-  private def buildAnyValues(size: Int): String =
+  private[lepus] def buildAnyValues(size: Int): String =
     Vector.fill(size)("?").mkString(", ")
