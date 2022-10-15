@@ -20,12 +20,15 @@ trait DoobieRepository[F[_]: Async](using dbt: DBTransactor[F]) extends DoobieLo
 
   def database: DatabaseConfig
 
-  private val connection: Option[Transactor[F]] = dbt.get(database).orElse(
-    dbt.flatMap((db, xa) => {
-      if db equals database then Some(xa) else None
-    })
-    .headOption
-  )
+  private val connection: Option[Transactor[F]] = dbt
+    .get(database)
+    .orElse(
+      dbt
+        .flatMap((db, xa) => {
+          if db equals database then Some(xa) else None
+        })
+        .headOption
+    )
 
   object Action:
     @targetName("default") def apply[T](func: Transactor[F] => F[T]): F[T] =
