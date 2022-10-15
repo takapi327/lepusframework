@@ -22,6 +22,9 @@ trait DoobieQueryHelper extends SchemaHelper:
   def insert[T: Write: Schema](value: T):   ConnectionIO[Int] = update[T](SNAKE).run(value)
   def insert[T: Write: Schema](values: T*): ConnectionIO[Int] = update[T](SNAKE).updateMany(values)
 
+  /** Convenience method for UPDATE statement to connect to a database. */
+  def update: LepusQuery.Update = LepusQuery.update(table)
+
   /** Convenience method for DELETE statement to connect to a database. */
   def delete: LepusQuery.Delete = LepusQuery.delete(table)
 
