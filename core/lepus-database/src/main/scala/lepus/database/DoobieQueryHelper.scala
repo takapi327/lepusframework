@@ -13,22 +13,17 @@ trait DoobieQueryHelper extends SchemaHelper:
   def table: String
 
   /** Convenience methods for SELECT statements to connect to databases. */
-  def select(params: String*):           LepusQuery.Select = LepusQuery.select(table, params*)
-  def select[T: Schema]:                 LepusQuery.Select = LepusQuery.select[T](table)
-  def select[T: Schema](naming: Naming): LepusQuery.Select = LepusQuery.select[T](table, naming)
+  def select(params: String*): LepusQuery.Select = LepusQuery.select(table, params*)
+  def select[T: Schema]:       LepusQuery.Select = LepusQuery.select[T](table, SNAKE)
 
   /** Convenience method for INSERT INTO statement to connect to a database. */
-  def insert(params: String*):           LepusQuery.Insert = LepusQuery.insert(table, params*)
-  def insert[T: Schema]:                 LepusQuery.Insert = LepusQuery.insert[T](table)
-  def insert[T: Schema](naming: Naming): LepusQuery.Insert = LepusQuery.insert[T](table, naming)
-  def insert[T: Write: Schema](value: T): ConnectionIO[Int] =
-    update[T].run(value)
-  def insert[T: Write: Schema](values: T*): ConnectionIO[Int] =
-    update[T].updateMany(values)
-  def insert[T: Write: Schema](value: T, naming: Naming): ConnectionIO[Int] =
-    update[T](naming).run(value)
-  def insert[T: Write: Schema](naming: Naming)(values: T*): ConnectionIO[Int] =
-    update[T](naming).updateMany(values)
+  def insert(params: String*):              LepusQuery.Insert = LepusQuery.insert(table, params*)
+  def insert[T: Schema]:                    LepusQuery.Insert = LepusQuery.insert[T](table, SNAKE)
+  def insert[T: Write: Schema](value: T):   ConnectionIO[Int] = update[T](SNAKE).run(value)
+  def insert[T: Write: Schema](values: T*): ConnectionIO[Int] = update[T](SNAKE).updateMany(values)
+
+  /** Convenience method for DELETE statement to connect to a database. */
+  def delete: LepusQuery.Delete = LepusQuery.delete(table)
 
   private def update[T: Write](using schema: Schema[T]): Update[T] =
     Update[T](

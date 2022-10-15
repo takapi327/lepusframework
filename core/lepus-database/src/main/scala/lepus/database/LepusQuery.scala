@@ -19,6 +19,8 @@ trait LepusQuery:
     fragment.query[B]
   def update(using h: LogHandler = LogHandler.nop): Update0 =
     fragment.update
+  def updateRun(using h: LogHandler = LogHandler.nop): ConnectionIO[Int] =
+    fragment.update.run
 
 object LepusQuery extends SchemaHelper:
 
@@ -34,6 +36,8 @@ object LepusQuery extends SchemaHelper:
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]]) ++ fr")")
   def insert[T: Schema](table: String, naming: Naming): Insert =
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]], naming) ++ fr")")
+  def delete(table: String): Delete =
+    Delete(fr"DELETE" ++ Fragment.const(table))
 
   case class Select(fragment: Fragment) extends LepusQuery:
     def where(other: Fragment): Where =
@@ -41,6 +45,10 @@ object LepusQuery extends SchemaHelper:
     def limit(num: Long): Limit =
       require(num > 0, "The LIMIT condition must be a number greater than 0.")
       Limit(fragment ++ fr"LIMIT" ++ Fragment.const(num.toString))
+
+  case class Delete(fragment: Fragment) extends LepusQuery:
+    def where(other: Fragment): Where =
+      Where(fragment ++ fr"WHERE" ++ other)
 
   case class Where(fragment: Fragment) extends LepusQuery:
     def and(other: Fragment): Where =
