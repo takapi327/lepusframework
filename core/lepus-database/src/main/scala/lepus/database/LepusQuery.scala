@@ -37,7 +37,9 @@ object LepusQuery extends SchemaHelper:
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]]) ++ fr")")
   def insert[T: Schema](table: String, naming: Naming): Insert =
     Insert(fr"INSERT INTO" ++ Fragment.const(table) ++ fr"(" ++ schemaToFragment(summon[Schema[T]], naming) ++ fr")")
-  def update(table: String, params: Fragment*): Update = Update(fr"UPDATE" ++ Fragment.const(table) ++ fr"SET" ++ params.intercalate(fr","))
+  def update(table: String, params: Fragment*): Update = Update(
+    fr"UPDATE" ++ Fragment.const(table) ++ fr"SET" ++ params.intercalate(fr",")
+  )
   def delete(table: String): Delete = Delete(fr"DELETE FROM" ++ Fragment.const(table))
 
   case class Select(fragment: Fragment) extends LepusQuery:
