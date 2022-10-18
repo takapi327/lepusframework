@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [3.2.0, 2.12.15]
-        java: [temurin@11, temurin@8]
+        java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -37,13 +37,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 8
 
       - name: Cache sbt
         uses: actions/cache@v2
@@ -94,13 +87,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 8
 
       - name: Cache sbt
         uses: actions/cache@v2
@@ -158,13 +144,6 @@ jobs:
           distribution: temurin
           java-version: 11
 
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 8
-
       - name: Cache sbt
         uses: actions/cache@v2
         with:
@@ -200,13 +179,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
-
-      - name: Setup Java (temurin@8)
-        if: matrix.java == 'temurin@8'
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 8
 
       - name: Cache sbt
         uses: actions/cache@v2
