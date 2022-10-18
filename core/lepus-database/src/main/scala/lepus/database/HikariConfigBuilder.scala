@@ -168,8 +168,7 @@ trait HikariConfigBuilder:
     * @tparam T
     *   Type of value retrieved from conf file
     */
-  final protected def readConfig[T](func: Configuration => Option[T]): DatabaseCF[Option[T]] =
-    val dataSource = summon[DatabaseConfig]
+  final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DatabaseConfig): Option[T] =
     Seq(
       dataSource.replication.map(replication => {
         dataSource.path + "." + dataSource.database + "." + replication
