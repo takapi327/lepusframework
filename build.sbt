@@ -11,7 +11,7 @@ import Dependencies._
 
 // Global settings
 ThisBuild / crossScalaVersions         := Seq(scala3, scala212)
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11), JavaSpec.temurin(java8))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin(java11))
 
 ThisBuild / githubWorkflowAddedJobs ++= Seq(
   WorkflowJob(
