@@ -11,6 +11,8 @@ import cats.effect.kernel.MonadCancelThrow
 
 import fs2.{ Pipe, Stream }
 
+import lepus.database.implicits.*
+
 /** Trait to build Repository for DB connection using doobie.
   *
   * @tparam F

@@ -11,6 +11,8 @@ import cats.implicits.*
 import lepus.core.generic.Schema
 import lepus.core.format.Naming
 
+import lepus.database.implicits.*
+
 trait LepusQuery[T: Read]:
   def fragment: Fragment
 

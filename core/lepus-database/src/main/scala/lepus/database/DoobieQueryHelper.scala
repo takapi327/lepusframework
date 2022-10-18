@@ -7,6 +7,8 @@ package lepus.database
 import lepus.core.generic.Schema
 import lepus.core.format.Naming
 
+import lepus.database.implicits.*
+
 trait DoobieQueryHelper extends SchemaHelper:
 
   /** Name of the database table to use with this helper */
