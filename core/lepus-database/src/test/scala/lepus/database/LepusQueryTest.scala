@@ -11,6 +11,8 @@ import lepus.core.format.Naming.SNAKE
 import lepus.core.generic.Schema
 import lepus.core.generic.semiauto.*
 
+import lepus.database.implicits.*
+
 object LepusQueryTest extends Specification:
 
   import LepusQuery.*
