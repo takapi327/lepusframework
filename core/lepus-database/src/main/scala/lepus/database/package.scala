@@ -15,8 +15,8 @@ import doobie.Transactor
   * }}}
   */
 package object database extends LepusDoobie:
-  type DatabaseCF[T] = DatabaseConfig ?=> T
+  type DatabaseCF[T] = DataSource ?=> T
 
-  type DBTransactor[F[_]] = Map[DatabaseConfig, Transactor[F]]
+  type DBTransactor[F[_]] = Map[DataSource, Transactor[F]]
 
   type Transact[F[_], T] = DBTransactor[F] ?=> T

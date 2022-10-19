@@ -14,7 +14,7 @@ import doobie.Transactor
 
 import lepus.core.generic.Schema
 
-import lepus.database.DatabaseConfig
+import lepus.database.DataSource
 
 import lepus.router.*
 import lepus.router.internal.*
@@ -32,8 +32,8 @@ private[lepus] object RouterToOpenAPI:
     info:   Info,
     router: LepusApp[F]
   ): OpenApiUI =
-    given Map[DatabaseConfig, Transactor[F]] = Map.empty
-    val groupEndpoint                        = router.routes.toList.toMap
+    given Map[DataSource, Transactor[F]] = Map.empty
+    val groupEndpoint                    = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 

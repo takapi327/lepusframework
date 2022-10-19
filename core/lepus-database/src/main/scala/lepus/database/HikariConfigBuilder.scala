@@ -6,7 +6,7 @@ package lepus.database
 
 import java.util.Properties
 import java.util.concurrent.{ ScheduledExecutorService, ThreadFactory, TimeUnit }
-import javax.sql.DataSource
+import javax.sql.DataSource as JDataSource
 
 import scala.util.Try
 import scala.concurrent.duration.Duration
@@ -168,7 +168,7 @@ trait HikariConfigBuilder:
     * @tparam T
     *   Type of value retrieved from conf file
     */
-  final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DatabaseConfig): Option[T] =
+  final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DataSource): Option[T] =
     Seq(
       dataSource.replication.map(replication => {
         dataSource.path + "." + dataSource.database + "." + replication
@@ -200,9 +200,9 @@ trait HikariConfigBuilder:
 
   /** Method to generate HikariConfig based on DatabaseConfig and other settings.
     *
-    * @param databaseConfig
-    *   Configuration of database settings to be retrieved from Conf file
     * @param dataSource
+    *   Configuration of database settings to be retrieved from Conf file
+    * @param jDataSource
     *   Factories for connection to physical data sources
     * @param dataSourceProperties
     *   Properties (name/value pairs) used to configure DataSource/java.sql.Driver
@@ -219,9 +219,9 @@ trait HikariConfigBuilder:
     * @param threadFactory
     *   Set the thread factory to be used to create threads.
     */
-  def makeFromDatabaseConfig(
-    databaseConfig:        DatabaseConfig,
-    dataSource:            Option[DataSource] = None,
+  def makeFromDataSource(
+    dataSource:            DataSource,
+    jDataSource:           Option[JDataSource] = None,
     dataSourceProperties:  Option[Properties] = None,
     healthCheckProperties: Option[Properties] = None,
     healthCheckRegistry:   Option[Object] = None,
@@ -230,8 +230,8 @@ trait HikariConfigBuilder:
     scheduledExecutor:     Option[ScheduledExecutorService] = None,
     threadFactory:         Option[ThreadFactory] = None
   ): HikariConfig =
-    given DatabaseConfig = databaseConfig
-    val hikariConfig     = new HikariConfig()
+    given DataSource = dataSource
+    val hikariConfig = new HikariConfig()
 
     getCatalog foreach hikariConfig.setCatalog
     hikariConfig.setConnectionTimeout(connectionTimeout)
@@ -259,7 +259,7 @@ trait HikariConfigBuilder:
     getSchema foreach hikariConfig.setSchema
     getTransactionIsolation foreach hikariConfig.setTransactionIsolation
 
-    dataSource foreach hikariConfig.setDataSource
+    jDataSource foreach hikariConfig.setDataSource
     dataSourceProperties foreach hikariConfig.setDataSourceProperties
     healthCheckProperties foreach hikariConfig.setHealthCheckProperties
     healthCheckRegistry foreach hikariConfig.setHealthCheckRegistry
