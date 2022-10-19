@@ -20,7 +20,7 @@ trait DatabaseModule[F[_]](using dbt: DBTransactor[F]):
 
   def database: DatabaseConfig
 
-  private[lepus] val transactor: Transactor[F] =
+  private[lepus] lazy val transactor: Transactor[F] =
     require(database.dataSource.length == 1, "If you are replicating to a database, you must specify the access point")
     database.dataSource.headOption
       .flatMap(ds => {
