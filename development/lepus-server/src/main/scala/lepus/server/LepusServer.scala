@@ -24,7 +24,7 @@ import lepus.logger.given
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
-import lepus.database.{ Database, DatabaseConfig, DBTransactor }
+import lepus.database.{ DatabaseBuilder, DatabaseConfig, DBTransactor }
 
 private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLogging[IO]:
 
@@ -56,7 +56,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
       {
         for
           r <- resource
-          b <- Database(db).resource
+          b <- DatabaseBuilder(db).resource
         yield r + (db -> b)
       }
     }

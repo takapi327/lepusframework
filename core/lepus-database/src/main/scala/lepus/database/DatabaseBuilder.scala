@@ -34,7 +34,7 @@ import lepus.logger.{ ExecLocation, LoggingIO, given }
   * @tparam F
   *   the effect type.
   */
-private[lepus] final case class Database[F[_]: Sync: Async: Console](
+private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
   databaseConfig: DatabaseConfig
 ) extends LoggingIO[F]:
 
@@ -93,8 +93,8 @@ private[lepus] final case class Database[F[_]: Sync: Async: Console](
   def testQuery(xa: Transactor[F]): F[Unit] =
     Sync[F].void(sql"select 1".query[Int].unique.transact(xa))
 
-private[lepus] object Database:
-  def apply[F[_]: Sync: Async: Console](databaseConfig: DatabaseConfig): Database[F] =
-    new Database[F](databaseConfig)
-  def apply[F[_]: Sync: Async: Console](str: String): Database[F] =
-    new Database[F](DatabaseConfig(str))
+private[lepus] object DatabaseBuilder:
+  def apply[F[_]: Sync: Async: Console](databaseConfig: DatabaseConfig): DatabaseBuilder[F] =
+    new DatabaseBuilder[F](databaseConfig)
+  def apply[F[_]: Sync: Async: Console](str: String): DatabaseBuilder[F] =
+    new DatabaseBuilder[F](DatabaseConfig(str))
