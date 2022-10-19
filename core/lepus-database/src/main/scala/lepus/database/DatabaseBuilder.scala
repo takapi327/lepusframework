@@ -22,7 +22,7 @@ import lepus.logger.{ ExecLocation, LoggingIO, given }
 /** A model for building a database. HikariCP construction, thread pool generation for database connection, test
   * connection, etc. are performed via the method.
   *
-  * @param databaseConfig
+  * @param dataSource
   *   Configuration of database settings to be retrieved from Conf file
   * @param sync$F$0
   *   A type class that encodes the notion of suspending synchronous side effects in the F[_] context
@@ -35,7 +35,7 @@ import lepus.logger.{ ExecLocation, LoggingIO, given }
   *   the effect type.
   */
 private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
-  databaseConfig: DatabaseConfig
+  dataSource: DataSource
 ) extends LoggingIO[F]:
 
   /** Method for generating HikariDataSource with Resource.
@@ -61,7 +61,7 @@ private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
     */
   private def buildConfig: Resource[F, HikariConfig] =
     Sync[F].delay {
-      val hikariConfig = HikariConfigBuilder.default.makeFromDatabaseConfig(databaseConfig)
+      val hikariConfig = HikariConfigBuilder.default.makeFromDataSource(dataSource)
       hikariConfig.validate()
       hikariConfig
     }.toResource
@@ -76,8 +76,8 @@ private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
     *   program in M.
     */
   def testConnection(xa: Transactor[F]): F[Unit] =
-    (testQuery(xa) >> logger.info(s"$databaseConfig Database connection test complete")).onError { (ex: Throwable) =>
-      logger.warn(s"$databaseConfig Database not available, waiting 5 seconds to retry...", ex) >>
+    (testQuery(xa) >> logger.info(s"$dataSource Database connection test complete")).onError { (ex: Throwable) =>
+      logger.warn(s"$dataSource Database not available, waiting 5 seconds to retry...", ex) >>
         Sync[F].sleep(5.seconds) >>
         testConnection(xa)
     }
@@ -94,7 +94,5 @@ private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
     Sync[F].void(sql"select 1".query[Int].unique.transact(xa))
 
 private[lepus] object DatabaseBuilder:
-  def apply[F[_]: Sync: Async: Console](databaseConfig: DatabaseConfig): DatabaseBuilder[F] =
-    new DatabaseBuilder[F](databaseConfig)
-  def apply[F[_]: Sync: Async: Console](str: String): DatabaseBuilder[F] =
-    new DatabaseBuilder[F](DatabaseConfig(str))
+  def apply[F[_]: Sync: Async: Console](dataSource: DataSource): DatabaseBuilder[F] =
+    new DatabaseBuilder[F](dataSource)
