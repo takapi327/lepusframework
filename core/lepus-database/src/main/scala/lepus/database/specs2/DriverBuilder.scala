@@ -8,6 +8,8 @@ import cats.effect.Async
 
 import lepus.database.*
 
+/** Trait for probing temporary DB connection for testing
+  */
 trait DriverBuilder extends DataSourceConfigReader:
 
   final private val JDBC_URL          = "jdbc_url"
@@ -38,5 +40,8 @@ trait DriverBuilder extends DataSourceConfigReader:
       url    <- getJdbcUrl
       user   <- getUserName
     yield Transactor.fromDriverManager[F](
-      driver, url, user, getPassWord.getOrElse("")
+      driver,
+      url,
+      user,
+      getPassWord.getOrElse("")
     )).getOrElse(throw new IllegalArgumentException("The values for driver, url, and user may be incorrect or not set"))

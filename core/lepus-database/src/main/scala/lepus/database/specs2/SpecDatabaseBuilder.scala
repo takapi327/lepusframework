@@ -8,6 +8,11 @@ import cats.effect.{ Resource, Sync, Async }
 
 import lepus.database.*
 
+/** Trait to assist with DB connection testing
+  *
+  * @tparam F
+  *   the effect type.
+  */
 trait SpecDatabaseBuilder[F[_]: Sync: Async] extends DriverBuilder:
 
   def database: DatabaseConfig
