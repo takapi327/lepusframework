@@ -36,7 +36,7 @@ trait LepusApp[F[_]]:
 
   // ----- [ Router Setups ] -----
   /** CORS settings applied to all endpoints */
-  def cors: Option[CORSPolicy] = None
+  val cors: Option[CORSPolicy] = None
 
   /** List of all endpoints to be launched by the application */
   def routes: DBTransactor[F] ?=> NonEmptyList[Routing[F]]

@@ -12,7 +12,7 @@ import lepus.database.implicits.*
 trait DoobieQueryHelper extends SchemaHelper:
 
   /** Name of the database table to use with this helper */
-  def table: String
+  protected val table: String
 
   /** Convenience methods for SELECT statements to connect to databases. */
   def select[T: Read](params: String*): LepusQuery.Select[T] = LepusQuery.select[T](table, params*)
