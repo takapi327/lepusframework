@@ -26,7 +26,7 @@ import lepus.database.implicits.*
   *
   *   import lepus.database.implicits.*
   *
-  *   case class TaskRepository(database: TodoDatabase) extends DoobieRepository[IO, TodoDatabase](database):
+  *   case class TaskRepository()(using TodoDatabase) extends DoobieRepository[IO, TodoDatabase]:
   *
   *     def getAll(): IO[List[Task]] = RunDB {
   *       sql"SELECT * FROM task".query[Task].to[List]
@@ -34,7 +34,7 @@ import lepus.database.implicits.*
   *
   * }}}
   */
-trait DoobieRepository[F[_]: Async: MonadCancelThrow, D <: DatabaseModule[F]](
+trait DoobieRepository[F[_]: Async: MonadCancelThrow, D <: DatabaseModule[F]](using
   database: D
 ) extends DoobieLogHandler:
 
