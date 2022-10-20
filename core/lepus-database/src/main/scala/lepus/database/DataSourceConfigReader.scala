@@ -6,8 +6,7 @@ package lepus.database
 
 import lepus.core.util.Configuration
 
-/**
-  * Trait provides an implementation to retrieve data from a Conf file based on DataSource settings.
+/** Trait provides an implementation to retrieve data from a Conf file based on DataSource settings.
   */
 private[lepus] trait DataSourceConfigReader:
 

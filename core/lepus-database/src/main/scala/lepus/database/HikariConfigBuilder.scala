@@ -15,13 +15,9 @@ import scala.jdk.CollectionConverters.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.metrics.MetricsTrackerFactory
 
-import lepus.core.util.Configuration
-
 /** Build the Configuration of HikariCP.
   */
-trait HikariConfigBuilder:
-
-  protected val config: Configuration = Configuration.load()
+trait HikariConfigBuilder extends DataSourceConfigReader:
 
   /** List of keys to retrieve from conf file. */
   final private val CATALOG                     = "catalog"
@@ -158,28 +154,6 @@ trait HikariConfigBuilder:
         throw new IllegalArgumentException(
           "TransactionIsolation must be TRANSACTION_NONE,TRANSACTION_READ_UNCOMMITTED,TRANSACTION_READ_COMMITTED,TRANSACTION_REPEATABLE_READ,TRANSACTION_SERIALIZABLE."
         )
-    }
-
-  /** Method to retrieve values matching any key from the conf file from the DatabaseConfig configuration, with any
-    * type.
-    *
-    * @param func
-    *   Process to get values from Configuration wrapped in Option
-    * @tparam T
-    *   Type of value retrieved from conf file
-    */
-  final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DataSource): Option[T] =
-    Seq(
-      dataSource.replication.map(replication => {
-        dataSource.path + "." + dataSource.database + "." + replication
-      }),
-      Some(dataSource.path + "." + dataSource.database),
-      Some(dataSource.path)
-    ).flatten.foldLeft[Option[T]](None) {
-      case (prev, path) =>
-        prev.orElse {
-          config.get[Option[Configuration]](path).flatMap(func(_))
-        }
     }
 
   /** List of variables predefined as default settings. */
