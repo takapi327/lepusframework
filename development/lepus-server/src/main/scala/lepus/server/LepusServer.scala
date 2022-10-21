@@ -40,7 +40,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
 
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
-    val databaseResources: Resource[IO, Map[DataSource, Transactor[IO]]] = buildDatabases(lepusApp.databases)
+    val databaseResources: Resource[IO, DBTransactor[IO]] = buildDatabases(lepusApp.databases)
 
     databaseResources.use(dbTransactor => {
       buildServer(host, port, buildApp(lepusApp)(using dbTransactor).orNotFound)
@@ -52,7 +52,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
     databases: Set[DatabaseConfig]
   ): Resource[F, DBTransactor[F]] =
     val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, Transactor[F]]))
-    databases.flatMap(_.dataSource).foldLeft(default) { (resource, db) =>
+    databases.flatMap(_.dataSource.toList).foldLeft(default) { (resource, db) =>
       {
         for
           r <- resource
@@ -63,7 +63,7 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
 
   private def buildApp(
     lepusApp: LepusApp[IO]
-  )(using Map[DataSource, Transactor[IO]]): Http4sRoutes[IO] =
+  )(using DBTransactor[IO]): Http4sRoutes[IO] =
     (lepusApp.cors match
       case Some(cors) =>
         lepusApp.routes.map {

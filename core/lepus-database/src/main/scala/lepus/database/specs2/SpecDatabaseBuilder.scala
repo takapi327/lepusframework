@@ -18,6 +18,6 @@ trait SpecDatabaseBuilder[F[_]: Sync: Async] extends DriverBuilder:
   def database: DatabaseConfig
 
   private def dataSources: DBTransactor[F] =
-    database.dataSource.map(ds => ds -> makeFromDataSource[F](ds)).toMap
+    database.dataSource.map(ds => ds -> makeFromDataSource[F](ds)).toList.toMap
 
   given DBTransactor[F] = dataSources
