@@ -74,19 +74,5 @@ object DatabaseConfig:
            |""".stripMargin
       )
 
-  def apply(str: String, replication: String): DatabaseConfig = str match
-    case SYNTAX_DATABASE_CONFIG(path, database) => DatabaseConfig(path, database, NonEmptyList.one(replication))
-    case _ =>
-      throw new IllegalArgumentException(
-        s"""
-           |$str does not match DatabaseConfig format
-           |
-           |example:
-           |  DatabaseConfig(path://database)
-           |
-           |  // conf file contents
-           |  path.database = {
-           |    ...
-           |  }
-           |""".stripMargin
-      )
+  def apply(str: String, replication: String): DatabaseConfig =
+    this.apply(str, NonEmptyList.one(replication))
