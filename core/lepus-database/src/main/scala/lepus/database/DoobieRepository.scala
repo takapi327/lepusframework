@@ -63,6 +63,10 @@ trait DoobieRepository[F[_]: Async: MonadCancelThrow, D <: DatabaseModule[F]](us
 
   object RunDB:
 
+    @targetName("default") def apply[T](func: Transactor[F] => F[T]): F[T] =
+      func(database.transactor(database.defaultDB))
+    @targetName("defaultK") def apply[K[_], T](func: Transactor[F] => K[T]): K[T] =
+      func(database.transactor(database.defaultDB))
     @targetName("apply") def apply[T](key: String)(func: Transactor[F] => F[T]): F[T] =
       func(database.transactor(key))
     @targetName("applyK") def apply[K[_], T](key: String)(func: Transactor[F] => K[T]): K[T] =
@@ -89,4 +93,27 @@ trait DoobieRepository[F[_]: Async: MonadCancelThrow, D <: DatabaseModule[F]](us
       func:                                             Stream[[T] =>> Kleisli[ConnectionIO, A, T], B]
     ): Stream[[T] =>> Kleisli[F, A, T], B] =
       given Transactor[F] = database.transactor(key)
+      func
+    def apply[T](func: ConnectionIO[T]): F[T] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    def apply[T](func: OptionT[ConnectionIO, T]): OptionT[F, T] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    def apply[T, E](func: EitherT[ConnectionIO, E, T]): EitherT[F, E, T] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    def apply[T, E](func: Kleisli[ConnectionIO, E, T]): Kleisli[F, E, T] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    def apply[T](func: Stream[F, T]): Stream[F, T] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    def apply[A, B](func: Pipe[F, A, B]): Pipe[F, A, B] =
+      given Transactor[F] = database.transactor(database.defaultDB)
+      func
+    @targetName("streamToKleisli") def apply[A, B](
+      func: Stream[[T] =>> Kleisli[ConnectionIO, A, T], B]
+    ): Stream[[T] =>> Kleisli[F, A, T], B] =
+      given Transactor[F] = database.transactor(database.defaultDB)
       func
