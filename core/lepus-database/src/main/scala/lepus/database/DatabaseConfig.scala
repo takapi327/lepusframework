@@ -65,7 +65,12 @@ object DatabaseConfig:
            |$str does not match DatabaseConfig format
            |
            |example:
-           |  path://database or path://database/replication1|replication2
+           |  DatabaseConfig(path://database)
+           |
+           |  // conf file contents
+           |  path.database = {
+           |    ...
+           |  }
            |""".stripMargin
       )
 
@@ -77,6 +82,11 @@ object DatabaseConfig:
            |$str does not match DatabaseConfig format
            |
            |example:
-           |  path://database or path://database/replication1|replication2
+           |  DatabaseConfig(path://database)
+           |
+           |  // conf file contents
+           |  path.database = {
+           |    ...
+           |  }
            |""".stripMargin
       )
