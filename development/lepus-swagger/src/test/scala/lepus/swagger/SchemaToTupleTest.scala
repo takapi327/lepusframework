@@ -6,8 +6,8 @@ package lepus.swagger
 
 import org.specs2.mutable.Specification
 
-import lepus.router.model.Schema
-import lepus.router.generic.semiauto.*
+import lepus.core.generic.Schema
+import lepus.core.generic.semiauto.*
 
 object SchemaToTupleTest extends Specification:
   val schemaToTuple    = SchemaToTuple()

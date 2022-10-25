@@ -6,7 +6,7 @@ package lepus.swagger
 
 import scala.collection.mutable.ListBuffer
 
-import lepus.router.model.{ Schema, SchemaType }
+import lepus.core.generic.{ Schema, SchemaType }
 
 private[lepus] class SchemaToTuple:
   def apply(schema: Schema[?]): List[(Schema.Name, Schema[?])] =

@@ -15,10 +15,10 @@ import org.typelevel.log4cats.Logger as Log4catsLogger
 
 import lepus.logger.{ *, given }
 
-trait ServerLogging[F[_]: Monad: Clock: Console] extends Logging[F]:
-  override val output:    Output[F] = ConsoleOutput[F]
-  override val filter:    Filter    = Filter.everything
-  override val formatter: Formatter = DefaultFormatter
+trait ServerLogging[F[_]: Monad: Clock: Console] extends LoggingF[F]:
+  override val output:    OutputF[F] = ConsoleOutput[F]
+  override val filter:    Filter     = Filter.everything
+  override val formatter: Formatter  = DefaultFormatter
 
   val logger: LoggerF[F] = new LoggerF[F] with Log4catsLogger[F]:
     private def buildLogMessage[M](
@@ -26,7 +26,7 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends Logging[F]:
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, LogMessage] =
+    ): ExecuteF[F, LogMessage] =
       Clock[F].realTime.map(now =>
         LogMessage(
           level,
@@ -39,7 +39,7 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends Logging[F]:
         )
       )
 
-    private def doOutput(msg: LogMessage): Execute[F, Unit] =
+    private def doOutput(msg: LogMessage): ExecuteF[F, Unit] =
       (msg.level, msg.exception) match
         case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
         case (Level.Error, None)     => output.outputError(formatter.format(msg))
@@ -51,10 +51,10 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends Logging[F]:
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, Unit] =
+    ): ExecuteF[F, Unit] =
       buildLogMessage(level, msg, ex, ctx).flatMap(log)
 
-    override protected def log(msg: LogMessage): Execute[F, Unit] =
+    override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
 
     override def debug(message: => String): F[Unit] = log(Level.Debug, message)

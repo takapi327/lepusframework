@@ -7,64 +7,61 @@ package lepus.logger
 import cats.{ Eval, Monad }
 import cats.syntax.all.*
 
-import cats.effect.kernel.Clock
-import cats.effect.std.Console
+/** An object to enforce the minimum required values for log output. */
+trait Logging:
 
-/** An object to enforce the minimum required values for log output.
-  *
-  * @tparam F
-  *   the effect type.
-  *
-  * example: [[LoggingIO]]
-  */
-trait Logging[F[_]]:
-
-  def output:    Output[F]
+  def output:    Output
   def filter:    Filter
   def formatter: Formatter
 
-  def logger: LoggerF[F]
+  def logger: Logger
 
-trait LoggingIO[F[_]: Monad: Clock: Console] extends Logging[F]:
+trait DefaultLogging extends Logging:
 
-  override val output:    Output[F] = ConsoleOutput[F]
+  override val output:    Output    = new SystemOutput
   override val filter:    Filter    = Filter.everything
   override val formatter: Formatter = DefaultFormatter
 
-  val logger: LoggerF[F] = new LoggerF[F]:
+  val logger: Logger = new Logger:
 
     private def buildLogMessage[M](
       level: Level,
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, LogMessage] =
-      Clock[F].realTime.map(now =>
-        LogMessage(
-          level,
-          Eval.later(msg.toString),
-          summon[ExecLocation],
-          ctx,
-          ex,
-          Thread.currentThread().getName,
-          now.toMillis
-        )
+    ): Execute[LogMessage] =
+      LogMessage(
+        level,
+        Eval.later(msg.toString),
+        summon[ExecLocation],
+        ctx,
+        ex,
+        Thread.currentThread().getName,
+        System.currentTimeMillis()
       )
 
-    private def doOutput(msg: LogMessage): Execute[F, Unit] =
+    private def doOutput(msg: LogMessage): Execute[Unit] =
       (msg.level, msg.exception) match
-        case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
-        case (Level.Error, None)     => output.outputError(formatter.format(msg))
-        case (_, Some(ex))           => output.output(formatter.format(msg)) >> output.outputStackTrace(ex)
-        case _                       => output.output(formatter.format(msg))
+        case (Level.Error, Some(ex)) =>
+          output.outputError(formatter.format(msg))
+          output.outputStackTrace(ex)
+        case (Level.Error, None) => output.outputError(formatter.format(msg))
+        case (_, Some(ex)) =>
+          output.output(formatter.format(msg))
+          output.outputStackTrace(ex)
+        case _ => output.output(formatter.format(msg))
 
     override protected def log[M](
       level: Level,
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): Execute[F, Unit] =
-      buildLogMessage(level, msg, ex, ctx).flatMap(log)
+    ): Execute[Unit] = log(buildLogMessage(level, msg, ex, ctx))
 
-    override protected def log(msg: LogMessage): Execute[F, Unit] =
-      doOutput(msg).whenA(filter(msg))
+    /** Methods for receiving LogMessage and executing logging.
+      *
+      * @param msg
+      *   A class that summarizes the information needed to write out logs.
+      */
+    override protected def log(msg: LogMessage): Execute[Unit] =
+      if filter(msg) then doOutput(msg) else ()

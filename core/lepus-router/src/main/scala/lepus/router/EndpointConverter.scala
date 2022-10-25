@@ -10,8 +10,10 @@ import java.util.UUID
 import scala.annotation.*
 import scala.util.*
 
-import lepus.router.model.*
+import lepus.core.generic.*
 import Schema.*
+
+import lepus.router.model.DecodeResult
 
 @implicitNotFound("Could not find an implicit EndpointConverter[${S}, ${T}]")
 trait EndpointConverter[S, T]:

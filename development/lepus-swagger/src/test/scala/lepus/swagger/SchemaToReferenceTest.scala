@@ -6,7 +6,7 @@ package lepus.swagger
 
 import org.specs2.mutable.Specification
 
-import lepus.router.model.Schema
+import lepus.core.generic.Schema
 
 import lepus.swagger.model.Reference
 

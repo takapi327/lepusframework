@@ -42,7 +42,7 @@ object LepusSettings {
         (if (javaVersion != "1.8" && javaVersion != "11")
            s"""
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-             |  Java version is $javaVersion. Lepus supports only 8 or 11.
+             |  Java version is $javaVersion. Lepus supports only 11.
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              |
              |""".stripMargin.linesIterator.map(v => YELLOW + v + RESET).mkString("\n")

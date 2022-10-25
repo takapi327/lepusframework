@@ -10,7 +10,12 @@ package lepus.logger
   * @tparam F
   *   the effect type.
   */
-trait Output[F[_]]:
+trait OutputF[F[_]]:
   def output(str:                 String):    F[Unit]
   def outputError(str:            String):    F[Unit]
   def outputStackTrace(exception: Throwable): F[Unit]
+
+trait Output:
+  def output(str:                 String):    Unit
+  def outputError(str:            String):    Unit
+  def outputStackTrace(exception: Throwable): Unit
