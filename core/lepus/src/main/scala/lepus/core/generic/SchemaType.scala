@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.model
+package lepus.core.generic
 
 sealed trait SchemaType[T](`type`: String):
   type ThisType = T

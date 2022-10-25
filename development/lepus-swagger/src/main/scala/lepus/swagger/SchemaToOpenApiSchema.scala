@@ -6,7 +6,7 @@ package lepus.swagger
 
 import scala.collection.immutable.ListMap
 
-import lepus.router.model.{ Schema, SchemaType }
+import lepus.core.generic.{ Schema, SchemaType }
 
 import lepus.swagger.model.{ OpenApiSchema, Reference }
 import OpenApiSchema.{ SchemaType as OpenApiSchemaType, SchemaFormat as OpenApiSchemaFormat }

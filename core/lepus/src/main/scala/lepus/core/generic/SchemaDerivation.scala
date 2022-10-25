@@ -2,16 +2,14 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router.generic
+package lepus.core.generic
 
 import scala.deriving.Mirror
 
 import magnolia1.*
 
-import lepus.router.*
-import model.{ Schema, SchemaType }
-import SchemaType.*
-import lepus.router.internal.*
+import lepus.core.internal.*
+import lepus.core.generic.SchemaType.*
 
 trait SchemaDerivation:
 

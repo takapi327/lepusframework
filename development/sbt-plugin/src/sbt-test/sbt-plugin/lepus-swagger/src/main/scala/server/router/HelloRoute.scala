@@ -16,8 +16,8 @@ import org.http4s.dsl.io.*
 
 import lepus.router.{ *, given }
 import lepus.router.http.*
-import lepus.router.model.Schema
-import lepus.router.generic.semiauto.*
+import lepus.core.generic.Schema
+import lepus.core.generic.semiauto.*
 
 import lepus.swagger.OpenApiConstructor
 import lepus.swagger.model.OpenApiResponse

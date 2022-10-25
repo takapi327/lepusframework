@@ -11,7 +11,7 @@ import cats.effect.std.Console
   * @tparam F
   *   the effect type.
   */
-class ConsoleOutput[F[_]: Console] extends Output[F]:
+class ConsoleOutput[F[_]: Console] extends OutputF[F]:
   override def output(str: String):             F[Unit] = Console[F].println(str)
   override def outputError(str: String):        F[Unit] = Console[F].errorln(str)
   override def outputStackTrace(ex: Throwable): F[Unit] = Console[F].printStackTrace(ex)

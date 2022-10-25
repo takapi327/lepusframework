@@ -5,9 +5,12 @@
 package lepus.router.http
 
 import scala.annotation.targetName
+
 import cats.MonadThrow
+
 import org.http4s.{ EntityDecoder, RequestCookie, Uri, Request as Request4s }
-import lepus.router.model.Schema
+
+import lepus.core.generic.Schema
 
 /** Class for Endpoint validation. Generate necessary values from Http4s requests.
   *
