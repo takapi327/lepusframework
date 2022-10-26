@@ -61,6 +61,7 @@ object LepusSettings {
         })
     },
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "utf8"),
+    resolvers += "Lepus Maven" at "s3://com.github.takapi327.s3-ap-northeast-1.amazonaws.com/lepus/",
     libraryDependencies ++= Seq(lepusServer),
     Compile / run / mainClass := Some("lepus.server.LepusServer"),
     appProcessForkOptions := {
