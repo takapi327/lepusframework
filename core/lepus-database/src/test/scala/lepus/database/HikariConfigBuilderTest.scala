@@ -33,7 +33,7 @@ object HikariConfigBuilderTest extends Specification, HikariConfigBuilder:
     }
 
     "IllegalArgumentException exception is raised when transaction_isolation is set to a value other than expected" in {
-      given DataSource = DataSource("lepus", "database", "write")
+      given DataSource = DataSource("lepus", "database", "failure")
       getTransactionIsolation must throwAn[IllegalArgumentException]
     }
 
@@ -112,7 +112,7 @@ object HikariConfigBuilderTest extends Specification, HikariConfigBuilder:
     "The datasource_jndi setting in HikariConfig matches the setting in the conf file" in {
       val config = makeFromDataSource(DataSource("lepus.hikaricp", "database", "write"))
 
-      config.getDataSourceJNDI == "write"
+      config.getDataSourceJNDI == ""
     }
 
     "The initialization_fail_timeout setting in HikariConfig matches the setting in the conf file" in {
