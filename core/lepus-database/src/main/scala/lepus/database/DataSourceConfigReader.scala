@@ -22,12 +22,10 @@ private[lepus] trait DataSourceConfigReader:
     */
   final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DataSource): Option[T] =
     Seq(
-      dataSource.replication.map(replication => {
-        dataSource.path + "." + dataSource.database + "." + replication
-      }),
-      Some(dataSource.path + "." + dataSource.database),
-      Some(dataSource.path)
-    ).flatten.foldLeft[Option[T]](None) {
+      dataSource.path + "." + dataSource.database + "." + dataSource.replication,
+      dataSource.path + "." + dataSource.database,
+      dataSource.path
+    ).foldLeft[Option[T]](None) {
       case (prev, path) =>
         prev.orElse {
           config.get[Option[Configuration]](path).flatMap(func(_))
