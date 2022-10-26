@@ -39,7 +39,7 @@ object LepusSettings {
            |    - Scala ${ (Compile / scalaVersion).value }
            |
            |""".stripMargin +
-        (if (javaVersion != "1.8" && javaVersion != "11")
+        (if (javaVersion != "11" && !javaVersion.split('.').headOption.contains("11"))
            s"""
              |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              |  Java version is $javaVersion. Lepus supports only 11.
