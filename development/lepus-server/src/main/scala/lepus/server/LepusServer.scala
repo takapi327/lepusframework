@@ -26,7 +26,7 @@ import lepus.router.{ *, given }
 import Exception.*
 import lepus.database.{ DatabaseBuilder, DatabaseConfig, DataSource, DBTransactor }
 
-private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLogging[IO]:
+private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
 
   private val SERVER_PORT   = "lepus.server.port"
   private val SERVER_HOST   = "lepus.server.host"
@@ -34,19 +34,16 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
 
   val config = Configuration.load()
 
-  def run(args: List[String]): IO[ExitCode] =
+  def run(args: List[String]): Resource[IO, Unit] =
     val port: Int    = config.get[Int](SERVER_PORT)
     val host: String = config.get[String](SERVER_HOST)
 
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
-    val databaseResources: Resource[IO, DBTransactor[IO]] = buildDatabases(lepusApp.databases)
-
-    databaseResources.use(dbTransactor => {
-      buildServer(host, port, buildApp(lepusApp)(using dbTransactor).orNotFound)
-        .use(_ => IO.never)
-        .as(ExitCode.Success)
-    })
+    for
+      given DBTransactor[IO] <- buildDatabases[IO](lepusApp.databases)
+      _                      <- buildServer(host, port, buildApp(lepusApp).orNotFound)
+    yield ()
 
   private def buildDatabases[F[_]: Sync: Async: Console](
     databases: Set[DatabaseConfig]
@@ -55,9 +52,9 @@ private[lepus] object LepusServer extends IOApp, ServerInterpreter[IO], ServerLo
     databases.flatMap(_.dataSource.toList).foldLeft(default) { (resource, db) =>
       {
         for
-          r <- resource
-          b <- DatabaseBuilder(db).resource
-        yield r + (db -> b)
+          map <- resource
+          xa  <- DatabaseBuilder(db).resource
+        yield map + (db -> xa)
       }
     }
 
