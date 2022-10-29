@@ -50,12 +50,10 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
   ): Resource[F, DBTransactor[F]] =
     val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, Transactor[F]]))
     databases.flatMap(_.dataSource.toList).foldLeft(default) { (resource, db) =>
-      {
-        for
-          map <- resource
-          xa  <- DatabaseBuilder(db).resource
-        yield map + (db -> xa)
-      }
+      for
+        map <- resource
+        xa  <- DatabaseBuilder(db).resource
+      yield map + (db -> xa)
     }
 
   private def buildApp(
