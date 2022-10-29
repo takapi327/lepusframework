@@ -12,8 +12,6 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-  val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
-
   val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
 
   val catsVersion = "2.8.0"
