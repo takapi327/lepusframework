@@ -4,6 +4,7 @@
 
 package lepus.server
 
+import scala.concurrent.duration.*
 import scala.language.reflectiveCalls
 
 import cats.effect.*
@@ -28,21 +29,35 @@ import lepus.database.{ DatabaseBuilder, DatabaseConfig, DataSource, DBTransacto
 
 private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
 
-  private val SERVER_PORT   = "lepus.server.port"
-  private val SERVER_HOST   = "lepus.server.host"
-  private val SERVER_ROUTES = "lepus.server.routes"
+  private val SERVER_PORT                           = "lepus.server.port"
+  private val SERVER_HOST                           = "lepus.server.host"
+  private val SERVER_ROUTES                         = "lepus.server.routes"
+  private val SERVER_MAX_CONNECTIONS                = "lepus.server.max_connections"
+  private val SERVER_RECEIVE_BUFFER_SIZE            = "lepus.server.receive_buffer_size"
+  private val SERVER_MAX_HEADER_SIZE                = "lepus.server.max_header_size"
+  private val SERVER_REQUEST_HEADER_RECEIVE_TIMEOUT = "lepus.server.request_header_receive_timeout"
+  private val SERVER_IDLE_TIMEOUT                   = "lepus.server.idle_timeout"
+  private val SERVER_SHUTDOWN_TIMEOUT               = "lepus.server.shutdown_timeout"
 
-  val config = Configuration.load()
+  private val config: Configuration = Configuration.load()
+
+  val port:              Int         = config.get[Int](SERVER_PORT)
+  val host:              String      = config.get[String](SERVER_HOST)
+  val maxConnections:    Option[Int] = config.get[Option[Int]](SERVER_MAX_CONNECTIONS)
+  val receiveBufferSize: Option[Int] = config.get[Option[Int]](SERVER_RECEIVE_BUFFER_SIZE)
+  val maxHeaderSize:     Option[Int] = config.get[Option[Int]](SERVER_MAX_HEADER_SIZE)
+  val requestHeaderReceiveTimeout: Option[Duration] =
+    config.get[Option[Duration]](SERVER_REQUEST_HEADER_RECEIVE_TIMEOUT)
+  val idleTimeout:     Option[Duration] = config.get[Option[Duration]](SERVER_IDLE_TIMEOUT)
+  val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
 
   def run(args: List[String]): Resource[IO, Unit] =
-    val port: Int    = config.get[Int](SERVER_PORT)
-    val host: String = config.get[String](SERVER_HOST)
 
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
       given DBTransactor[IO] <- buildDatabases[IO](lepusApp.databases)
-      _                      <- buildServer(host, port, buildApp(lepusApp).orNotFound)
+      _                      <- buildServer(host, port, lepusApp)
     yield ()
 
   private def buildDatabases[F[_]: Sync: Async: Console](
@@ -76,19 +91,20 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
   private def buildServer(
     host: String,
     port: Int,
-    app:  HttpApp[IO]
-  ): Resource[IO, Server] =
+    app:  LepusApp[IO]
+  )(using DBTransactor[IO]): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
-      .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
-      .withPort(Port.fromInt(port).getOrElse(port"5555"))
-      .withHttpApp(app)
-      .withErrorHandler {
-        case error =>
-          logger
-            .error(s"Unexpected error: $error", error)
-            .as(Response(Status.InternalServerError))
-      }
+      .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
+      .withPort(Port.fromInt(port).getOrElse(Defaults.port))
+      .withHttpApp(buildApp(app).orNotFound)
+      .withErrorHandler(app.errorHandler)
+      .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
+      .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
+      .withMaxHeaderSize(maxHeaderSize.getOrElse(Defaults.maxHeaderSize))
+      .withRequestHeaderReceiveTimeout(requestHeaderReceiveTimeout.getOrElse(Defaults.requestHeaderReceiveTimeout))
+      .withIdleTimeout(idleTimeout.getOrElse(Defaults.idleTimeout))
+      .withShutdownTimeout(shutdownTimeout.getOrElse(Defaults.shutdownTimeout))
       .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
       .build
 
@@ -113,3 +129,29 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
           )
 
     constructor
+
+  private object Defaults:
+
+    /** Default host */
+    val host: Host = ipv4"0.0.0.0"
+
+    /** Default port */
+    val port: Port = port"5555"
+
+    /** Default max connections */
+    val maxConnections: Int = 1024
+
+    /** Default receive Buffer Size */
+    val receiveBufferSize: Int = 256 * 1024
+
+    /** Default max size of all headers */
+    val maxHeaderSize: Int = 40 * 1024
+
+    /** Default request Header Receive Timeout */
+    val requestHeaderReceiveTimeout: Duration = 5.seconds
+
+    /** Default Idle Timeout */
+    val idleTimeout: Duration = 60.seconds
+
+    /** The time to wait for a graceful shutdown */
+    val shutdownTimeout: Duration = 30.seconds

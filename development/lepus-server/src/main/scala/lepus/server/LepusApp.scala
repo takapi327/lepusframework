@@ -4,8 +4,10 @@
 
 package lepus.server
 
+import cats.Applicative
 import cats.data.NonEmptyList
 
+import org.http4s.{ Status, Response }
 import org.http4s.server.middleware.CORSPolicy
 
 import doobie.Transactor
@@ -28,7 +30,7 @@ import lepus.database.{ DatabaseConfig, DBTransactor }
   * @tparam F
   *   the effect type.
   */
-trait LepusApp[F[_]]:
+trait LepusApp[F[_]: Applicative]:
 
   // ----- [ Database setups ] -----
   /** List of all databases to be launched by the application */
@@ -40,3 +42,7 @@ trait LepusApp[F[_]]:
 
   /** List of all endpoints to be launched by the application */
   def routes: DBTransactor[F] ?=> NonEmptyList[Routing[F]]
+
+  /** Methods to define handling of errors that occur during application execution */
+  val errorHandler: PartialFunction[Throwable, F[Response[F]]] =
+    case _ => Applicative[F].pure(Response(Status.InternalServerError))
