@@ -41,6 +41,8 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
 
   private val config: Configuration = Configuration.load()
 
+  val port:              Int         = config.get[Int](SERVER_PORT)
+  val host:              String      = config.get[String](SERVER_HOST)
   val maxConnections:    Option[Int] = config.get[Option[Int]](SERVER_MAX_CONNECTIONS)
   val receiveBufferSize: Option[Int] = config.get[Option[Int]](SERVER_RECEIVE_BUFFER_SIZE)
   val maxHeaderSize:     Option[Int] = config.get[Option[Int]](SERVER_MAX_HEADER_SIZE)
@@ -50,8 +52,6 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
   val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
 
   def run(args: List[String]): Resource[IO, Unit] =
-    val port: Int    = config.get[Int](SERVER_PORT)
-    val host: String = config.get[String](SERVER_HOST)
 
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
