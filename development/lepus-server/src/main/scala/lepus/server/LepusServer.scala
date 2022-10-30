@@ -42,7 +42,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
 
     for
       given DBTransactor[IO] <- buildDatabases[IO](lepusApp.databases)
-      _                      <- buildServer(host, port, buildApp(lepusApp).orNotFound)
+      _                      <- buildServer(host, port, lepusApp)
     yield ()
 
   private def buildDatabases[F[_]: Sync: Async: Console](
@@ -76,19 +76,14 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
   private def buildServer(
     host: String,
     port: Int,
-    app:  HttpApp[IO]
-  ): Resource[IO, Server] =
+    app:  LepusApp[IO]
+  )(using DBTransactor[IO]): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(ipv4"0.0.0.0"))
       .withPort(Port.fromInt(port).getOrElse(port"5555"))
-      .withHttpApp(app)
-      .withErrorHandler {
-        case error =>
-          logger
-            .error(s"Unexpected error: $error", error)
-            .as(Response(Status.InternalServerError))
-      }
+      .withHttpApp(buildApp(app).orNotFound)
+      .withErrorHandler(app.errorHandler)
       .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
       .build
 
