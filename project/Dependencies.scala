@@ -12,8 +12,6 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-  val reflect = "org.scala-lang" % "scala-reflect" % "2.13.8"
-
   val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
 
   val catsVersion = "2.8.0"
@@ -45,7 +43,7 @@ object Dependencies {
     "specs2-junit",
   ).map("org.specs2" %% _ % specs2Version % Test)
 
-  val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.12"   % Test
+  val scalaTest  = "org.scalatest"     %% "scalatest"       % "3.2.14"   % Test
   val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.17.0"   % Test
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
