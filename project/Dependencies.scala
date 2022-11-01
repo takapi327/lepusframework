@@ -24,7 +24,7 @@ object Dependencies {
     "http4s-ember-server"
   ).map("org.http4s" %% _ % http4sVersion)
 
-  val circeVersion = "0.14.1"
+  val circeVersion = "0.14.3"
   val circe = Seq(
     "circe-core",
     "circe-generic",
