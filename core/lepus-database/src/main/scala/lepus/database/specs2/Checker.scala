@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.database.specs2
 
@@ -17,30 +17,29 @@ import org.specs2.specification.dsl.Online.*
 
 import org.tpolecat.typename.*
 
-/**
- * copied from doobie-specs2:
- * https://github.com/tpolecat/doobie/blob/v1.0.0-RC2/modules/specs2/src/main/scala/doobie/specs2/analysisspec.scala
- *
- * Module with a mix-in trait for specifications that enables checking of doobie `Query` and `Update` values.
- * {{{
- * // An example specification, taken from the examples project.
- * class AnalysisTestSpec extends Specification, IOChecker {
- *
- *   // The transactor to use for the tests.
- *   val transactor = Transactor.fromDriverManager[IO](
- *     "org.postgresql.Driver",
- *     "jdbc:postgresql:world",
- *     "postgres",
- *     ""
- *   )
- *
- *   // Now just mention the queries. Arguments are not used.
- *   check(MyDaoModule.findByNameAndAge(null, 0))
- *   check(MyDaoModule.allWoozles)
- *
- * }
- * }}}
- */
+/** copied from doobie-specs2:
+  * https://github.com/tpolecat/doobie/blob/v1.0.0-RC2/modules/specs2/src/main/scala/doobie/specs2/analysisspec.scala
+  *
+  * Module with a mix-in trait for specifications that enables checking of doobie `Query` and `Update` values.
+  * {{{
+  * // An example specification, taken from the examples project.
+  * class AnalysisTestSpec extends Specification, IOChecker {
+  *
+  *   // The transactor to use for the tests.
+  *   val transactor = Transactor.fromDriverManager[IO](
+  *     "org.postgresql.Driver",
+  *     "jdbc:postgresql:world",
+  *     "postgres",
+  *     ""
+  *   )
+  *
+  *   // Now just mention the queries. Arguments are not used.
+  *   check(MyDaoModule.findByNameAndAge(null, 0))
+  *   check(MyDaoModule.allWoozles)
+  *
+  * }
+  * }}}
+  */
 trait Checker[F[_]] extends CheckerBase[F]:
   this: Specification =>
 
@@ -48,23 +47,33 @@ trait Checker[F[_]] extends CheckerBase[F]:
     checkImpl(Analyzable.unpack(a))
 
   def checkOutput[A: TypeName](q: Query0[A]): Fragments =
-    checkImpl(AnalysisArgs(
-      s"Query0[${typeName[A]}]", q.pos, q.sql, q.outputAnalysis
-    ))
+    checkImpl(
+      AnalysisArgs(
+        s"Query0[${ typeName[A] }]",
+        q.pos,
+        q.sql,
+        q.outputAnalysis
+      )
+    )
 
   def checkOutput[A: TypeName, B: TypeName](q: Query[A, B]): Fragments =
-    checkImpl(AnalysisArgs(
-      s"Query[${typeName[A]}, ${typeName[B]}]", q.pos, q.sql, q.outputAnalysis
-    ))
+    checkImpl(
+      AnalysisArgs(
+        s"Query[${ typeName[A] }, ${ typeName[B] }]",
+        q.pos,
+        q.sql,
+        q.outputAnalysis
+      )
+    )
 
   private def checkImpl(args: AnalysisArgs): Fragments =
     // continuesWith is necessary to make sure the query doesn't run too early
-    s"${args.header}\n\n${args.cleanedSql.padLeft("  ").toString}\n" >> ok.continueWith {
+    s"${ args.header }\n\n${ args.cleanedSql.padLeft("  ").toString }\n" >> ok.continueWith {
       val report = U.unsafeRunSync(analyze(args).transact(transactor))
       indentBlock(
         report.items.map { item =>
-          item.description ! item.error.fold(ok) {
-            err => ko(err.wrap(70).toString)
+          item.description ! item.error.fold(ok) { err =>
+            ko(err.wrap(70).toString)
           }
         }
       )

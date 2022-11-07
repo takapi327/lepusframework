@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.database.specs2
 
@@ -10,26 +10,19 @@ import cats.syntax.foldable.*
 
 import doobie.syntax.connectionio.*
 import doobie.util.pretty.*
-import doobie.util.testing.{
-  AnalysisReport,
-  Analyzable,
-  analyze,
-  CheckerBase,
-  UnsafeRun
-}
+import doobie.util.testing.{ AnalysisReport, Analyzable, analyze, CheckerBase, UnsafeRun }
 
 import org.specs2.matcher.{ Expectable, Matcher, MatchResult }
 
-/**
- * copied from doobie-specs2:
- * https://github.com/tpolecat/doobie/blob/v1.0.0-RC2/modules/specs2/src/main/scala/doobie/specs2/analysismatchers.scala
- *
- * Provides matcher syntax for query checking:
- *
- * {{{
- * sql"select 1".query[Int] must typecheck
- * }}}
- */
+/** copied from doobie-specs2:
+  * https://github.com/tpolecat/doobie/blob/v1.0.0-RC2/modules/specs2/src/main/scala/doobie/specs2/analysismatchers.scala
+  *
+  * Provides matcher syntax for query checking:
+  *
+  * {{{
+  * sql"select 1".query[Int] must typecheck
+  * }}}
+  */
 trait AnalysisMatchers[F[_]] extends CheckerBase[F]:
 
   def typecheck[T](using analyzable: Analyzable[T]): Matcher[T] =
@@ -49,7 +42,8 @@ trait AnalysisMatchers[F[_]] extends CheckerBase[F]:
 
     @SuppressWarnings(Array("org.wartremover.warts.ToString"))
     val message =
-      Block.fromString(report.header)
+      Block
+        .fromString(report.header)
         .above(Block.fromString(""))
         .above(report.sql.wrap(70).padLeft("  "))
         .above(Block.fromString(""))
@@ -61,11 +55,13 @@ trait AnalysisMatchers[F[_]] extends CheckerBase[F]:
   private def itemToBlock(item: AnalysisReport.Item): Block =
     item.error match
       case None =>
-        Block.fromString(s"+ ${item.description}")
+        Block.fromString(s"+ ${ item.description }")
       case Some(e) =>
-        Block.fromString(s"x ${item.description}").above(
-          Block.fromString(" x ").leftOf(e.wrap(70))
-        )
+        Block
+          .fromString(s"x ${ item.description }")
+          .above(
+            Block.fromString(" x ").leftOf(e.wrap(70))
+          )
 
 trait IOAnalysisMatchers extends AnalysisMatchers[IO]:
   import cats.effect.unsafe.implicits.global

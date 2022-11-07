@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.database.specs2
 
@@ -16,47 +16,47 @@ import fs2.{ Pipe, Stream }
 import lepus.database.*
 import lepus.database.implicits.*
 
-/**
- * Test by actually accessing the database.
- *
- * Note that any SQL executed during testing will be rolled back.
- *
- * @tparam F
- *   the effect type.
- *
- * example:
- * {{{
- *   class TestRepositoryDBAccessTest extends Specification, DBAccessSpec[IO]:
- *
- *     val database: DatabaseConfig = DatabaseConfig("lepus.database://edu_todo", NonEmptyList.of("master", "slave"))
- *
- *     "TestRepository Test" should {
- *       "Check findAll database access" in {
- *         val result = TestRepository.findAll().rollbackTransact("slave").unsafeRunSync()
- *         result.length === 3
- *       }
- *
- *       "Check update sql format" in {
- *         val task = Task(Some(1), "Task1 Updated", None, Task.Status.TODO)
- *         val result = TestRepository.update(task).rollbackTransact("slave").unsafeRunSync()
- *         result === 1
- *       }
- *     }
- * }}}
- */
+/** Test by actually accessing the database.
+  *
+  * Note that any SQL executed during testing will be rolled back.
+  *
+  * @tparam F
+  *   the effect type.
+  *
+  * example:
+  * {{{
+  *   class TestRepositoryDBAccessTest extends Specification, DBAccessSpec[IO]:
+  *
+  *     val database: DatabaseConfig = DatabaseConfig("lepus.database://edu_todo", NonEmptyList.of("master", "slave"))
+  *
+  *     "TestRepository Test" should {
+  *       "Check findAll database access" in {
+  *         val result = TestRepository.findAll().rollbackTransact("slave").unsafeRunSync()
+  *         result.length === 3
+  *       }
+  *
+  *       "Check update sql format" in {
+  *         val task = Task(Some(1), "Task1 Updated", None, Task.Status.TODO)
+  *         val result = TestRepository.update(task).rollbackTransact("slave").unsafeRunSync()
+  *         result === 1
+  *       }
+  *     }
+  * }}}
+  */
 trait DBAccessSpec[F[_]: Async: MonadCancelThrow] extends DriverBuilder:
 
   /** Value with configuration to establish a connection to Database */
   def database: DatabaseConfig
 
-  /**
-   * Methods for retrieving connections to the specified database.
-   *
-   * Note that this connection is for testing and all executions will be rolled back.
-   */
+  /** Methods for retrieving connections to the specified database.
+    *
+    * Note that this connection is for testing and all executions will be rolled back.
+    */
   private lazy val rollbackTransactor: String => Transactor[F] = (key: String) =>
     Transactor.after.set(
-      database.dataSource.find(_.replication == key).map(makeFromDataSource[F](_))
+      database.dataSource
+        .find(_.replication == key)
+        .map(makeFromDataSource[F](_))
         .getOrElse(throw new IllegalArgumentException(s"$key is not set as replication for the specified $database.")),
       HC.rollback
     )
