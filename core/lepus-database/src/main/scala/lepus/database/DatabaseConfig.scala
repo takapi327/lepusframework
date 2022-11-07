@@ -15,7 +15,7 @@ import cats.data.NonEmptyList
   * @param replication
   *   A value to distinguish between relational databases.
   */
-private[lepus] case class DataSource(
+case class DataSource(
   path:        String,
   database:    String,
   replication: String
