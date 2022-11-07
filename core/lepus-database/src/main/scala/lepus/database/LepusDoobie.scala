@@ -19,10 +19,10 @@ trait LepusDoobie extends doobie.Aliases, doobie.hi.Modules, doobie.free.Modules
 
   object implicits
     extends doobie.free.Instances,
-      doobie.syntax.AllSyntax,
-      doobie.util.meta.SqlMeta,
-      doobie.util.meta.TimeMeta,
-      doobie.util.meta.LegacyMeta:
+            doobie.syntax.AllSyntax,
+            doobie.util.meta.SqlMeta,
+            doobie.util.meta.TimeMeta,
+            doobie.util.meta.LegacyMeta:
 
     extension [T](connection: ConnectionIO[T])(using db: DatabaseModule[IO])
       def transaction: IO[T] =
