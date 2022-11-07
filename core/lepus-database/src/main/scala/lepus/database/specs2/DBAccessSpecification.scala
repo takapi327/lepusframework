@@ -25,7 +25,7 @@ import lepus.database.implicits.*
   *
   * example:
   * {{{
-  *   class TestRepositoryDBAccessTest extends Specification, DBAccessSpec[IO]:
+  *   class TestRepositoryDBAccessTest extends Specification, DBAccessSpecification[IO]:
   *
   *     val database: DatabaseConfig = DatabaseConfig("lepus.database://edu_todo", NonEmptyList.of("master", "slave"))
   *
@@ -43,7 +43,7 @@ import lepus.database.implicits.*
   *     }
   * }}}
   */
-trait DBAccessSpec[F[_]: Async: MonadCancelThrow] extends DriverBuilder:
+trait DBAccessSpecification[F[_]: Async: MonadCancelThrow] extends DriverBuilder:
 
   /** Value with configuration to establish a connection to Database */
   def database: DatabaseConfig
