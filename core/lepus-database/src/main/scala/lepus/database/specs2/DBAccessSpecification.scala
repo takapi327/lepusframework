@@ -35,7 +35,7 @@ import lepus.database.implicits.*
   *         result.length === 3
   *       }
   *
-  *       "Check update sql format" in {
+  *       "Check update database access" in {
   *         val task = Task(Some(1), "Task1 Updated", None, Task.Status.TODO)
   *         val result = TestRepository.update(task).rollbackTransact("slave").unsafeRunSync()
   *         result === 1

@@ -6,9 +6,11 @@ package lepus.database.specs2
 
 import cats.effect.{ Async, IO }
 
+import doobie.{ Update, Update0, ConnectionIO, HC }
 import doobie.syntax.connectionio.*
 import doobie.util.query.{ Query, Query0 }
 import doobie.util.testing.*
+import doobie.util.analysis.Analysis
 
 import org.specs2.mutable.Specification
 import org.specs2.specification.core.{ Fragment, Fragments }
@@ -66,10 +68,34 @@ trait Checker[F[_]] extends CheckerBase[F]:
       )
     )
 
+  def checkOutput[A: TypeName](q: Update[A]): Fragments =
+    checkImpl(
+      AnalysisArgs(
+        s"Update[${ typeName[A] }]",
+        q.pos,
+        q.sql,
+        q.analysis
+      )
+    )
+
+  extension (update: Update0)
+    def outputAnalysis: ConnectionIO[Analysis] =
+      HC.prepareUpdateAnalysis0(update.sql)
+
+  def checkOutput(q: Update0): Fragments =
+    checkImpl(
+      AnalysisArgs(
+        "Update0",
+        q.pos,
+        q.sql,
+        q.outputAnalysis
+      )
+    )
+
   private def checkImpl(args: AnalysisArgs): Fragments =
     // continuesWith is necessary to make sure the query doesn't run too early
     s"${ args.header }\n\n${ args.cleanedSql.padLeft("  ").toString }\n" >> ok.continueWith {
-      val report = U.unsafeRunSync(analyze(args).transact(transactor))
+      val report: AnalysisReport = U.unsafeRunSync(analyze(args).transact(transactor))
       indentBlock(
         report.items.map { item =>
           item.description ! item.error.fold(ok) { err =>
