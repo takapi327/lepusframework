@@ -78,17 +78,15 @@ trait Checker[F[_]] extends CheckerBase[F]:
       )
     )
 
-  extension (update: Update0)
-    def outputAnalysis: ConnectionIO[Analysis] =
-      HC.prepareUpdateAnalysis0(update.sql)
-
+  // TODO: HC.prepareUpdateAnalysis0(q.sql) will be replaced by the outputAnalysis method after the following pull request release
+  // https://github.com/tpolecat/doobie/pull/1764
   def checkOutput(q: Update0): Fragments =
     checkImpl(
       AnalysisArgs(
         "Update0",
         q.pos,
         q.sql,
-        q.outputAnalysis
+        HC.prepareUpdateAnalysis0(q.sql)
       )
     )
 
