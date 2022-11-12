@@ -7,6 +7,7 @@ package lepus.logger
 import cats.{ Eval, Monad }
 import cats.syntax.all.*
 
+import cats.effect.IO
 import cats.effect.kernel.Clock
 import cats.effect.std.Console
 
@@ -25,21 +26,21 @@ trait LoggingF[F[_]]:
 
   def logger: LoggerF[F]
 
-trait LoggingIO[F[_]: Monad: Clock: Console] extends LoggingF[F]:
+trait LoggingIO extends LoggingF[IO]:
 
-  override val output:    OutputF[F] = ConsoleOutput[F]
-  override val filter:    Filter     = Filter.everything
-  override val formatter: Formatter  = DefaultFormatter
+  override val output:    OutputF[IO] = ConsoleOutput[IO]
+  override val filter:    Filter      = Filter.everything
+  override val formatter: Formatter   = DefaultFormatter
 
-  val logger: LoggerF[F] = new LoggerF[F]:
+  val logger: LoggerF[IO] = new LoggerF[IO]:
 
     private def buildLogMessage[M](
       level: Level,
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): ExecuteF[F, LogMessage] =
-      Clock[F].realTime.map(now =>
+    ): ExecuteF[IO, LogMessage] =
+      Clock[IO].realTime.map(now =>
         LogMessage(
           level,
           Eval.later(msg.toString),
@@ -51,7 +52,7 @@ trait LoggingIO[F[_]: Monad: Clock: Console] extends LoggingF[F]:
         )
       )
 
-    private def doOutput(msg: LogMessage): ExecuteF[F, Unit] =
+    private def doOutput(msg: LogMessage): ExecuteF[IO, Unit] =
       (msg.level, msg.exception) match
         case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
         case (Level.Error, None)     => output.outputError(formatter.format(msg))
@@ -63,8 +64,8 @@ trait LoggingIO[F[_]: Monad: Clock: Console] extends LoggingF[F]:
       msg:   => M,
       ex:    Option[Throwable],
       ctx:   Map[String, String]
-    ): ExecuteF[F, Unit] =
+    ): ExecuteF[IO, Unit] =
       buildLogMessage(level, msg, ex, ctx).flatMap(log)
 
-    override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
+    override protected def log(msg: LogMessage): ExecuteF[IO, Unit] =
       doOutput(msg).whenA(filter(msg))
