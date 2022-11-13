@@ -5,6 +5,7 @@
 package lepus.server
 
 import scala.concurrent.duration.*
+import scala.concurrent.ExecutionContext
 import scala.language.reflectiveCalls
 
 import cats.effect.*
@@ -19,13 +20,16 @@ import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-import doobie.Transactor
+import com.zaxxer.hikari.HikariDataSource
 
 import lepus.logger.given
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
-import lepus.database.{ DatabaseBuilder, DatabaseConfig, DataSource, DBTransactor }
+import lepus.database.{ DatabaseConfig, DataSource }
+import lepus.hikari.HikariDatabaseBuilder
+
+type LepusContext = Map[DataSource, (ExecutionContext, HikariDataSource)]
 
 private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
 
@@ -56,24 +60,13 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given DBTransactor[IO] <- buildDatabases[IO](lepusApp.databases)
+      given LepusContext <- HikariDatabaseBuilder[IO](lepusApp.databases).build()
       _                      <- buildServer(host, port, lepusApp)
     yield ()
 
-  private def buildDatabases[F[_]: Sync: Async: Console](
-    databases: Set[DatabaseConfig]
-  ): Resource[F, DBTransactor[F]] =
-    val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, Transactor[F]]))
-    databases.flatMap(_.dataSource.toList).foldLeft(default) { (resource, db) =>
-      for
-        map <- resource
-        xa  <- DatabaseBuilder(db).resource
-      yield map + (db -> xa)
-    }
-
   private def buildApp(
     lepusApp: LepusApp[IO]
-  )(using DBTransactor[IO]): Http4sRoutes[IO] =
+  )(using LepusContext): Http4sRoutes[IO] =
     (lepusApp.cors match
       case Some(cors) =>
         lepusApp.routes.map {
@@ -92,7 +85,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     host: String,
     port: Int,
     app:  LepusApp[IO]
-  )(using DBTransactor[IO]): Resource[IO, Server] =
+  )(using LepusContext): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
