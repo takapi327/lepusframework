@@ -1,7 +1,12 @@
+/** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 package lepus.doobie
 
-import lepus.core.generic.semiauto.deriveSchemer
 import org.specs2.mutable.Specification
+
+import lepus.core.generic.semiauto.deriveSchemer
 
 object SchemaHelperTest extends Specification, SchemaHelper:
 
