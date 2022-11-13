@@ -5,7 +5,6 @@
 package lepus.server
 
 import scala.concurrent.duration.*
-import scala.concurrent.ExecutionContext
 import scala.language.reflectiveCalls
 
 import cats.effect.*
@@ -20,16 +19,12 @@ import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
-import com.zaxxer.hikari.HikariDataSource
-
 import lepus.logger.given
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
 import lepus.database.{ DatabaseConfig, DataSource }
-import lepus.hikari.HikariDatabaseBuilder
-
-type LepusContext = Map[DataSource, (ExecutionContext, HikariDataSource)]
+import lepus.hikari.*
 
 private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
 

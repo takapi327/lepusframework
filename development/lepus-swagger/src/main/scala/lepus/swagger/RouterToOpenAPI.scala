@@ -18,7 +18,8 @@ import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
 
-import lepus.server.{ LepusApp, LepusContext }
+import lepus.hikari.LepusContext
+import lepus.server.LepusApp
 
 import lepus.swagger.model.*
 
