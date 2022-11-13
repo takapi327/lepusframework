@@ -9,3 +9,5 @@ import javax.sql.DataSource as JDataSource
 package object database:
   type DatabaseCF[T]                  = DataSource ?=> T
   type LepusContext[T <: JDataSource] = Map[DataSource, DatabaseContext[T]]
+
+  def emptyContext[T <: JDataSource] = Map.empty[DataSource, DatabaseContext[T]]
