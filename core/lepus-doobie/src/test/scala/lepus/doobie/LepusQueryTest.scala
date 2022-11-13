@@ -5,7 +5,7 @@ import lepus.core.generic.Schema
 import lepus.core.generic.semiauto.deriveSchemer
 import org.specs2.mutable.Specification
 
-object LepusQueryTest extends Specification :
+object LepusQueryTest extends Specification:
 
   import LepusQuery.*
 

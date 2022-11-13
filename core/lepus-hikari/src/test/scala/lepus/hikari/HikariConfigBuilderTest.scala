@@ -6,7 +6,7 @@ import org.specs2.mutable.Specification
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
-object HikariConfigBuilderTest extends Specification, HikariConfigBuilder :
+object HikariConfigBuilderTest extends Specification, HikariConfigBuilder:
 
   "Testing the HikariConfigBuilder" should {
 

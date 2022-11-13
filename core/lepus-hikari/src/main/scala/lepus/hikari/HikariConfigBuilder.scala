@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.hikari
 
@@ -18,7 +18,7 @@ import com.zaxxer.hikari.metrics.MetricsTrackerFactory
 import lepus.database.{ DataSource, DatabaseCF, DataSourceConfigReader }
 
 /** Build the Configuration of HikariCP.
- */
+  */
 trait HikariConfigBuilder extends DataSourceConfigReader:
 
   /** List of keys to retrieve from conf file. */
@@ -47,7 +47,6 @@ trait HikariConfigBuilder extends DataSourceConfigReader:
   final private val PASSWORD                    = "password"
   final private val DRIVER_CLASS_NAME           = "driver_class_name"
   final private val TRANSACTION_ISOLATION       = "transaction_isolation"
-
 
   /** Number of application cores */
   private val maxCore: Int = Runtime.getRuntime.availableProcessors()
@@ -176,26 +175,26 @@ trait HikariConfigBuilder extends DataSourceConfigReader:
   val registerMbeans:         DatabaseCF[Boolean] = getRegisterMbeans.getOrElse(false)
 
   /** Method to generate HikariConfig based on DatabaseConfig and other settings.
-   *
-   * @param dataSource
-   *   Configuration of database settings to be retrieved from Conf file
-   * @param jDataSource
-   *   Factories for connection to physical data sources
-   * @param dataSourceProperties
-   *   Properties (name/value pairs) used to configure DataSource/java.sql.Driver
-   * @param healthCheckProperties
-   *   Properties (name/value pairs) used to configure HealthCheck/java.sql.Driver
-   * @param healthCheckRegistry
-   *   Set the HealthCheckRegistry that will be used for registration of health checks by HikariCP.
-   * @param metricRegistry
-   *   Set a MetricRegistry instance to use for registration of metrics used by HikariCP.
-   * @param metricsTrackerFactory
-   *   Set a MetricsTrackerFactory instance to use for registration of metrics used by HikariCP.
-   * @param scheduledExecutor
-   *   Set the ScheduledExecutorService used for housekeeping.
-   * @param threadFactory
-   *   Set the thread factory to be used to create threads.
-   */
+    *
+    * @param dataSource
+    *   Configuration of database settings to be retrieved from Conf file
+    * @param jDataSource
+    *   Factories for connection to physical data sources
+    * @param dataSourceProperties
+    *   Properties (name/value pairs) used to configure DataSource/java.sql.Driver
+    * @param healthCheckProperties
+    *   Properties (name/value pairs) used to configure HealthCheck/java.sql.Driver
+    * @param healthCheckRegistry
+    *   Set the HealthCheckRegistry that will be used for registration of health checks by HikariCP.
+    * @param metricRegistry
+    *   Set a MetricRegistry instance to use for registration of metrics used by HikariCP.
+    * @param metricsTrackerFactory
+    *   Set a MetricsTrackerFactory instance to use for registration of metrics used by HikariCP.
+    * @param scheduledExecutor
+    *   Set the ScheduledExecutorService used for housekeeping.
+    * @param threadFactory
+    *   Set the thread factory to be used to create threads.
+    */
   def makeFromDataSource(
     dataSource:            DataSource,
     jDataSource:           Option[JDataSource] = None,

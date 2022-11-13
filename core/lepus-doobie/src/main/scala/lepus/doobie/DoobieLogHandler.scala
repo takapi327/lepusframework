@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.doobie
 
@@ -11,7 +11,7 @@ import doobie.util.log.{ ExecFailure, LogHandler, ProcessingFailure, Success }
 import lepus.logger.{ ExecLocation, DefaultLogging }
 
 /** Trait to output logs according to the results of doobie and database processing
- */
+  */
 trait DoobieLogHandler(using ExecLocation) extends DefaultLogging:
 
   private val slowThreshold = 200.millis

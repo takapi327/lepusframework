@@ -61,7 +61,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
 
     for
       given LepusContext <- HikariDatabaseBuilder[IO](lepusApp.databases).build()
-      _                      <- buildServer(host, port, lepusApp)
+      _                  <- buildServer(host, port, lepusApp)
     yield ()
 
   private def buildApp(

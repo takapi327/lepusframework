@@ -3,7 +3,7 @@ package lepus.doobie
 import lepus.core.generic.semiauto.deriveSchemer
 import org.specs2.mutable.Specification
 
-object SchemaHelperTest extends Specification, SchemaHelper :
+object SchemaHelperTest extends Specification, SchemaHelper:
 
   "Testing the DoobieQueryHelper buildAnyValues method" should {
 
