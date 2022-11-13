@@ -19,14 +19,14 @@ import lepus.hikari.LepusContext
   *   case class ToDoDatabase(
   *     database:  DatabaseConfig,
   *     defaultDB: String
-  *   )(using DBTransactor[F]) extends DatabaseModule[F]
+  *   )(using LepusContext) extends DatabaseModule[F]
   *
   *   object ToDoDatabase:
   *     val db: DatabaseConfig = DatabaseConfig("lepus.database://todo", NonEmptyList.of("master", "slave"))
   *
-  *     given Transact[IO, ToDoDatabase] = ToDoDatabase(db, "slave")
+  *     given Transact[ToDoDatabase] = ToDoDatabase(db, "slave")
   *
-  *     val taskRepository: Transact[IO, TaskRepository] = TaskRepository()
+  *     val taskRepository: Transact[TaskRepository] = TaskRepository()
   *     etc...
   * }}}
   */
@@ -44,7 +44,12 @@ trait DatabaseModule[F[_]: Async](using context: LepusContext):
   private[lepus] val transactor: String => Transactor[F] = (key: String) =>
     database.dataSource
       .find(_.replication.contains(key))
-      .flatMap(ds => context.get(ds).map((ec, datasource) => Transactor.fromDataSource[F](datasource, ec)))
+      .flatMap(ds => {
+        println("===============")
+        println("Start Generate Transactor")
+        println("===============")
+        context.get(ds).map((ec, datasource) => Transactor.fromDataSource[F](datasource, ec))
+      })
       .getOrElse(throw new IllegalStateException(s"$database database is not registered."))
 
   /** A method that tests the initialized database connection and attempts a wait connection at 5 second intervals until
