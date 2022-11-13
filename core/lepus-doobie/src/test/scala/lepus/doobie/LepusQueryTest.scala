@@ -1,9 +1,12 @@
 package lepus.doobie
 
+import org.specs2.mutable.Specification
+
 import lepus.core.format.Naming.SNAKE
 import lepus.core.generic.Schema
 import lepus.core.generic.semiauto.deriveSchemer
-import org.specs2.mutable.Specification
+
+import lepus.doobie.implicits.*
 
 object LepusQueryTest extends Specification:
 
