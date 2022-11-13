@@ -7,7 +7,7 @@ package lepus.doobie
 import cats.effect.Async
 
 import lepus.database.DatabaseConfig
-import lepus.hikari.LepusContext
+import lepus.hikari.HikariContext
 
 /** Module for implicitly passing the Transactor generated for each Database to DoobieRepository.
   *
@@ -30,7 +30,7 @@ import lepus.hikari.LepusContext
   *     etc...
   * }}}
   */
-trait DatabaseModule[F[_]: Async](using context: LepusContext):
+trait DatabaseModule[F[_]: Async](using context: HikariContext):
 
   /** Value with configuration to establish a connection to Database */
   protected val database: DatabaseConfig
@@ -44,5 +44,5 @@ trait DatabaseModule[F[_]: Async](using context: LepusContext):
   private[lepus] val transactor: String => Transactor[F] = (key: String) =>
     database.dataSource
       .find(_.replication.contains(key))
-      .flatMap(ds => context.get(ds).map((ec, datasource) => Transactor.fromDataSource[F](datasource, ec)))
+      .flatMap(ds => context.get(ds).map(ctx => Transactor.fromDataSource[F](ctx.ds, ctx.ec)))
       .getOrElse(throw new IllegalStateException(s"$database database is not registered."))
