@@ -51,7 +51,7 @@ private[lepus] final case class HikariDatabaseBuilder[F[_]: Sync: Async: Console
     }.toResource
 
   def build(): Resource[F, LepusContext[HikariDataSource]] =
-    val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, DatabaseContext[HikariDataSource]]))
+    val default = Sync[F].delay(Map.empty[DataSource, DatabaseContext[HikariDataSource]]).toResource
     databases.flatMap(_.dataSource.toList).foldLeft(default) { (_resource, db) =>
       for
         map              <- _resource

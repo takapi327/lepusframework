@@ -16,8 +16,7 @@ import cats.implicits.*
 
 import lepus.logger.{ *, given }
 
-/** A model for building a database. HikariCP construction, thread pool generation for database connection, test
-  * connection, etc. are performed via the method.
+/** A model for building a database.
   *
   * @param dataSource
   *   Configuration of database settings to be retrieved from Conf file
