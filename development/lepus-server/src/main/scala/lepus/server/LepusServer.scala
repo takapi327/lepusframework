@@ -55,13 +55,13 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given LepusContext <- HikariDatabaseBuilder[IO](lepusApp.databases).build()
-      _                  <- buildServer(host, port, lepusApp)
+      given HikariContext <- HikariDatabaseBuilder[IO](lepusApp.databases).build()
+      _                   <- buildServer(host, port, lepusApp)
     yield ()
 
   private def buildApp(
     lepusApp: LepusApp[IO]
-  )(using LepusContext): Http4sRoutes[IO] =
+  )(using HikariContext): Http4sRoutes[IO] =
     (lepusApp.cors match
       case Some(cors) =>
         lepusApp.routes.map {
@@ -80,7 +80,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     host: String,
     port: Int,
     app:  LepusApp[IO]
-  )(using LepusContext): Resource[IO, Server] =
+  )(using HikariContext): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
