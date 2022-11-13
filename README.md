@@ -223,3 +223,9 @@ services:
     volumes:
       - ./OpenApi.yaml:/OpenApi.yaml
 ```
+
+## Sample Application
+Sample applications using Lepus Framework are available in [this](https://github.com/takapi327/lepus-app-template) repository.
+
+For a more detailed implementation, please refer to the sample application.
+
