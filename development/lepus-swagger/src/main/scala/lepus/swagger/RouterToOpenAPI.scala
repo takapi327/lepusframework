@@ -18,7 +18,7 @@ import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
 
-import lepus.hikari.LepusContext
+import lepus.hikari.HikariContext
 import lepus.server.LepusApp
 
 import lepus.swagger.model.*
@@ -31,8 +31,8 @@ private[lepus] object RouterToOpenAPI:
     info:   Info,
     router: LepusApp[F]
   ): OpenApiUI =
-    given LepusContext = Map.empty
-    val groupEndpoint  = router.routes.toList.toMap
+    given HikariContext = Map.empty
+    val groupEndpoint   = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 
