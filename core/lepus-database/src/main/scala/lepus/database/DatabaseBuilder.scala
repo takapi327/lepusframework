@@ -4,6 +4,8 @@
 
 package lepus.database
 
+import javax.sql.DataSource as JDataSource
+
 import cats.Eval
 
 import cats.effect.*
@@ -29,7 +31,7 @@ import lepus.logger.{ *, given }
   * @tparam F
   *   the effect type.
   */
-private[lepus] trait DatabaseBuilder[F[_]: Sync: Async: Console] extends LoggingF[F]:
+private[lepus] trait DatabaseBuilder[F[_]: Sync: Async: Console, T <: JDataSource] extends LoggingF[F]:
 
   override val output:    OutputF[F] = ConsoleOutput[F]
   override val filter:    Filter     = Filter.everything
@@ -72,3 +74,5 @@ private[lepus] trait DatabaseBuilder[F[_]: Sync: Async: Console] extends Logging
 
     override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
+
+  def build(): Resource[F, LepusContext[T]]
