@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.database.specs2
+package lepus.doobie.specs2
 
 import cats.effect.{ Async, IO }
 import cats.instances.list.*

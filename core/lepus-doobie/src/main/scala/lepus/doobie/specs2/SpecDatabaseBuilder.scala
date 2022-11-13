@@ -2,11 +2,13 @@
   * file that was distributed with this source code.
   */
 
-package lepus.database.specs2
+package lepus.doobie.specs2
 
 import cats.effect.{ Resource, Sync, Async }
 
-import lepus.database.*
+import lepus.database.DatabaseConfig
+
+import lepus.doobie.*
 
 /** Trait to assist with DB connection testing
   *

@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.database.specs2
+package lepus.doobie.specs2
 
 import scala.annotation.targetName
 
@@ -13,8 +13,10 @@ import cats.effect.kernel.MonadCancelThrow
 
 import fs2.{ Pipe, Stream }
 
-import lepus.database.*
-import lepus.database.implicits.*
+import lepus.database.DatabaseConfig
+
+import lepus.doobie.*
+import lepus.doobie.implicits.*
 
 /** Test by actually accessing the database.
   *
