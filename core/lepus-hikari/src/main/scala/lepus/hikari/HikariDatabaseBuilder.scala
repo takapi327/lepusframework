@@ -12,7 +12,7 @@ import cats.effect.std.Console
 
 import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 
-import lepus.database.{ DataSource, DatabaseConfig, DatabaseBuilder, DatabaseExecutionContexts }
+import lepus.database.*
 
 /** A model for building a database. HikariCP construction, thread pool generation for database connection, test
   * connection, etc. are performed via the method.
@@ -31,7 +31,7 @@ import lepus.database.{ DataSource, DatabaseConfig, DatabaseBuilder, DatabaseExe
   */
 private[lepus] final case class HikariDatabaseBuilder[F[_]: Sync: Async: Console](
   databases: Set[DatabaseConfig]
-) extends DatabaseBuilder[F]:
+) extends DatabaseBuilder[F, HikariDataSource]:
 
   /** Method for generating HikariDataSource with Resource.
     *
@@ -50,15 +50,15 @@ private[lepus] final case class HikariDatabaseBuilder[F[_]: Sync: Async: Console
       hikariConfig
     }.toResource
 
-  def build(): Resource[F, Map[DataSource, (ExecutionContext, HikariDataSource)]] =
-    val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, (ExecutionContext, HikariDataSource)]))
+  def build(): Resource[F, LepusContext[HikariDataSource]] =
+    val default = Resource.eval(Sync[F].delay(Map.empty[DataSource, DatabaseContext[HikariDataSource]]))
     databases.flatMap(_.dataSource.toList).foldLeft(default) { (_resource, db) =>
       for
         map              <- _resource
         hikariConfig     <- buildConfig(db)
         ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
         hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
-      yield map + (db -> (ec, hikariDataSource))
+      yield map + (db -> DatabaseContext(ec, hikariDataSource))
     }
 
 private[lepus] object HikariDatabaseBuilder:
