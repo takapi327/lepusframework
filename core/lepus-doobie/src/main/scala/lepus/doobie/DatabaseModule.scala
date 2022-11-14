@@ -40,7 +40,10 @@ trait DatabaseModule[F[_]: Async](using context: HikariContext):
     */
   def defaultDB: String
 
-  /** Method to retrieve the Transactor corresponding to the database replication you wish to specify */
+  /** Method to retrieve the Transactor corresponding to the database replication you wish to specify
+    *
+    * TODO: Each time this variable is called, the Transactor would be generated.
+    */
   private[lepus] val transactor: String => Transactor[F] = (key: String) =>
     database.dataSource
       .find(_.replication.contains(key))
