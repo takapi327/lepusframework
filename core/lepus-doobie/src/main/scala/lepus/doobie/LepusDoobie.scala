@@ -29,6 +29,9 @@ trait LepusDoobie extends doobie.Aliases, doobie.hi.Modules, doobie.free.Modules
         connection.transact(db.transactor(db.defaultDB))
       def transaction(key: String): IO[T] =
         connection.transact(db.transactor(key))
+      @targetName("flatMapAlias")
+      def >>(that: => ConnectionIO[T]): ConnectionIO[T] =
+        connection.flatMap(_ => that)
 
     extension [T](connection: OptionT[ConnectionIO, T])(using db: DatabaseModule[IO])
       def transaction: OptionT[IO, T] =
