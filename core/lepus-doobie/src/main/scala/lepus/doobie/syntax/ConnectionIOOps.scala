@@ -35,3 +35,8 @@ trait ConnectionIOOps:
       */
     def flatTap[B](f: T => ConnectionIO[B]): ConnectionIO[T] =
       connection.flatMap(a => f(a).as(a))
+
+    /** Ignores the result of this ConnectionIO.
+      */
+    def void: ConnectionIO[Unit] =
+      connection.as(())
