@@ -38,5 +38,4 @@ trait ConnectionIOOps:
 
     /** Ignores the result of this ConnectionIO.
       */
-    def void: ConnectionIO[Unit] =
-      connection.as(())
+    def void: ConnectionIO[Unit] = as(())
