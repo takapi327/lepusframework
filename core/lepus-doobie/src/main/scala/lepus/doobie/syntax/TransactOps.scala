@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.doobie.syntax
 
@@ -16,9 +16,8 @@ import fs2.{ Pipe, Stream }
 import lepus.doobie.*
 import lepus.doobie.implicits.*
 
-/**
- * A collection of transact method extension methods for multiple databases
- */
+/** A collection of transact method extension methods for multiple databases
+  */
 trait TransactOps:
 
   extension [T](connection: ConnectionIO[T])(using db: DatabaseModule[IO])
