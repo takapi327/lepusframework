@@ -4,15 +4,6 @@
 
 package lepus.doobie
 
-import scala.annotation.targetName
-
-import cats.data.{ OptionT, EitherT, Kleisli }
-
-import cats.effect.IO
-import cats.effect.kernel.MonadCancelThrow
-
-import fs2.{ Pipe, Stream }
-
 /** Aliases for top-level imports defined in doobie
   */
 trait LepusDoobie extends doobie.Aliases, doobie.hi.Modules, doobie.free.Modules, doobie.free.Types:
