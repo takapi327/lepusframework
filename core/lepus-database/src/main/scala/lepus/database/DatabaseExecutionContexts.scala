@@ -16,9 +16,7 @@ import cats.effect.kernel.{ Resource, Sync }
 object DatabaseExecutionContexts:
 
   /** Resource yielding an `ExecutionContext` backed by a fixed-size pool. */
-  def fixedThreadPool[F[_]](size: Int)(implicit
-    sf:                           Sync[F]
-  ): Resource[F, ExecutionContext] =
+  def fixedThreadPool[F[_]](size: Int)(using sf: Sync[F]): Resource[F, ExecutionContext] =
     val alloc = sf.delay(Executors.newFixedThreadPool(size))
     val free  = (es: ExecutorService) => sf.delay(es.shutdown())
     Resource.make(alloc)(free).map(ExecutionContext.fromExecutor)
