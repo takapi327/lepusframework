@@ -22,9 +22,7 @@ object DatabaseExecutionContexts:
     Resource.make(alloc)(free).map(ExecutionContext.fromExecutor)
 
   /** Resource yielding an `ExecutionContext` backed by an unbounded thread pool. */
-  def cachedThreadPool[F[_]](using
-    sf: Sync[F]
-  ): Resource[F, ExecutionContext] =
+  def cachedThreadPool[F[_]](using sf: Sync[F]): Resource[F, ExecutionContext] =
     val alloc = sf.delay(Executors.newCachedThreadPool)
     val free  = (es: ExecutorService) => sf.delay(es.shutdown())
     Resource.make(alloc)(free).map(ExecutionContext.fromExecutor)
