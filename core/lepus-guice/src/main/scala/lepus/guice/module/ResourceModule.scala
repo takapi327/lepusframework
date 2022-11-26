@@ -10,18 +10,16 @@ import com.google.inject.AbstractModule
 
 import cats.effect.{ IO, Resource }
 
-/**
-  * Module for incorporating what is built in [[cats.effect.Resource]] at implementation time into the Inject of guice
+/** Module for incorporating what is built in [[cats.effect.Resource]] at implementation time into the Inject of guice
   */
 trait ResourceModule[T: ClassTag]:
 
-  /**
-    * Define implementation in Resource
+  /** Define implementation in Resource
     */
   protected val resource: Resource[IO, T]
 
-  /**
-    * Methods to build [[com.google.inject.AbstractModule]] so that what is built in [[cats.effect.Resource]] can be DI in guice
+  /** Methods to build [[com.google.inject.AbstractModule]] so that what is built in [[cats.effect.Resource]] can be DI
+    * in guice
     */
   private[lepus] lazy val build: Resource[IO, AbstractModule] =
     resource.map(v =>
