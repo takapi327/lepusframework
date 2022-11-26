@@ -8,6 +8,8 @@ import sbt._
 
 object Dependencies {
 
+  val guice = "com.google.inject" % "guice" % "5.1.0"
+
   val logback = "ch.qos.logback" % "logback-classic" % "1.4.1"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
