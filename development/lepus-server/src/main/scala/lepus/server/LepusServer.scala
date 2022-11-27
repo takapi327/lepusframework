@@ -7,6 +7,8 @@ package lepus.server
 import scala.concurrent.duration.*
 import scala.language.reflectiveCalls
 
+import com.google.inject.Injector
+
 import cats.effect.*
 import cats.effect.std.Console
 
@@ -23,8 +25,7 @@ import lepus.logger.given
 import lepus.core.util.Configuration
 import lepus.router.{ *, given }
 import Exception.*
-import lepus.database.{ DatabaseConfig, DataSource }
-import lepus.hikari.*
+import lepus.guice.inject.GuiceApplicationBuilder
 
 private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
 
@@ -55,13 +56,13 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given HikariContext <- HikariDatabaseBuilder[IO](lepusApp.databases).build()
-      _                   <- buildServer(host, port, lepusApp)
+      given Injector <- GuiceApplicationBuilder.build
+      _              <- buildServer(host, port, lepusApp)
     yield ()
 
   private def buildApp(
     lepusApp: LepusApp[IO]
-  )(using HikariContext): Http4sRoutes[IO] =
+  )(using Injector): Http4sRoutes[IO] =
     (lepusApp.cors match
       case Some(cors) =>
         lepusApp.routes.map {
@@ -80,7 +81,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     host: String,
     port: Int,
     app:  LepusApp[IO]
-  )(using HikariContext): Resource[IO, Server] =
+  )(using Injector): Resource[IO, Server] =
     EmberServerBuilder
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
