@@ -32,11 +32,14 @@ import lepus.doobie.implicits.*
   */
 trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO]:
 
+  /** If none, [[lepus.database.DatabaseConfig]] named is used. Default is none.
+    */
   val named: Option[String] = None
 
   override val resource: Resource[IO, ContextIO] =
-    (for context <- buildContext()
-    yield ContextIO(Transactor.fromDataSource[IO](context.ds, context.ec))).evalTap(v => testConnection(v.xa))
+    buildContext()
+      .map(context => ContextIO(Transactor.fromDataSource[IO](context.ds, context.ec)))
+      .evalTap(v => testConnection(v.xa))
 
   override private[lepus] lazy val build: Resource[cats.effect.IO, AbstractModule] =
     resource.map(v =>
