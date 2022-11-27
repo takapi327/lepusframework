@@ -10,13 +10,13 @@ import cats.effect.{ Resource, IO }
 
 import lepus.guice.module.ResourceModule
 
-/**
-  * Trait to generate [[com.google.inject.AbstractModule]] for Google guice and [[lepus.guice.module.ResourceModule]] for Lepus
+/** Trait to generate [[com.google.inject.AbstractModule]] for Google guice and [[lepus.guice.module.ResourceModule]]
+  * for Lepus
   */
 trait GuiceInjectBuilder:
 
-  /**
-    * Method to generate an [[com.google.inject.AbstractModule]] from a [[lepus.guice.module.ResourceModule]] and return it as a Resource
+  /** Method to generate an [[com.google.inject.AbstractModule]] from a [[lepus.guice.module.ResourceModule]] and return
+    * it as a Resource
     */
   def loadResouceModules(): Resource[IO, Seq[AbstractModule]] =
     val default: Resource[IO, Seq[AbstractModule]] = Resource.eval(IO(Seq.empty))
@@ -31,11 +31,11 @@ trait GuiceInjectBuilder:
       yield modules :+ module
     )
 
-  /**
-    * Methods for generating [[com.google.inject.AbstractModule]]. An exception is raised if the type is not applicable.
+  /** Methods for generating [[com.google.inject.AbstractModule]]. An exception is raised if the type is not applicable.
     */
   def loadModules(): Seq[AbstractModule] =
     ModuleLoader.load().map {
       case module: AbstractModule => module
-      case unknown => throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
+      case unknown =>
+        throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
     }

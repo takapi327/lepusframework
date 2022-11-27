@@ -6,8 +6,7 @@ package lepus.guice.inject
 
 import lepus.core.util.Configuration
 
-/**
-  * Object to retrieve the module you want to enable in your application from a config string
+/** Object to retrieve the module you want to enable in your application from a config string
   */
 object ModuleLoader:
 
@@ -25,8 +24,8 @@ object ModuleLoader:
     moduleClassNames.map(className => constructModule(className)).toSeq
 
   private def constructModule[T](className: String, args: AnyRef*): T =
-    val argTypes = args.map(_.getClass)
-    val cls = ClassLoader.getSystemClassLoader.loadClass(className)
+    val argTypes    = args.map(_.getClass)
+    val cls         = ClassLoader.getSystemClassLoader.loadClass(className)
     val constructor = cls.getConstructor(argTypes: _*)
     constructor.setAccessible(true)
     constructor.newInstance(args: _*).asInstanceOf[T]

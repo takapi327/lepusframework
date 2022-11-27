@@ -8,8 +8,7 @@ import scala.reflect.ClassTag
 
 import com.google.inject.Injector
 
-/**
-  * Objects to create instances using Google guice [[com.google.inject.Injector]]
+/** Objects to create instances using Google guice [[com.google.inject.Injector]]
   */
 object Inject:
 
