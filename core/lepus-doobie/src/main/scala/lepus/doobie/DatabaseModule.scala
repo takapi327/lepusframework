@@ -25,7 +25,7 @@ import lepus.doobie.implicits.*
   *   @Singleton
   *   class ToDoDatabase extends DatabaseModule:
   *     val databaseConfig: DatabaseConfig = DatabaseConfig("lepus.database://todo/writer")
-  * 
+  *
   *   // Configuration to conf file
   *   lepus.modules.enabled += "ToDoDatabase"
   * }}}
@@ -47,19 +47,19 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
             .toInstance(v)
     )
 
-    /** A method that tests the initialized database connection and attempts a wait connection at 5 second intervals until
-    * a connection is available.
-    *
-    * @param xa
-    *   A thin wrapper around a source of database connections, an interpreter, and a strategy for running programs,
-    *   parameterized over a target monad M and an arbitrary wrapped value A. Given a stream or program in ConnectionIO
-    *   or a program in Kleisli, a Transactor can discharge the doobie machinery and yield an effectful stream or
-    *   program in M.
-    */
+    /** A method that tests the initialized database connection and attempts a wait connection at 5 second intervals
+      * until a connection is available.
+      *
+      * @param xa
+      *   A thin wrapper around a source of database connections, an interpreter, and a strategy for running programs,
+      *   parameterized over a target monad M and an arbitrary wrapped value A. Given a stream or program in
+      *   ConnectionIO or a program in Kleisli, a Transactor can discharge the doobie machinery and yield an effectful
+      *   stream or program in M.
+      */
   def testConnection(xa: Transactor[IO]): IO[Unit] =
     (testQuery(xa) >> logger.info(s"$databaseConfig Database connection test complete")).onError { (ex: Throwable) =>
       logger.warn(s"$databaseConfig Database not available, waiting 5 seconds to retry...", ex) >>
-        IO.sleep(5.seconds) >>  testConnection(xa)
+        IO.sleep(5.seconds) >> testConnection(xa)
     }
 
   /** A query to be executed to check the connection to the database.

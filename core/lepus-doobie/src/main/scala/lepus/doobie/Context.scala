@@ -6,8 +6,7 @@ package lepus.doobie
 
 import cats.effect.IO
 
-/**
-  * Trait to incorporate Transactor into the DI of guice
+/** Trait to incorporate Transactor into the DI of guice
   */
 trait Context[F[_]]:
   val xa: Transactor[F]
