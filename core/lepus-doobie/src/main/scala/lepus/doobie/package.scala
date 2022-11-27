@@ -4,11 +4,6 @@
 
 package lepus
 
-import doobie.Transactor
-
-import lepus.database.DataSource
-import lepus.hikari.HikariContext
-
 /** Top-level imports provide aliases for the most commonly used types and modules.
   *
   * example:
@@ -17,8 +12,4 @@ import lepus.hikari.HikariContext
   *   import lepus.doobie.implicits.*
   * }}}
   */
-package object doobie extends LepusDoobie:
-
-  type DBTransactor[F[_]] = Map[DataSource, Transactor[F]]
-
-  type Transact[T] = HikariContext ?=> T
+package object doobie extends LepusDoobie

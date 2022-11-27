@@ -4,4 +4,4 @@
 
 package lepus.doobie
 
-package object syntax extends ConnectionIOOps, TransactOps
+package object syntax extends ConnectionIOOps
