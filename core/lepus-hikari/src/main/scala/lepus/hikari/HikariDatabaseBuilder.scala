@@ -29,7 +29,9 @@ import lepus.database.*
   * @tparam F
   *   the effect type.
   */
-private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console] extends HikariConfigBuilder, DatabaseBuilder[F, HikariDataSource]:
+private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
+  extends HikariConfigBuilder,
+          DatabaseBuilder[F, HikariDataSource]:
 
   protected val databaseConfig: DatabaseConfig
 
@@ -52,7 +54,7 @@ private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console] extends H
 
   def build(): Resource[F, HikariContext] =
     for
-       hikariConfig     <- buildConfig()
-       ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
-       hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
+      hikariConfig     <- buildConfig()
+      ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
+      hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
     yield DatabaseContext(ec, hikariDataSource)

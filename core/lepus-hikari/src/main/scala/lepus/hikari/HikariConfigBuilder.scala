@@ -207,7 +207,7 @@ trait HikariConfigBuilder extends DatabaseConfigReader:
     threadFactory:         Option[ThreadFactory] = None
   ): HikariConfig =
     given DatabaseConfig = databaseConfig
-    val hikariConfig = new HikariConfig()
+    val hikariConfig     = new HikariConfig()
 
     getCatalog foreach hikariConfig.setCatalog
     hikariConfig.setConnectionTimeout(connectionTimeout)
