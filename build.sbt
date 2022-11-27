@@ -105,7 +105,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusRouterProject, LepusHikariProject)
+  .dependsOn(LepusRouterProject, LepusGuiceProject, LepusLoggerProject)
 
 lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
