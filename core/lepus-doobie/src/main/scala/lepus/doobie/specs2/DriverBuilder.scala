@@ -12,7 +12,7 @@ import lepus.doobie.*
 
 /** Trait for probing temporary DB connection for testing
   */
-trait DriverBuilder extends DataSourceConfigReader:
+trait DriverBuilder extends DatabaseConfigReader:
 
   final private val JDBC_URL          = "jdbc_url"
   final private val USERNAME          = "username"
@@ -35,8 +35,8 @@ trait DriverBuilder extends DataSourceConfigReader:
   protected def getDriverClassName: DatabaseCF[Option[String]] =
     readConfig(_.get[Option[String]](DRIVER_CLASS_NAME))
 
-  def makeFromDataSource[F[_]: Async](dataSource: DataSource): Transactor.Aux[F, Unit] =
-    given DataSource = dataSource
+  def makeFromDatabaseConfig[F[_]: Async](databaseConfig: DatabaseConfig): Transactor.Aux[F, Unit] =
+    given DatabaseConfig = databaseConfig
     (for
       driver <- getDriverClassName
       url    <- getJdbcUrl
