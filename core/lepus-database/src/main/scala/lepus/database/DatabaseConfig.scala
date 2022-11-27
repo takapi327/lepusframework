@@ -20,6 +20,8 @@ case class DatabaseConfig(
   replication: Option[String]
 ):
 
+  val named: String = database + replication.map(v => "_" + v).getOrElse("")
+
   override def toString: String = s"$path://$database${ replication.map(v => s"/$v").getOrElse("") }"
 
 object DatabaseConfig:
@@ -33,9 +35,9 @@ object DatabaseConfig:
     case _ =>
       throw new IllegalArgumentException(
         s"""
-       |$str does not match DatabaseConfig format
-       |
-       |example:
-       |  path://database or path://database/replication
-       |""".stripMargin
+          |$str does not match DatabaseConfig format
+          |
+          |example:
+          |  path://database or path://database/replication
+          |""".stripMargin
       )
