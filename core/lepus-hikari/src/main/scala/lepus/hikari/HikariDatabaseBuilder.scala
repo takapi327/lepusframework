@@ -17,8 +17,6 @@ import lepus.database.*
 /** A model for building a database. HikariCP construction, thread pool generation for database connection, test
   * connection, etc. are performed via the method.
   *
-  * @param dataSource
-  *   Configuration of database settings to be retrieved from Conf file
   * @param sync$F$0
   *   A type class that encodes the notion of suspending synchronous side effects in the F[_] context
   * @param async$F$1
@@ -52,7 +50,7 @@ private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
       hikariConfig
     }.toResource
 
-  def build(): Resource[F, HikariContext] =
+  def buildContext(): Resource[F, HikariContext] =
     for
       hikariConfig     <- buildConfig()
       ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
