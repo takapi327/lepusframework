@@ -6,7 +6,7 @@ package lepus
 
 import com.zaxxer.hikari.HikariDataSource
 
-import lepus.database.LepusContext
+import lepus.database.DatabaseContext
 
 package object hikari:
-  type HikariContext = LepusContext[HikariDataSource]
+  type HikariContext = DatabaseContext[HikariDataSource]
