@@ -8,5 +8,3 @@ import javax.sql.DataSource as JDataSource
 
 package object database:
   type DatabaseCF[T] = DatabaseConfig ?=> T
-
-  def emptyContext[T <: JDataSource] = Map.empty[DatabaseConfig, DatabaseContext[T]]
