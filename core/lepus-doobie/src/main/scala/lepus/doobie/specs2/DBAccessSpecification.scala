@@ -46,7 +46,7 @@ trait DBAccessSpecification[F[_]: Async] extends DriverBuilder:
     *
     * Note that this connection is for testing and all executions will be rolled back.
     */
-  protected  lazy val rollbackTransactor: Transactor[F] =
+  protected lazy val rollbackTransactor: Transactor[F] =
     Transactor.after.set(
       makeFromDatabaseConfig[F](database),
       HC.rollback
