@@ -25,13 +25,13 @@ import lepus.doobie.*
   *
   *     "TestRepository Test" should {
   *       "Check findAll database access" in {
-  *         val result = TestRepository.findAll().transact(rollbackTransact).unsafeRunSync()
+  *         val result = TestRepository.findAll().transact(rollbackTransactor).unsafeRunSync()
   *         result.length === 3
   *       }
   *
   *       "Check update database access" in {
   *         val task = Task(Some(1), "Task1 Updated", None, Task.Status.TODO)
-  *         val result = TestRepository.update(task).transact(rollbackTransact).unsafeRunSync()
+  *         val result = TestRepository.update(task).transact(rollbackTransactor).unsafeRunSync()
   *         result === 1
   *       }
   *     }
@@ -46,7 +46,7 @@ trait DBAccessSpecification[F[_]: Async] extends DriverBuilder:
     *
     * Note that this connection is for testing and all executions will be rolled back.
     */
-  private lazy val rollbackTransactor: Transactor[F] =
+  protected  lazy val rollbackTransactor: Transactor[F] =
     Transactor.after.set(
       makeFromDatabaseConfig[F](database),
       HC.rollback
