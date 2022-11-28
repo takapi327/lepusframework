@@ -6,6 +6,8 @@ package lepus.database
 
 import scala.concurrent.duration.DurationInt
 
+import cats.Eval
+
 import cats.effect.*
 import cats.effect.implicits.*
 import cats.effect.std.Console
@@ -17,7 +19,7 @@ import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 import doobie.*
 import doobie.implicits.*
 
-import lepus.logger.{ ExecLocation, LoggingIO, given }
+import lepus.logger.{ *, given }
 
 /** A model for building a database. HikariCP construction, thread pool generation for database connection, test
   * connection, etc. are performed via the method.
@@ -36,7 +38,49 @@ import lepus.logger.{ ExecLocation, LoggingIO, given }
   */
 private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
   dataSource: DataSource
-) extends LoggingIO[F]:
+) extends LoggingF[F]:
+
+  override val output:    OutputF[F] = ConsoleOutput[F]
+  override val filter:    Filter     = Filter.everything
+  override val formatter: Formatter  = DefaultFormatter
+
+  val logger: LoggerF[F] = new LoggerF[F]:
+
+    private def buildLogMessage[M](
+      level: Level,
+      msg:   => M,
+      ex:    Option[Throwable],
+      ctx:   Map[String, String]
+    ): ExecuteF[F, LogMessage] =
+      Clock[F].realTime.map(now =>
+        LogMessage(
+          level,
+          Eval.later(msg.toString),
+          summon[ExecLocation],
+          ctx,
+          ex,
+          Thread.currentThread().getName,
+          now.toMillis
+        )
+      )
+
+    private def doOutput(msg: LogMessage): ExecuteF[F, Unit] =
+      (msg.level, msg.exception) match
+        case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
+        case (Level.Error, None)     => output.outputError(formatter.format(msg))
+        case (_, Some(ex))           => output.output(formatter.format(msg)) >> output.outputStackTrace(ex)
+        case _                       => output.output(formatter.format(msg))
+
+    override protected def log[M](
+      level: Level,
+      msg:   => M,
+      ex:    Option[Throwable],
+      ctx:   Map[String, String]
+    ): ExecuteF[F, Unit] =
+      buildLogMessage(level, msg, ex, ctx).flatMap(log)
+
+    override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
+      doOutput(msg).whenA(filter(msg))
 
   /** Method for generating HikariDataSource with Resource.
     *
@@ -44,9 +88,7 @@ private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
     *   Process to generate HikariDataSource
     */
   private def createDataSourceResource(factory: => HikariDataSource): Resource[F, HikariDataSource] =
-    val acquire = Sync[F].delay(factory)
-    val release = (ds: HikariDataSource) => Sync[F].delay(ds.close())
-    Resource.make(acquire)(release)
+    Resource.fromAutoCloseable(Sync[F].delay(factory))
 
   /** Methods to build HikariCP, generate thread pool for database connection, build Transactor and test connections.
     */

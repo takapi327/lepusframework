@@ -41,7 +41,7 @@ trait LepusApp[F[_]: Applicative]:
   val cors: Option[CORSPolicy] = None
 
   /** List of all endpoints to be launched by the application */
-  def routes: DBTransactor[F] ?=> NonEmptyList[Routing[F]]
+  val routes: DBTransactor[F] ?=> NonEmptyList[Routing[F]]
 
   /** Methods to define handling of errors that occur during application execution */
   val errorHandler: PartialFunction[Throwable, F[Response[F]]] =

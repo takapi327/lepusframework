@@ -17,6 +17,6 @@ import lepus.swagger.*
 
 object HttpApp extends LepusApp[IO]:
 
-  override def routes = NonEmptyList.of(
+  val routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> HelloRoute
   )

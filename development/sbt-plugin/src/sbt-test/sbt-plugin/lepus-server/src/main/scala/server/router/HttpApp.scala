@@ -17,7 +17,7 @@ import lepus.server.LepusApp
 
 object HttpApp extends LepusApp[IO]:
 
-  override def routes = NonEmptyList.of(
+  val routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> RouterConstructor.of {
       case GET => Ok(s"hello ${summon[String]}")
     }
