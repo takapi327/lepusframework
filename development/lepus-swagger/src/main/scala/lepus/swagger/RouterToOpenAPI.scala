@@ -10,8 +10,6 @@ import cats.data.NonEmptyList
 
 import org.http4s.Method
 
-import doobie.Transactor
-
 import lepus.core.generic.Schema
 
 import lepus.database.DataSource
@@ -20,6 +18,7 @@ import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
 
+import lepus.hikari.HikariContext
 import lepus.server.LepusApp
 
 import lepus.swagger.model.*
@@ -32,8 +31,8 @@ private[lepus] object RouterToOpenAPI:
     info:   Info,
     router: LepusApp[F]
   ): OpenApiUI =
-    given Map[DataSource, Transactor[F]] = Map.empty
-    val groupEndpoint                    = router.routes.toList.toMap
+    given HikariContext = Map.empty
+    val groupEndpoint   = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 

@@ -4,7 +4,7 @@
 
 package lepus.database
 
-import scala.concurrent.duration.DurationInt
+import javax.sql.DataSource as JDataSource
 
 import cats.Eval
 
@@ -14,15 +14,9 @@ import cats.effect.std.Console
 
 import cats.implicits.*
 
-import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
-
-import doobie.*
-import doobie.implicits.*
-
 import lepus.logger.{ *, given }
 
-/** A model for building a database. HikariCP construction, thread pool generation for database connection, test
-  * connection, etc. are performed via the method.
+/** A model for building a database.
   *
   * @param dataSource
   *   Configuration of database settings to be retrieved from Conf file
@@ -36,9 +30,7 @@ import lepus.logger.{ *, given }
   * @tparam F
   *   the effect type.
   */
-private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
-  dataSource: DataSource
-) extends LoggingF[F]:
+private[lepus] trait DatabaseBuilder[F[_]: Sync: Async: Console, T <: JDataSource] extends LoggingF[F]:
 
   override val output:    OutputF[F] = ConsoleOutput[F]
   override val filter:    Filter     = Filter.everything
@@ -82,59 +74,4 @@ private[lepus] final case class DatabaseBuilder[F[_]: Sync: Async: Console](
     override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
 
-  /** Method for generating HikariDataSource with Resource.
-    *
-    * @param factory
-    *   Process to generate HikariDataSource
-    */
-  private def createDataSourceResource(factory: => HikariDataSource): Resource[F, HikariDataSource] =
-    Resource.fromAutoCloseable(Sync[F].delay(factory))
-
-  /** Methods to build HikariCP, generate thread pool for database connection, build Transactor and test connections.
-    */
-  def resource: Resource[F, Transactor[F]] =
-    (for
-      hikariConfig <- buildConfig
-      ec           <- ExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
-      datasource   <- createDataSourceResource(new HikariDataSource(hikariConfig))
-    yield Transactor.fromDataSource[F](datasource, ec)).evalTap(testConnection)
-
-  /** Method to generate Config for HikariCP.
-    */
-  private def buildConfig: Resource[F, HikariConfig] =
-    Sync[F].delay {
-      val hikariConfig = HikariConfigBuilder.default.makeFromDataSource(dataSource)
-      hikariConfig.validate()
-      hikariConfig
-    }.toResource
-
-  /** A method that tests the initialized database connection and attempts a wait connection at 5 second intervals until
-    * a connection is available.
-    *
-    * @param xa
-    *   A thin wrapper around a source of database connections, an interpreter, and a strategy for running programs,
-    *   parameterized over a target monad M and an arbitrary wrapped value A. Given a stream or program in ConnectionIO
-    *   or a program in Kleisli, a Transactor can discharge the doobie machinery and yield an effectful stream or
-    *   program in M.
-    */
-  def testConnection(xa: Transactor[F]): F[Unit] =
-    (testQuery(xa) >> logger.info(s"$dataSource Database connection test complete")).onError { (ex: Throwable) =>
-      logger.warn(s"$dataSource Database not available, waiting 5 seconds to retry...", ex) >>
-        Sync[F].sleep(5.seconds) >>
-        testConnection(xa)
-    }
-
-  /** A query to be executed to check the connection to the database.
-    *
-    * @param xa
-    *   A thin wrapper around a source of database connections, an interpreter, and a strategy for running programs,
-    *   parameterized over a target monad M and an arbitrary wrapped value A. Given a stream or program in ConnectionIO
-    *   or a program in Kleisli, a Transactor can discharge the doobie machinery and yield an effectful stream or
-    *   program in M.
-    */
-  def testQuery(xa: Transactor[F]): F[Unit] =
-    Sync[F].void(sql"select 1".query[Int].unique.transact(xa))
-
-private[lepus] object DatabaseBuilder:
-  def apply[F[_]: Sync: Async: Console](dataSource: DataSource): DatabaseBuilder[F] =
-    new DatabaseBuilder[F](dataSource)
+  def build(): Resource[F, LepusContext[T]]
