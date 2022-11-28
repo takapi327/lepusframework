@@ -21,7 +21,7 @@ object ModuleLoader:
   private[lepus] val moduleClassNames: Set[String] = enableds.toSet -- disableds
 
   def load(): Seq[Any] =
-    moduleClassNames.map(className => constructModule(className)).toSeq
+    moduleClassNames.map(className => constructModule[Any](className)).toSeq
 
   private def constructModule[T](className: String, args: AnyRef*): T =
     val argTypes    = args.map(_.getClass)

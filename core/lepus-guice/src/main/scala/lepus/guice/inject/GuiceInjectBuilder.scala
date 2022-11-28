@@ -34,8 +34,9 @@ trait GuiceInjectBuilder:
   /** Methods for generating [[com.google.inject.AbstractModule]]. An exception is raised if the type is not applicable.
     */
   def loadModules(): Seq[AbstractModule] =
-    ModuleLoader.load().map {
-      case module: AbstractModule => module
+    ModuleLoader.load().flatMap {
+      case module: AbstractModule    => Some(module)
+      case module: ResourceModule[?] => None
       case unknown =>
         throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
     }
