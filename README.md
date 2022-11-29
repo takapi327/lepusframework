@@ -87,7 +87,7 @@ import lepus.server.LepusApp
 
 object HelloApp extends LepusApp[IO]:
 
-  override def routes = NonEmptyList.of(
+  override val routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> RouterConstructor.of {
       case GET => Ok(s"Hello ${summon[String]}")
     }
@@ -166,7 +166,7 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
     )
   }
 
-  override def routes = {
+  override val routes = {
     case GET => Ok(s"Hello ${summon[String]}")
   }
 
@@ -228,4 +228,3 @@ services:
 Sample applications using Lepus Framework are available in [this](https://github.com/takapi327/lepus-app-template) repository.
 
 For a more detailed implementation, please refer to the sample application.
-
