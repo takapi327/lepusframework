@@ -6,19 +6,18 @@ package lepus.swagger
 
 import scala.collection.immutable.ListMap
 
+import com.google.inject.{ Guice, Injector }
+
 import cats.data.NonEmptyList
 
 import org.http4s.Method
 
 import lepus.core.generic.Schema
 
-import lepus.database.DataSource
-
 import lepus.router.*
 import lepus.router.internal.*
 import lepus.router.http.Endpoint
 
-import lepus.hikari.HikariContext
 import lepus.server.LepusApp
 
 import lepus.swagger.model.*
@@ -31,8 +30,9 @@ private[lepus] object RouterToOpenAPI:
     info:   Info,
     router: LepusApp[F]
   ): OpenApiUI =
-    given HikariContext = Map.empty
-    val groupEndpoint   = router.routes.toList.toMap
+    // TODO: Make Injector not have to be passed on
+    given Injector    = Guice.createInjector()
+    val groupEndpoint = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 
