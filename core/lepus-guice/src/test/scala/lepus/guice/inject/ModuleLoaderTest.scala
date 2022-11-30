@@ -13,27 +13,27 @@ object ModuleLoaderTest extends Specification:
   "Testing the ModuleLoader" should {
 
     "Successfully read class name of enabled module from config" in {
-      ModuleLoader.enableds must beAnInstanceOf[Seq[String]]
+      ModuleLoader.enables must beAnInstanceOf[Seq[String]]
     }
 
     "Class name of enabled module retrieved from config matches the specified number" in {
-      ModuleLoader.enableds.length === 5
+      ModuleLoader.enables.length === 5
     }
 
     "The class name of the enabled module retrieved from config matches the specified one" in {
-      ModuleLoader.enableds containsSlice Seq("Module1", "Module2", "Module3", "Module4", "Module5")
+      ModuleLoader.enables containsSlice Seq("Module1", "Module2", "Module3", "Module4", "Module5")
     }
 
     "Successfully read class name of disabled module from config" in {
-      ModuleLoader.disableds must beAnInstanceOf[Seq[String]]
+      ModuleLoader.disables must beAnInstanceOf[Seq[String]]
     }
 
     "Class name of disabled module retrieved from config matches the specified number" in {
-      ModuleLoader.disableds.length === 2
+      ModuleLoader.disables.length === 2
     }
 
     "The class name of the disabled module retrieved from config matches the specified one" in {
-      ModuleLoader.disableds containsSlice Seq("Module1", "Module2")
+      ModuleLoader.disables containsSlice Seq("Module1", "Module2")
     }
 
     "The number of moduleClassNames is the number of enableds minus disableds" in {

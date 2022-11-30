@@ -12,13 +12,13 @@ object ModuleLoader:
 
   private val config: Configuration = Configuration.load()
 
-  private val ENABLED_MODULES:  String = "lepus.modules.enabled"
-  private val DISABLED_MODULES: String = "lepus.modules.disabled"
+  private val ENABLED_MODULES:  String = "lepus.modules.enable"
+  private val DISABLED_MODULES: String = "lepus.modules.disable"
 
-  private[lepus] val enableds:  Seq[String] = config.get[Option[Seq[String]]](ENABLED_MODULES).getOrElse(Seq.empty)
-  private[lepus] val disableds: Seq[String] = config.get[Option[Seq[String]]](DISABLED_MODULES).getOrElse(Seq.empty)
+  private[lepus] val enables:  Seq[String] = config.get[Option[Seq[String]]](ENABLED_MODULES).getOrElse(Seq.empty)
+  private[lepus] val disables: Seq[String] = config.get[Option[Seq[String]]](DISABLED_MODULES).getOrElse(Seq.empty)
 
-  private[lepus] val moduleClassNames: Set[String] = enableds.toSet -- disableds
+  private[lepus] val moduleClassNames: Set[String] = enables.toSet -- disables
 
   def load(): Seq[Any] =
     moduleClassNames.map(className => constructModule[Any](className)).toSeq
