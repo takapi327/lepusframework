@@ -16,4 +16,4 @@ object GuiceApplicationBuilder extends GuiceInjectBuilder:
     * module is included, the return value is [[cats.effect.Resource]].
     */
   def build: Resource[IO, Injector] =
-    loadResouceModules().map(modules => Guice.createInjector((modules ++ loadModules()): _*))
+    loadResourceModules().map(modules => Guice.createInjector((modules ++ loadModules()): _*))

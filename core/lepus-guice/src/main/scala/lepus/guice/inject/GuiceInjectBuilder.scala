@@ -18,7 +18,7 @@ trait GuiceInjectBuilder:
   /** Method to generate an [[com.google.inject.AbstractModule]] from a [[lepus.guice.module.ResourceModule]] and return
     * it as a Resource
     */
-  def loadResouceModules(): Resource[IO, Seq[AbstractModule]] =
+  def loadResourceModules(): Resource[IO, Seq[AbstractModule]] =
     val default: Resource[IO, Seq[AbstractModule]] = Resource.eval(IO(Seq.empty))
     val resourceModules: Seq[Resource[IO, AbstractModule]] =
       ModuleLoader.load().map {
