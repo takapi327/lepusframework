@@ -27,7 +27,7 @@ import lepus.doobie.implicits.*
   *     val databaseConfig: DatabaseConfig = DatabaseConfig("lepus.database://todo/writer")
   *
   *   // Configuration to conf file
-  *   lepus.modules.enabled += "ToDoDatabase"
+  *   lepus.modules.enable += "ToDoDatabase"
   * }}}
   */
 trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO]:
