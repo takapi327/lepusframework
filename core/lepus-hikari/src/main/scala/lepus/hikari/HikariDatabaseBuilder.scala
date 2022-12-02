@@ -48,7 +48,7 @@ private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
       hikariConfig
     }.toResource
 
-  def buildContext(): Resource[F, HikariDataSource] =
+  def buildDataSource(): Resource[F, HikariDataSource] =
     for
       hikariConfig     <- buildConfig()
       hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))

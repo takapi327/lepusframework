@@ -44,7 +44,7 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
 
   override val resource: Resource[IO, ContextIO] =
     (for
-      ds <- buildContext()
+      ds <- buildDataSource()
       ec <- buildExecutionContexts(ds.getMaximumPoolSize)(using databaseConfig)
     yield ContextIO(Transactor.fromDataSource[IO](ds, ec))).evalTap(v => testConnection(v.xa))
 
