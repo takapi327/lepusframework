@@ -74,4 +74,4 @@ private[lepus] trait DatabaseBuilder[F[_]: Sync: Async: Console, T <: JDataSourc
     override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
 
-  def build(): Resource[F, LepusContext[T]]
+  def buildContext(): Resource[F, DatabaseContext[T]]

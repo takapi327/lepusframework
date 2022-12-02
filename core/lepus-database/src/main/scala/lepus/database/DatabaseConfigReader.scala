@@ -8,7 +8,7 @@ import lepus.core.util.Configuration
 
 /** Trait provides an implementation to retrieve data from a Conf file based on DataSource settings.
   */
-private[lepus] trait DataSourceConfigReader:
+private[lepus] trait DatabaseConfigReader:
 
   protected val config: Configuration = Configuration.load()
 
@@ -20,12 +20,14 @@ private[lepus] trait DataSourceConfigReader:
     * @tparam T
     *   Type of value retrieved from conf file
     */
-  final protected def readConfig[T](func: Configuration => Option[T])(using dataSource: DataSource): Option[T] =
+  final protected def readConfig[T](func: Configuration => Option[T])(using databaseConfig: DatabaseConfig): Option[T] =
     Seq(
-      dataSource.path + "." + dataSource.database + "." + dataSource.replication,
-      dataSource.path + "." + dataSource.database,
-      dataSource.path
-    ).foldLeft[Option[T]](None) {
+      databaseConfig.replication.map(replication => {
+        databaseConfig.path + "." + databaseConfig.database + "." + replication
+      }),
+      Some(databaseConfig.path + "." + databaseConfig.database),
+      Some(databaseConfig.path)
+    ).flatten.foldLeft[Option[T]](None) {
       case (prev, path) =>
         prev.orElse {
           config.get[Option[Configuration]](path).flatMap(func(_))

@@ -14,5 +14,4 @@ trait LepusDoobie extends doobie.Aliases, doobie.hi.Modules, doobie.free.Modules
             doobie.util.meta.SqlMeta,
             doobie.util.meta.TimeMeta,
             doobie.util.meta.LegacyMeta,
-            syntax.ConnectionIOOps,
-            syntax.TransactOps
+            syntax.ConnectionIOOps

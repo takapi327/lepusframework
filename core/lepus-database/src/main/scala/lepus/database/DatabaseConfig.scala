@@ -4,33 +4,6 @@
 
 package lepus.database
 
-import cats.data.NonEmptyList
-
-/** Configuration of database settings to be retrieved from Conf file
-  *
-  * @param path
-  *   Key values for conf file.
-  * @param database
-  *   Database Name
-  * @param replication
-  *   A value to distinguish between relational databases.
-  */
-case class DataSource(
-  path:        String,
-  database:    String,
-  replication: String
-):
-  override final def equals(other: Any): Boolean = other match
-    case that: DataSource =>
-      (that _equal this) &&
-      (this.path == that.path) &&
-      (this.database == that.database) &&
-      (this.replication == that.replication)
-    case _ => false
-  private def _equal(other: Any) = other.isInstanceOf[DataSource]
-
-  override def toString: String = s"$path://$database/$replication"
-
 /** Configuration of database settings to be retrieved from Conf file If replication is set up, you will have multiple
   * configurations.
   *
@@ -44,35 +17,27 @@ case class DataSource(
 case class DatabaseConfig(
   path:        String,
   database:    String,
-  replication: NonEmptyList[String]
+  replication: Option[String]
 ):
 
-  def dataSource: NonEmptyList[DataSource] = replication.map(v => {
-    DataSource(path, database, v)
-  })
+  val named: String = database + replication.map(v => "_" + v).getOrElse("")
 
-  override def toString: String = s"$path://$database/${ replication.toList.mkString("|") }"
+  override def toString: String = s"$path://$database${ replication.map(v => s"/$v").getOrElse("") }"
 
 object DatabaseConfig:
 
-  val SYNTAX_DATABASE_CONFIG = """^([.\w]+)://(\w+?)$""".r
+  val SYNTAX_DATABASE_CONFIG1 = """^([.\w]+)://(\w+?)$""".r
+  val SYNTAX_DATABASE_CONFIG2 = """^([.\w]+)://(\w+?)/(\w+)$""".r
 
-  def apply(str: String, replication: NonEmptyList[String]): DatabaseConfig = str match
-    case SYNTAX_DATABASE_CONFIG(path, database) => DatabaseConfig(path, database, replication)
+  def apply(str: String): DatabaseConfig = str match
+    case SYNTAX_DATABASE_CONFIG1(path, database)              => DatabaseConfig(path, database, None)
+    case SYNTAX_DATABASE_CONFIG2(path, database, replication) => DatabaseConfig(path, database, Some(replication))
     case _ =>
       throw new IllegalArgumentException(
         s"""
-           |$str does not match DatabaseConfig format
-           |
-           |example:
-           |  DatabaseConfig(path://database)
-           |
-           |  // conf file contents
-           |  path.database = {
-           |    ...
-           |  }
-           |""".stripMargin
+          |$str does not match DatabaseConfig format
+          |
+          |example:
+          |  path://database or path://database/replication
+          |""".stripMargin
       )
-
-  def apply(str: String, replication: String): DatabaseConfig =
-    this.apply(str, NonEmptyList.one(replication))

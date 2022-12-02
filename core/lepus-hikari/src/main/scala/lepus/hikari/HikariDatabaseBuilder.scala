@@ -17,8 +17,6 @@ import lepus.database.*
 /** A model for building a database. HikariCP construction, thread pool generation for database connection, test
   * connection, etc. are performed via the method.
   *
-  * @param dataSource
-  *   Configuration of database settings to be retrieved from Conf file
   * @param sync$F$0
   *   A type class that encodes the notion of suspending synchronous side effects in the F[_] context
   * @param async$F$1
@@ -29,9 +27,11 @@ import lepus.database.*
   * @tparam F
   *   the effect type.
   */
-private[lepus] final case class HikariDatabaseBuilder[F[_]: Sync: Async: Console](
-  databases: Set[DatabaseConfig]
-) extends DatabaseBuilder[F, HikariDataSource]:
+private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
+  extends HikariConfigBuilder,
+          DatabaseBuilder[F, HikariDataSource]:
+
+  protected val databaseConfig: DatabaseConfig
 
   /** Method for generating HikariDataSource with Resource.
     *
@@ -43,24 +43,16 @@ private[lepus] final case class HikariDatabaseBuilder[F[_]: Sync: Async: Console
 
   /** Method to generate Config for HikariCP.
     */
-  private def buildConfig(dataSource: DataSource): Resource[F, HikariConfig] =
+  private def buildConfig(): Resource[F, HikariConfig] =
     Sync[F].delay {
-      val hikariConfig = HikariConfigBuilder.default.makeFromDataSource(dataSource)
+      val hikariConfig = makeFromDatabaseConfig(databaseConfig)
       hikariConfig.validate()
       hikariConfig
     }.toResource
 
-  def build(): Resource[F, HikariContext] =
-    val default = Sync[F].delay(emptyContext[HikariDataSource]).toResource
-    databases.flatMap(_.dataSource.toList).foldLeft(default) { (_resource, db) =>
-      for
-        map              <- _resource
-        hikariConfig     <- buildConfig(db)
-        ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
-        hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
-      yield map + (db -> DatabaseContext(ec, hikariDataSource))
-    }
-
-private[lepus] object HikariDatabaseBuilder:
-  def apply[F[_]: Sync: Async: Console](databases: Set[DatabaseConfig]): HikariDatabaseBuilder[F] =
-    new HikariDatabaseBuilder[F](databases)
+  def buildContext(): Resource[F, HikariContext] =
+    for
+      hikariConfig     <- buildConfig()
+      ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
+      hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
+    yield DatabaseContext(ec, hikariDataSource)

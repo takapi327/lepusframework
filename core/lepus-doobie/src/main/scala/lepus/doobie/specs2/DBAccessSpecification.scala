@@ -4,19 +4,11 @@
 
 package lepus.doobie.specs2
 
-import scala.annotation.targetName
-
-import cats.data.{ OptionT, EitherT, Kleisli }
-
 import cats.effect.Async
-import cats.effect.kernel.MonadCancelThrow
-
-import fs2.{ Pipe, Stream }
 
 import lepus.database.DatabaseConfig
 
 import lepus.doobie.*
-import lepus.doobie.implicits.*
 
 /** Test by actually accessing the database.
   *
@@ -29,23 +21,23 @@ import lepus.doobie.implicits.*
   * {{{
   *   class TestRepositoryDBAccessTest extends Specification, DBAccessSpecification[IO]:
   *
-  *     val database: DatabaseConfig = DatabaseConfig("lepus.database://edu_todo", NonEmptyList.of("master", "slave"))
+  *     val database: DatabaseConfig = DatabaseConfig("lepus.database://edu_todo/writer"))
   *
   *     "TestRepository Test" should {
   *       "Check findAll database access" in {
-  *         val result = TestRepository.findAll().rollbackTransact("slave").unsafeRunSync()
+  *         val result = TestRepository.findAll().transact(rollbackTransactor).unsafeRunSync()
   *         result.length === 3
   *       }
   *
   *       "Check update database access" in {
   *         val task = Task(Some(1), "Task1 Updated", None, Task.Status.TODO)
-  *         val result = TestRepository.update(task).rollbackTransact("slave").unsafeRunSync()
+  *         val result = TestRepository.update(task).transact(rollbackTransactor).unsafeRunSync()
   *         result === 1
   *       }
   *     }
   * }}}
   */
-trait DBAccessSpecification[F[_]: Async: MonadCancelThrow] extends DriverBuilder:
+trait DBAccessSpecification[F[_]: Async] extends DriverBuilder:
 
   /** Value with configuration to establish a connection to Database */
   def database: DatabaseConfig
@@ -54,40 +46,8 @@ trait DBAccessSpecification[F[_]: Async: MonadCancelThrow] extends DriverBuilder
     *
     * Note that this connection is for testing and all executions will be rolled back.
     */
-  private lazy val rollbackTransactor: String => Transactor[F] = (key: String) =>
+  protected lazy val rollbackTransactor: Transactor[F] =
     Transactor.after.set(
-      database.dataSource
-        .find(_.replication == key)
-        .map(makeFromDataSource[F](_))
-        .getOrElse(throw new IllegalArgumentException(s"$key is not set as replication for the specified $database.")),
+      makeFromDatabaseConfig[F](database),
       HC.rollback
     )
-
-  extension [T](connection: ConnectionIO[T])
-    def rollbackTransact(key: String): F[T] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [T](connection: OptionT[ConnectionIO, T])
-    def rollbackTransact(key: String): OptionT[F, T] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [T, E](connection: EitherT[ConnectionIO, E, T])
-    def rollbackTransact(key: String): EitherT[F, E, T] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [T, E](connection: Kleisli[ConnectionIO, E, T])
-    def rollbackTransact(key: String): Kleisli[F, E, T] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [T](connection: Stream[ConnectionIO, T])
-    def rollbackTransact(key: String): Stream[F, T] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [A, B](connection: Pipe[ConnectionIO, A, B])
-    def rollbackTransact(key: String): Pipe[F, A, B] =
-      connection.transact(rollbackTransactor(key))
-
-  extension [A, B](connection: Stream[[T] =>> Kleisli[ConnectionIO, A, T], B])
-    @targetName("streamToKleisliRollbackTransact")
-    def rollbackTransact(key: String): Stream[[T] =>> Kleisli[F, A, T], B] =
-      connection.transact(rollbackTransactor(key))

@@ -15,11 +15,11 @@ import scala.jdk.CollectionConverters.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.metrics.MetricsTrackerFactory
 
-import lepus.database.{ DataSource, DatabaseCF, DataSourceConfigReader }
+import lepus.database.{ DatabaseConfig, DatabaseCF, DatabaseConfigReader }
 
 /** Build the Configuration of HikariCP.
   */
-trait HikariConfigBuilder extends DataSourceConfigReader:
+trait HikariConfigBuilder extends DatabaseConfigReader:
 
   /** List of keys to retrieve from conf file. */
   final private val CATALOG                     = "catalog"
@@ -195,8 +195,8 @@ trait HikariConfigBuilder extends DataSourceConfigReader:
     * @param threadFactory
     *   Set the thread factory to be used to create threads.
     */
-  def makeFromDataSource(
-    dataSource:            DataSource,
+  def makeFromDatabaseConfig(
+    databaseConfig:        DatabaseConfig,
     jDataSource:           Option[JDataSource] = None,
     dataSourceProperties:  Option[Properties] = None,
     healthCheckProperties: Option[Properties] = None,
@@ -206,8 +206,8 @@ trait HikariConfigBuilder extends DataSourceConfigReader:
     scheduledExecutor:     Option[ScheduledExecutorService] = None,
     threadFactory:         Option[ThreadFactory] = None
   ): HikariConfig =
-    given DataSource = dataSource
-    val hikariConfig = new HikariConfig()
+    given DatabaseConfig = databaseConfig
+    val hikariConfig     = new HikariConfig()
 
     getCatalog foreach hikariConfig.setCatalog
     hikariConfig.setConnectionTimeout(connectionTimeout)

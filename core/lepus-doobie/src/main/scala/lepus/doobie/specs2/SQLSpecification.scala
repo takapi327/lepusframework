@@ -8,7 +8,7 @@ import cats.effect.IO
 
 import org.specs2.mutable.Specification
 
-import lepus.database.DataSource
+import lepus.database.DatabaseConfig
 
 import lepus.doobie.*
 
@@ -18,7 +18,7 @@ import lepus.doobie.*
   * {{{
   *   class SQLTest extends SQLSpecification:
   *
-  *     def dataSource: DataSource = DataSource("lepus.database", "query_test", "master")
+  *     def databaseConfig: DatabaseConfig = DatabaseConfig("lepus.database://query_test/writer")
   *
   *     "TestRepository Test" should {
   *       "Check sql query format" in {
@@ -29,10 +29,10 @@ import lepus.doobie.*
   */
 trait SQLSpecification extends Specification, DriverBuilder, IOChecker:
 
-  /** DataSource to build the database you want to test */
-  def dataSource: DataSource
+  /** DatabaseConfig to build the database you want to test */
+  def databaseConfig: DatabaseConfig
 
   /** Connect to the database you wish to test. The purpose is to perform a test run, so all processing is rolled back.
     */
   val transactor: Transactor[IO] =
-    Transactor.after.set(makeFromDataSource[IO](dataSource), HC.rollback)
+    Transactor.after.set(makeFromDatabaseConfig[IO](databaseConfig), HC.rollback)

@@ -4,4 +4,11 @@
 
 package lepus.doobie
 
-package object syntax extends ConnectionIOOps
+import cats.effect.IO
+
+/** Trait to incorporate Transactor into the DI of guice
+  */
+trait Context[F[_]]:
+  val xa: Transactor[F]
+
+class ContextIO(val xa: Transactor[IO]) extends Context[IO]

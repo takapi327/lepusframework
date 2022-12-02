@@ -92,7 +92,7 @@ lazy val LepusDoobieProject = LepusSbtProject("Lepus-doobie", "core/lepus-doobie
     doobie,
     "org.specs2" %% "specs2-core" % "4.15.0"
   ) ++ specs2Deps)
-  .dependsOn(LepusHikariProject)
+  .dependsOn(LepusHikariProject, LepusGuiceProject)
 
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "development/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)

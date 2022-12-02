@@ -18,7 +18,7 @@ trait GuiceInjectBuilder:
   /** Method to generate an [[com.google.inject.AbstractModule]] from a [[lepus.guice.module.ResourceModule]] and return
     * it as a Resource
     */
-  def loadResouceModules(): Resource[IO, Seq[AbstractModule]] =
+  def loadResourceModules(): Resource[IO, Seq[AbstractModule]] =
     val default: Resource[IO, Seq[AbstractModule]] = Resource.eval(IO(Seq.empty))
     val resourceModules: Seq[Resource[IO, AbstractModule]] =
       ModuleLoader.load().map {
@@ -34,8 +34,9 @@ trait GuiceInjectBuilder:
   /** Methods for generating [[com.google.inject.AbstractModule]]. An exception is raised if the type is not applicable.
     */
   def loadModules(): Seq[AbstractModule] =
-    ModuleLoader.load().map {
-      case module: AbstractModule => module
+    ModuleLoader.load().flatMap {
+      case module: AbstractModule    => Some(module)
+      case module: ResourceModule[?] => None
       case unknown =>
         throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
     }
