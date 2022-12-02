@@ -60,8 +60,8 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
   /** Methods for constructing ExecutionContexts of the specified format */
   private[lepus] def buildExecutionContexts(poolSize: Int)(using DatabaseConfig): Resource[IO, ExecutionContext] =
     getThreadPoolType.getOrElse(ThreadType.FIXED) match
-      case ThreadType.FIXED   => DatabaseExecutionContexts.fixedThreadPool(getThreadPoolSize.getOrElse(poolSize))
-      case ThreadType.CACHED  => DatabaseExecutionContexts.cachedThreadPool
+      case ThreadType.FIXED  => DatabaseExecutionContexts.fixedThreadPool(getThreadPoolSize.getOrElse(poolSize))
+      case ThreadType.CACHED => DatabaseExecutionContexts.cachedThreadPool
 
   /** Method to retrieve thread pool type information from the conf file. */
   private[lepus] def getThreadPoolType: DatabaseCF[Option[ThreadType]] =
