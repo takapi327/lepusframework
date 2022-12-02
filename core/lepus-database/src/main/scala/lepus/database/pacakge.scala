@@ -4,7 +4,5 @@
 
 package lepus
 
-import javax.sql.DataSource as JDataSource
-
 package object database:
   type DatabaseCF[T] = DatabaseConfig ?=> T
