@@ -12,7 +12,7 @@ import com.google.inject.AbstractModule
 import cats.effect.{ IO, Sync, Resource }
 
 import lepus.guice.module.ResourceModule
-import lepus.database.DatabaseConfig
+import lepus.database.*
 import lepus.hikari.HikariDatabaseBuilder
 import lepus.logger.given
 
@@ -37,9 +37,10 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
   val named: Option[String] = None
 
   override val resource: Resource[IO, ContextIO] =
-    buildContext()
-      .map(context => ContextIO(Transactor.fromDataSource[IO](context.ds, context.ec)))
-      .evalTap(v => testConnection(v.xa))
+    (for
+      ds <- buildContext()
+      ec <- DatabaseExecutionContexts.fixedThreadPool(ds.getMaximumPoolSize)
+    yield ContextIO(Transactor.fromDataSource[IO](ds, ec))).evalTap(v => testConnection(v.xa))
 
   override private[lepus] lazy val build: Resource[cats.effect.IO, AbstractModule] =
     resource.map(v =>

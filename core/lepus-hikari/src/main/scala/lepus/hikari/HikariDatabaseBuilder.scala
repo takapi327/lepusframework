@@ -50,9 +50,8 @@ private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
       hikariConfig
     }.toResource
 
-  def buildContext(): Resource[F, HikariContext] =
+  def buildContext(): Resource[F, HikariDataSource] =
     for
       hikariConfig     <- buildConfig()
-      ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
       hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
-    yield DatabaseContext(ec, hikariDataSource)
+    yield hikariDataSource
