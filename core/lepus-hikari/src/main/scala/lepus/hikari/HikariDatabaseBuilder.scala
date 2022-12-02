@@ -4,8 +4,6 @@
 
 package lepus.hikari
 
-import scala.concurrent.ExecutionContext
-
 import cats.effect.*
 import cats.effect.implicits.*
 import cats.effect.std.Console
