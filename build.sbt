@@ -86,7 +86,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server
   )
   .dependsOn(LepusRouterProject, LepusGuiceProject, LepusLoggerProject)
 
-lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "development/sbt-plugin")
+lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin")
   .settings(
     libraryDependencies ++= Seq(
       Defaults.sbtPluginExtra(
