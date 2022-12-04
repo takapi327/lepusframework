@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.database
 
@@ -22,9 +22,9 @@ object DatabaseConfigReaderTest extends Specification, DatabaseConfigReader:
 
     "Can be retrieved from any level" in {
       given DatabaseConfig = DatabaseConfig("lepus://database/writer")
-      val result1 = readConfig(_.get[Option[Int]]("level1"))
-      val result2 = readConfig(_.get[Option[Int]]("level2"))
-      val result3 = readConfig(_.get[Option[Int]]("level3"))
+      val result1          = readConfig(_.get[Option[Int]]("level1"))
+      val result2          = readConfig(_.get[Option[Int]]("level2"))
+      val result3          = readConfig(_.get[Option[Int]]("level3"))
       result1 === Some(1) and result2 === Some(2) and result3 === Some(3)
     }
 
