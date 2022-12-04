@@ -8,9 +8,10 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.ExecutionContext
 
 import com.google.inject.name.Names
-import com.google.inject.AbstractModule
+import com.google.inject.{ AbstractModule, TypeLiteral }
 
-import cats.effect.{ IO, Sync, Resource }
+import cats.implicits.*
+import cats.effect.{ IO, Sync, Async, Resource }
 
 import lepus.guice.module.ResourceModule
 import lepus.database.*
@@ -32,7 +33,7 @@ import lepus.doobie.implicits.*
   *   lepus.modules.enable += "ToDoDatabase"
   * }}}
   */
-trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO]:
+trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[IO, Transactor[IO]]:
 
   /** List of keys in Config */
   private final val THREAD_POOL_TYPE: String = "thread_pool_type"
@@ -42,17 +43,17 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
     */
   val named: Option[String] = None
 
-  override val resource: Resource[IO, ContextIO] =
+  override val resource: Resource[IO, Transactor[IO]] =
     (for
       ds <- buildDataSource()
       ec <- buildExecutionContexts(ds.getMaximumPoolSize)(using databaseConfig)
-    yield ContextIO(Transactor.fromDataSource[IO](ds, ec))).evalTap(v => testConnection(v.xa))
+    yield Transactor.fromDataSource[IO](ds, ec)).evalTap(testConnection)
 
-  override private[lepus] lazy val build: Resource[cats.effect.IO, AbstractModule] =
+  override private[lepus] lazy val build: Resource[IO, AbstractModule] =
     resource.map(v =>
       new AbstractModule:
         override def configure(): Unit =
-          bind(classOf[ContextIO])
+          bind(new TypeLiteral[Transactor[IO]]() {})
             .annotatedWith(Names.named(named.getOrElse(databaseConfig.named)))
             .toInstance(v)
     )
@@ -83,7 +84,7 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
   def testConnection(xa: Transactor[IO]): IO[Unit] =
     (testQuery(xa) >> logger.info(s"$databaseConfig Database connection test complete")).onError { (ex: Throwable) =>
       logger.warn(s"$databaseConfig Database not available, waiting 5 seconds to retry...", ex) >>
-        IO.sleep(5.seconds) >> testConnection(xa)
+        Sync[IO].sleep(5.seconds) >> testConnection(xa)
     }
 
   /** A query to be executed to check the connection to the database.
