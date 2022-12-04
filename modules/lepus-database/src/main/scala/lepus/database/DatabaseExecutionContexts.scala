@@ -20,8 +20,13 @@ object DatabaseExecutionContexts:
     case FIXED, CACHED
   object ThreadType:
     def findByName(name: String): ThreadType =
-      ThreadType.values.find(_.toString == name.toUpperCase())
-        .getOrElse(throw new IllegalArgumentException(s"Thread Type that matches $name does not exist. Thread Type must be FIXED or CACHED"))
+      ThreadType.values
+        .find(_.toString == name.toUpperCase())
+        .getOrElse(
+          throw new IllegalArgumentException(
+            s"Thread Type that matches $name does not exist. Thread Type must be FIXED or CACHED"
+          )
+        )
 
   /** Resource yielding an `ExecutionContext` backed by a fixed-size pool. */
   def fixedThreadPool[F[_]](size: Int)(using sf: Sync[F]): Resource[F, ExecutionContext] =
