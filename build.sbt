@@ -115,7 +115,7 @@ lazy val LepusDatabaseProject = LepusSbtProject("Lepus-Database", "modules/lepus
   .settings(libraryDependencies ++= specs2Deps)
   .dependsOn(LepusProject, LepusLoggerProject)
 
-lazy val LepusHikariProject = LepusSbtProject("Lepus-Hikari", "core/lepus-hikari")
+lazy val LepusHikariProject = LepusSbtProject("Lepus-Hikari", "modules/lepus-hikari")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= Seq(hikariCP) ++ specs2Deps)
   .dependsOn(LepusDatabaseProject)
