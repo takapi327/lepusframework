@@ -105,9 +105,6 @@ lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin
     }.taskValue
   )
 
-lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
-  .dependsOn(SbtPluginProject)
-
 // Module projects
 lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "core/lepus-logback")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
@@ -136,6 +133,10 @@ lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "development/lep
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps)
   .dependsOn(LepusServerProject)
+
+// Development projects
+lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
+  .dependsOn(SbtPluginProject)
 
 lazy val userProjects = Seq[ProjectReference](
   LepusProject,
