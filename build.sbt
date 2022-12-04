@@ -137,22 +137,25 @@ lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "modules/lepus-s
 lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
   .dependsOn(SbtPluginProject)
 
-lazy val userProjects = Seq[ProjectReference](
+lazy val coreProjects: Seq[ProjectReference] = Seq(
   LepusProject,
-  LepusRouterProject,
   LepusGuiceProject,
-  LepusLogbackProject,
   LepusLoggerProject,
-  LepusDatabaseProject,
-  LepusHikariProject,
-  LepusDoobieProject
+  LepusRouterProject,
+  LepusServerProject,
+  SbtPluginProject
 )
 
-lazy val nonUserProjects = Seq[ProjectReference](
-  SbtPluginProject,
-  SbtScriptedToolsProject,
-  LepusServerProject,
+lazy val moduleProjects: Seq[ProjectReference] = Seq(
+  LepusLogbackProject,
+  LepusDatabaseProject,
+  LepusHikariProject,
+  LepusDoobieProject,
   LepusSwaggerProject
+)
+
+lazy val developmentProjects: Seq[ProjectReference] = Seq(
+  SbtScriptedToolsProject
 )
 
 lazy val LepusFramework = Project("Lepus-Framework", file("."))
@@ -162,4 +165,4 @@ lazy val LepusFramework = Project("Lepus-Framework", file("."))
   )
   .settings(publish / skip := true)
   .settings(commonSettings: _*)
-  .aggregate((userProjects ++ nonUserProjects): _*)
+  .aggregate((coreProjects ++ moduleProjects ++ developmentProjects): _*)
