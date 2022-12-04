@@ -15,6 +15,13 @@ import cats.effect.kernel.{ Resource, Sync }
   */
 object DatabaseExecutionContexts:
 
+  /** Enum to handle thread types */
+  enum ThreadType:
+    case FIXED, CACHED
+  object ThreadType:
+    def findByName(name: String): Option[ThreadType] =
+      ThreadType.values.find(_.toString == name.toUpperCase())
+
   /** Resource yielding an `ExecutionContext` backed by a fixed-size pool. */
   def fixedThreadPool[F[_]](size: Int)(using sf: Sync[F]): Resource[F, ExecutionContext] =
     val alloc = sf.delay(Executors.newFixedThreadPool(size))

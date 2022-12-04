@@ -20,14 +20,15 @@ case class DatabaseConfig(
   replication: Option[String]
 ):
 
+  /** Name of database including replication */
   val named: String = database + replication.map(v => "_" + v).getOrElse("")
 
   override def toString: String = s"$path://$database${ replication.map(v => s"/$v").getOrElse("") }"
 
 object DatabaseConfig:
 
-  val SYNTAX_DATABASE_CONFIG1 = """^([.\w]+)://(\w+?)$""".r
-  val SYNTAX_DATABASE_CONFIG2 = """^([.\w]+)://(\w+?)/(\w+)$""".r
+  private val SYNTAX_DATABASE_CONFIG1 = """^([.\w]+)://(\w+?)$""".r
+  private val SYNTAX_DATABASE_CONFIG2 = """^([.\w]+)://(\w+?)/(\w+)$""".r
 
   def apply(str: String): DatabaseConfig = str match
     case SYNTAX_DATABASE_CONFIG1(path, database)              => DatabaseConfig(path, database, None)

@@ -5,6 +5,7 @@
 package lepus.doobie
 
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.ExecutionContext
 
 import com.google.inject.name.Names
 import com.google.inject.AbstractModule
@@ -12,7 +13,8 @@ import com.google.inject.AbstractModule
 import cats.effect.{ IO, Sync, Resource }
 
 import lepus.guice.module.ResourceModule
-import lepus.database.DatabaseConfig
+import lepus.database.*
+import DatabaseExecutionContexts.ThreadType
 import lepus.hikari.HikariDatabaseBuilder
 import lepus.logger.given
 
@@ -32,14 +34,19 @@ import lepus.doobie.implicits.*
   */
 trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO]:
 
+  /** List of keys in Config */
+  private final val THREAD_POOL_TYPE: String = "thread_pool_type"
+  private final val THREAD_POOL_SIZE: String = "thread_pool_size"
+
   /** If none, [[lepus.database.DatabaseConfig]] named is used. Default is none.
     */
   val named: Option[String] = None
 
   override val resource: Resource[IO, ContextIO] =
-    buildContext()
-      .map(context => ContextIO(Transactor.fromDataSource[IO](context.ds, context.ec)))
-      .evalTap(v => testConnection(v.xa))
+    (for
+      ds <- buildDataSource()
+      ec <- buildExecutionContexts(ds.getMaximumPoolSize)(using databaseConfig)
+    yield ContextIO(Transactor.fromDataSource[IO](ds, ec))).evalTap(v => testConnection(v.xa))
 
   override private[lepus] lazy val build: Resource[cats.effect.IO, AbstractModule] =
     resource.map(v =>
@@ -49,6 +56,20 @@ trait DatabaseModule extends HikariDatabaseBuilder[IO], ResourceModule[ContextIO
             .annotatedWith(Names.named(named.getOrElse(databaseConfig.named)))
             .toInstance(v)
     )
+
+  /** Methods for constructing ExecutionContexts of the specified format */
+  private[lepus] def buildExecutionContexts(poolSize: Int)(using DatabaseConfig): Resource[IO, ExecutionContext] =
+    getThreadPoolType.getOrElse(ThreadType.FIXED) match
+      case ThreadType.FIXED  => DatabaseExecutionContexts.fixedThreadPool(getThreadPoolSize.getOrElse(poolSize))
+      case ThreadType.CACHED => DatabaseExecutionContexts.cachedThreadPool
+
+  /** Method to retrieve thread pool type information from the conf file. */
+  private[lepus] def getThreadPoolType: DatabaseCF[Option[ThreadType]] =
+    readConfig(_.get[Option[String]](THREAD_POOL_TYPE).flatMap(ThreadType.findByName))
+
+  /** Method to retrieve thread pool size information from the conf file. */
+  private[lepus] def getThreadPoolSize: DatabaseCF[Option[Int]] =
+    readConfig(_.get[Option[Int]](THREAD_POOL_SIZE))
 
     /** A method that tests the initialized database connection and attempts a wait connection at 5 second intervals
       * until a connection is available.

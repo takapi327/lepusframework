@@ -4,8 +4,6 @@
 
 package lepus.hikari
 
-import scala.concurrent.ExecutionContext
-
 import cats.effect.*
 import cats.effect.implicits.*
 import cats.effect.std.Console
@@ -50,9 +48,8 @@ private[lepus] trait HikariDatabaseBuilder[F[_]: Sync: Async: Console]
       hikariConfig
     }.toResource
 
-  def buildContext(): Resource[F, HikariContext] =
+  def buildDataSource(): Resource[F, HikariDataSource] =
     for
       hikariConfig     <- buildConfig()
-      ec               <- DatabaseExecutionContexts.fixedThreadPool(hikariConfig.getMaximumPoolSize)
       hikariDataSource <- createDataSourceResource(new HikariDataSource(hikariConfig))
-    yield DatabaseContext(ec, hikariDataSource)
+    yield hikariDataSource
