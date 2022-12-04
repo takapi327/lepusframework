@@ -6,7 +6,7 @@ package lepus.guice.inject
 
 import com.google.inject.AbstractModule
 
-import cats.effect.{ Resource, IO }
+import cats.effect.{ Resource, Sync }
 
 import lepus.guice.module.ResourceModule
 
@@ -18,11 +18,11 @@ trait GuiceInjectBuilder:
   /** Method to generate an [[com.google.inject.AbstractModule]] from a [[lepus.guice.module.ResourceModule]] and return
     * it as a Resource
     */
-  def loadResourceModules(): Resource[IO, Seq[AbstractModule]] =
-    val default: Resource[IO, Seq[AbstractModule]] = Resource.eval(IO(Seq.empty))
-    val resourceModules: Seq[Resource[IO, AbstractModule]] =
+  def loadResourceModules[F[_]: Sync](): Resource[F, Seq[AbstractModule]] =
+    val default: Resource[F, Seq[AbstractModule]] = Resource.eval(Sync[F].delay(Seq.empty))
+    val resourceModules: Seq[Resource[F, AbstractModule]] =
       ModuleLoader.load().map {
-        case module: ResourceModule[?] => module.build
+        case module: ResourceModule[?, ?] => module.build.asInstanceOf[Resource[F, AbstractModule]]
       }
     resourceModules.foldLeft(default)((_default, _resource) =>
       for
@@ -36,7 +36,7 @@ trait GuiceInjectBuilder:
   def loadModules(): Seq[AbstractModule] =
     ModuleLoader.load().flatMap {
       case module: AbstractModule    => Some(module)
-      case module: ResourceModule[?] => None
+      case module: ResourceModule[?, ?] => None
       case unknown =>
         throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
     }
