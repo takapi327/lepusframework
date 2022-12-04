@@ -35,7 +35,7 @@ trait GuiceInjectBuilder:
     */
   def loadModules(): Seq[AbstractModule] =
     ModuleLoader.load().flatMap {
-      case module: AbstractModule    => Some(module)
+      case module: AbstractModule       => Some(module)
       case module: ResourceModule[?, ?] => None
       case unknown =>
         throw new IllegalArgumentException(s"Unknown module type, Module [$unknown] is not a a Guice module")
