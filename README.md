@@ -1,7 +1,7 @@
 ![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/lepus-v0.5.1-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.6.0-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -87,7 +87,7 @@ import lepus.server.LepusApp
 
 object HelloApp extends LepusApp[IO]:
 
-  override def routes = NonEmptyList.of(
+  override val routes = NonEmptyList.of(
     "hello" / bindPath[String]("name") ->> RouterConstructor.of {
       case GET => Ok(s"Hello ${summon[String]}")
     }
@@ -166,7 +166,7 @@ object HelloRoute extends OpenApiConstructor[IO, String]:
     )
   }
 
-  override def routes = {
+  override val routes = {
     case GET => Ok(s"Hello ${summon[String]}")
   }
 
@@ -223,3 +223,8 @@ services:
     volumes:
       - ./OpenApi.yaml:/OpenApi.yaml
 ```
+
+## Sample Application
+Sample applications using Lepus Framework are available in [this](https://github.com/takapi327/lepus-app-template) repository.
+
+For a more detailed implementation, please refer to the sample application.
