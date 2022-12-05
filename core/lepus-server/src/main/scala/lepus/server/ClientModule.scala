@@ -21,7 +21,7 @@ import lepus.guice.module.ResourceModule
   * example:
   * {{{
   *   @Singleton
-  *   class CustomClientModule extends ClientModule[IO, Client[IO]]:
+  *   class CustomClientModule extends ClientModule:
   *     protected val resource: Resource[IO, Client[IO]] =
   *       ...custom settings
   *
