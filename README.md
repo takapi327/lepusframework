@@ -1,7 +1,7 @@
 ![lepusframework](https://socialify.git.ci/takapi327/lepusframework/image?description=1&font=Inter&language=1&logo=https%3A%2F%2Fuser-images.githubusercontent.com%2F57429437%2F170270360-93f29bbf-aef3-47d7-8910-f5baba490ba6.png&owner=1&pattern=Plus&theme=Light)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/lepus-v0.6.0-blue">
+  <img src="https://img.shields.io/badge/lepus-v0.6.1-blue">
   <a href="https://en.wikipedia.org/wiki/MIT_License">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -74,6 +74,31 @@ After setting up dependencies, develop with reference to the contents of Example
 ## Example
 The following is the minimum configuration for routing in the Lepus Framework.
 
+### Use of http4s
+```scala
+package sample
+
+import cats.effect.IO
+
+import org.http4s.*
+import org.http4s.dsl.io.*
+import org.http4s.server.Router
+
+import lepus.server.LepusApp
+
+object HelloApp extends LepusApp[IO]:
+
+  override val routes = Router(
+    "/" -> HttpRoutes.of[IO] {
+      case GET -> Root / "hello" / name => Ok(s"Hello $name")
+    }
+  ).orNotFound
+```
+
+### Use of Lepus Router
+Currently, the advantages of using Lepus Router are negligible.
+
+If Lepus Router is used in the future, we plan to improve it so that it can work with the OpenAPI specification.
 ```scala
 package sample
 

@@ -9,6 +9,8 @@ import scala.language.reflectiveCalls
 
 import com.google.inject.Injector
 
+import cats.data.NonEmptyList
+
 import cats.effect.*
 import cats.effect.std.Console
 
@@ -62,20 +64,23 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
 
   private def buildApp(
     lepusApp: LepusApp[IO]
-  )(using Injector): Http4sRoutes[IO] =
-    (lepusApp.cors match
-      case Some(cors) =>
-        lepusApp.routes.map {
-          case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
-        }
-      case None =>
-        lepusApp.routes.map {
-          case (endpoint, router) =>
-            router.cors match
-              case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
-              case None       => bindFromRequest(router.routes, endpoint)
-        }
-    ).reduce
+  )(using Injector): HttpApp[IO] =
+    lepusApp.routes match
+      case app: HttpApp[IO] => app
+      case app: NonEmptyList[Routing[IO]] =>
+        (lepusApp.cors match
+          case Some(cors) =>
+            app.map {
+              case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
+            }
+          case None =>
+            app.map {
+              case (endpoint, router) =>
+                router.cors match
+                  case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
+                  case None       => bindFromRequest(router.routes, endpoint)
+            }
+        ).reduce.orNotFound
 
   private def buildServer(
     host: String,
@@ -86,7 +91,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
       .withPort(Port.fromInt(port).getOrElse(Defaults.port))
-      .withHttpApp(buildApp(app).orNotFound)
+      .withHttpApp(buildApp(app))
       .withErrorHandler(app.errorHandler)
       .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
       .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
