@@ -10,7 +10,7 @@ import com.google.inject.{ Guice, Injector }
 
 import cats.data.NonEmptyList
 
-import org.http4s.Method
+import org.http4s.{ Method, HttpApp }
 
 import lepus.core.generic.Schema
 
@@ -32,7 +32,9 @@ private[lepus] object RouterToOpenAPI:
   ): OpenApiUI =
     // TODO: Make Injector not have to be passed on
     given Injector    = Guice.createInjector()
-    val groupEndpoint = router.routes.toList.toMap
+    val groupEndpoint = router.routes match
+      case _:   HttpApp[F]               => Map.empty
+      case app: NonEmptyList[Routing[F]] => app.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
 
@@ -43,12 +45,14 @@ private[lepus] object RouterToOpenAPI:
     val endpoints = groupEndpoint.map {
       case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint, route, schemaToOpenApiSchema)
     }
-    val tags = router.routes.toList
-      .flatMap(_._2 match
-        case constructor: OpenApiConstructor[F, ?] => constructor.tags
-        case _                                     => Set.empty
-      )
-      .toSet
+    val tags = router.routes match
+      case _: HttpApp[F] => Set.empty
+      case app: NonEmptyList[Routing[F]] => app.toList
+        .flatMap(_._2 match
+          case constructor: OpenApiConstructor[F, ?] => constructor.tags
+          case _                                     => Set.empty
+        )
+        .toSet
     OpenApiUI.build(info, endpoints, tags, component)
 
   private def routerToSchemaTuple[F[_]](
