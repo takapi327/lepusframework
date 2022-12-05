@@ -9,7 +9,7 @@ import com.google.inject.Injector
 import cats.Applicative
 import cats.data.NonEmptyList
 
-import org.http4s.{ Status, Response }
+import org.http4s.{ HttpApp, Status, Response }
 import org.http4s.server.middleware.CORSPolicy
 
 import lepus.router.Routing
@@ -36,7 +36,7 @@ trait LepusApp[F[_]: Applicative]:
   val cors: Option[CORSPolicy] = None
 
   /** List of all endpoints to be launched by the application */
-  val routes: Injector ?=> NonEmptyList[Routing[F]]
+  val routes: Injector ?=> NonEmptyList[Routing[F]] | HttpApp[F]
 
   /** Methods to define handling of errors that occur during application execution */
   val errorHandler: PartialFunction[Throwable, F[Response[F]]] =
