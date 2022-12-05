@@ -74,6 +74,31 @@ After setting up dependencies, develop with reference to the contents of Example
 ## Example
 The following is the minimum configuration for routing in the Lepus Framework.
 
+### Use of http4s
+```scala
+package sample
+
+import cats.effect.IO
+
+import org.http4s.*
+import org.http4s.dsl.io.*
+import org.http4s.server.Router
+
+import lepus.server.LepusApp
+
+object HelloApp extends LepusApp[IO]:
+
+  override val routes = Router(
+    "/" -> HttpRoutes.of[IO] {
+      case GET -> Root / "hello" / name => Ok(s"Hello $name")
+    }
+  ).orNotFound
+```
+
+### Use of Lepus Router
+Currently, the advantages of using Lepus Router are negligible.
+
+If Lepus Router is used in the future, we plan to improve it so that it can work with the OpenAPI specification.
 ```scala
 package sample
 
