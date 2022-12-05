@@ -31,9 +31,9 @@ private[lepus] object RouterToOpenAPI:
     router: LepusApp[F]
   ): OpenApiUI =
     // TODO: Make Injector not have to be passed on
-    given Injector    = Guice.createInjector()
+    given Injector = Guice.createInjector()
     val groupEndpoint = router.routes match
-      case _:   HttpApp[F]               => Map.empty
+      case _: HttpApp[F]                 => Map.empty
       case app: NonEmptyList[Routing[F]] => app.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
@@ -47,12 +47,13 @@ private[lepus] object RouterToOpenAPI:
     }
     val tags = router.routes match
       case _: HttpApp[F] => Set.empty
-      case app: NonEmptyList[Routing[F]] => app.toList
-        .flatMap(_._2 match
-          case constructor: OpenApiConstructor[F, ?] => constructor.tags
-          case _                                     => Set.empty
-        )
-        .toSet
+      case app: NonEmptyList[Routing[F]] =>
+        app.toList
+          .flatMap(_._2 match
+            case constructor: OpenApiConstructor[F, ?] => constructor.tags
+            case _                                     => Set.empty
+          )
+          .toSet
     OpenApiUI.build(info, endpoints, tags, component)
 
   private def routerToSchemaTuple[F[_]](
