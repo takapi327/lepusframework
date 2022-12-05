@@ -56,7 +56,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given Injector <- GuiceApplicationBuilder.build
+      given Injector <- GuiceApplicationBuilder.build[IO]
       _              <- buildServer(host, port, lepusApp)
     yield ()
 
