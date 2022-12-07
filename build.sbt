@@ -72,12 +72,6 @@ lazy val LepusAppProject = LepusSbtProject("Lepus-App", "core/lepus-app")
   .settings(libraryDependencies ++= Seq(http4sDsl))
   .dependsOn(LepusProject, LepusGuiceProject)
 
-lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router")
-  .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= routerDependencies ++ specs2Deps)
-  .dependsOn(LepusAppProject)
-  .enablePlugins(spray.boilerplate.BoilerplatePlugin)
-
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(
@@ -89,7 +83,8 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .dependsOn(LepusRouterProject, LepusGuiceProject, LepusLoggerProject)
+  .settings(libraryDependencies ++= http4sEmber)
+  .dependsOn(LepusAppProject, LepusLoggerProject)
 
 lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin")
   .settings(
@@ -133,10 +128,16 @@ lazy val LepusDoobieProject = LepusSbtProject("Lepus-doobie", "modules/lepus-doo
   ) ++ specs2Deps)
   .dependsOn(LepusHikariProject, LepusGuiceProject)
 
+lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "modules/lepus-router")
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= routerDependencies ++ specs2Deps)
+  .dependsOn(LepusAppProject)
+  .enablePlugins(spray.boilerplate.BoilerplatePlugin)
+
 lazy val LepusSwaggerProject = LepusSbtProject("Lepus-Swagger", "modules/lepus-swagger")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= swaggerDependencies ++ specs2Deps)
-  .dependsOn(LepusServerProject)
+  .dependsOn(LepusRouterProject)
 
 // Development projects
 lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "development/sbt-scripted-tools")
@@ -147,7 +148,6 @@ lazy val coreProjects: Seq[ProjectReference] = Seq(
   LepusGuiceProject,
   LepusLoggerProject,
   LepusAppProject,
-  LepusRouterProject,
   LepusServerProject,
   SbtPluginProject
 )
@@ -157,6 +157,7 @@ lazy val moduleProjects: Seq[ProjectReference] = Seq(
   LepusDatabaseProject,
   LepusHikariProject,
   LepusDoobieProject,
+  LepusRouterProject,
   LepusSwaggerProject
 )
 
