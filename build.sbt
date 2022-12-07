@@ -69,6 +69,7 @@ lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger
 
 lazy val LepusAppProject = LepusSbtProject("Lepus-App", "core/lepus-app")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= Seq(http4sDsl))
   .dependsOn(LepusProject, LepusGuiceProject)
 
 lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router")
