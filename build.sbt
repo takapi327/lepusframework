@@ -75,7 +75,7 @@ lazy val LepusAppProject = LepusSbtProject("Lepus-App", "core/lepus-app")
 lazy val LepusRouterProject = LepusSbtProject("Lepus-Router", "core/lepus-router")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= routerDependencies ++ specs2Deps)
-  .dependsOn(LepusProject)
+  .dependsOn(LepusAppProject)
   .enablePlugins(spray.boilerplate.BoilerplatePlugin)
 
 lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server")
