@@ -8,7 +8,7 @@ import sbt._
 
 object LepusImport {
 
-  def component(id: String) = "com.github.takapi327" %% id % lepus.core.LepusVersion.current
+  private def component(id: String): ModuleID = "com.github.takapi327" %% id % lepus.core.LepusVersion.current
 
   val lepusCore = component("lepus")
 
@@ -19,6 +19,8 @@ object LepusImport {
   val lepusLogback = component("lepus-logback")
 
   val lepusLogger = component("lepus-logger")
+
+  val lepusApp = component("lepus-app")
 
   val lepusDatabase = component("lepus-database")
 
