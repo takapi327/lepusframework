@@ -29,7 +29,7 @@ private[lepus] object RouterToOpenAPI:
     router: LepusRouter[F]
   ): OpenApiUI =
     // TODO: Make Injector not have to be passed on
-    given Injector = Guice.createInjector()
+    given Injector    = Guice.createInjector()
     val groupEndpoint = router.routes.toList.toMap
 
     val schemaTuple = routerToSchemaTuple(groupEndpoint)
