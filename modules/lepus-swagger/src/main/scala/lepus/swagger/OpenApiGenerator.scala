@@ -12,7 +12,7 @@ import scala.io.Codec
 import cats.effect.IO
 
 import lepus.core.util.Configuration
-import lepus.server.LepusApp
+import lepus.app.LepusApp
 
 import Exception.GenerateSwaggerException
 

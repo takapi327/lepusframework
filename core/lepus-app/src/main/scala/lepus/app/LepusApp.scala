@@ -26,7 +26,7 @@ import org.http4s.{ HttpApp, Response }
 trait LepusApp[F[_]]:
 
   /** List of all endpoints to be launched by the application */
-  val routes: Injector ?=> HttpApp[F]
+  val router: Injector ?=> HttpApp[F]
 
   /** Methods to define handling of errors that occur during application execution */
   val errorHandler: PartialFunction[Throwable, F[Response[F]]]
