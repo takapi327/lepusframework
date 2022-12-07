@@ -43,15 +43,15 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
 
   private val config: Configuration = Configuration.load()
 
-  val port:              Int         = config.get[Int](SERVER_PORT)
-  val host:              String      = config.get[String](SERVER_HOST)
-  val maxConnections:    Option[Int] = config.get[Option[Int]](SERVER_MAX_CONNECTIONS)
-  val receiveBufferSize: Option[Int] = config.get[Option[Int]](SERVER_RECEIVE_BUFFER_SIZE)
-  val maxHeaderSize:     Option[Int] = config.get[Option[Int]](SERVER_MAX_HEADER_SIZE)
-  val requestHeaderReceiveTimeout: Option[Duration] =
+  private val port:              Int         = config.get[Int](SERVER_PORT)
+  private val host:              String      = config.get[String](SERVER_HOST)
+  private val maxConnections:    Option[Int] = config.get[Option[Int]](SERVER_MAX_CONNECTIONS)
+  private val receiveBufferSize: Option[Int] = config.get[Option[Int]](SERVER_RECEIVE_BUFFER_SIZE)
+  private val maxHeaderSize:     Option[Int] = config.get[Option[Int]](SERVER_MAX_HEADER_SIZE)
+  private val requestHeaderReceiveTimeout: Option[Duration] =
     config.get[Option[Duration]](SERVER_REQUEST_HEADER_RECEIVE_TIMEOUT)
-  val idleTimeout:     Option[Duration] = config.get[Option[Duration]](SERVER_IDLE_TIMEOUT)
-  val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
+  private val idleTimeout:     Option[Duration] = config.get[Option[Duration]](SERVER_IDLE_TIMEOUT)
+  private val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
 
   def run(args: List[String]): Resource[IO, Unit] =
 
