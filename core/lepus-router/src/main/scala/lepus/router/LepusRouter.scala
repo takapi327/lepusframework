@@ -57,6 +57,6 @@ trait LepusRouter[F[_]: Sync: Async] extends LepusApp[F], ServerInterpreter[F]:
           case (endpoint, router) =>
             router.cors match
               case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
-              case None => bindFromRequest(router.routes, endpoint)
+              case None       => bindFromRequest(router.routes, endpoint)
         }
-      ).reduce.orNotFound
+    ).reduce.orNotFound
