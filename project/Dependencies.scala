@@ -22,9 +22,7 @@ object Dependencies {
 
   val http4sVersion = "0.23.16"
   val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
-
-  val http4s = Seq(
-    "http4s-dsl",
+  val http4sEmber = Seq(
     "http4s-ember-server",
     "http4s-ember-client"
   ).map("org.http4s" %% _ % http4sVersion)
@@ -56,5 +54,5 @@ object Dependencies {
 
   val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
-  val routerDependencies = http4s ++ circe ++ testDependencies
+  val routerDependencies = http4sEmber ++ circe ++ testDependencies
 }
