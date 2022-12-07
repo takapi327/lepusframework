@@ -20,6 +20,15 @@ object ModuleLoader:
 
   private[lepus] val moduleClassNames: Set[String] = enables.toSet -- disables
 
+  /** Display a list of enabled modules in the console */
+  println()
+  println("      List of enabled modules")
+  println()
+  println("-------------------------------------------------")
+  println(moduleClassNames.mkString("\n"))
+  println("-------------------------------------------------")
+  println()
+
   def load(): Seq[Any] =
     moduleClassNames.map(className => constructModule[Any](className)).toSeq
 
