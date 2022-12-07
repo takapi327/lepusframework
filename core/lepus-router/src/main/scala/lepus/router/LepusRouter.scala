@@ -6,8 +6,13 @@ package lepus.router
 
 import com.google.inject.Injector
 
+import cats.Semigroup
 import cats.data.NonEmptyList
+import cats.syntax.semigroupk.*
 
+import cats.effect.{ Async, Sync }
+
+import org.http4s.{ HttpApp, HttpRoutes as Http4sRoutes }
 import org.http4s.server.middleware.CORSPolicy
 
 import lepus.app.LepusApp
@@ -27,10 +32,31 @@ import lepus.app.LepusApp
   * @tparam F
   *   the effect type.
   */
-trait LepusRouter[F[_]] extends LepusApp[F]:
+trait LepusRouter[F[_]: Sync: Async] extends LepusApp[F], ServerInterpreter[F]:
 
   /** CORS settings applied to all endpoints */
   val cors: Option[CORSPolicy] = None
 
   /** List of all endpoints to be launched by the application */
+  val router: Injector ?=> HttpApp[F] = buildApp()
+
+  /** List of all endpoints to be launched by the application */
   val routes: Injector ?=> NonEmptyList[Routing[F]]
+
+  given Semigroup[Http4sRoutes[F]] = _ combineK _
+
+  /** Build http4s route from Lepus route */
+  private def buildApp(): Injector ?=> HttpApp[F] =
+    (cors match
+      case Some(cors) =>
+        routes.map {
+          case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
+        }
+      case None =>
+        routes.map {
+          case (endpoint, router) =>
+            router.cors match
+              case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
+              case None => bindFromRequest(router.routes, endpoint)
+        }
+      ).reduce.orNotFound

@@ -9,9 +9,7 @@ import scala.language.reflectiveCalls
 
 import com.google.inject.Injector
 
-import cats.Semigroup
 import cats.data.NonEmptyList
-import cats.syntax.semigroupk.*
 
 import cats.effect.*
 import cats.effect.std.Console
@@ -31,7 +29,7 @@ import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.LepusApp
 
-private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
+private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]:
 
   private val SERVER_PORT                           = "lepus.server.port"
   private val SERVER_HOST                           = "lepus.server.host"
@@ -54,8 +52,6 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     config.get[Option[Duration]](SERVER_REQUEST_HEADER_RECEIVE_TIMEOUT)
   private val idleTimeout:     Option[Duration] = config.get[Option[Duration]](SERVER_IDLE_TIMEOUT)
   private val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
-
-  given Semigroup[Http4sRoutes[IO]] = _ combineK _
 
   def run(args: List[String]): Resource[IO, Unit] =
 
