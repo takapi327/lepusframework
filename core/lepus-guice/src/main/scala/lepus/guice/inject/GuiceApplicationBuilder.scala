@@ -4,7 +4,7 @@
 
 package lepus.guice.inject
 
-import com.google.inject.{ Guice, Injector }
+import com.google.inject.{ Guice, Injector, AbstractModule }
 
 import cats.effect.{ Resource, Sync }
 
@@ -17,3 +17,6 @@ object GuiceApplicationBuilder extends GuiceInjectBuilder:
     */
   def build[F[_]: Sync]: Resource[F, Injector] =
     loadResourceModules[F]().map(modules => Guice.createInjector((modules ++ loadModules()): _*))
+
+  def build[F[_] : Sync](modules: AbstractModule*): Resource[F, Injector] =
+    loadResourceModules[F]().map(resourceModules => Guice.createInjector((modules ++ resourceModules ++ loadModules()): _*))
