@@ -29,4 +29,4 @@ trait LepusApp[F[_]]:
   val router: Injector ?=> HttpApp[F]
 
   /** Methods to define handling of errors that occur during application execution */
-  val errorHandler: PartialFunction[Throwable, F[Response[F]]]
+  val errorHandler: PartialFunction[Throwable, F[Response[F]]] = PartialFunction.empty
