@@ -18,5 +18,7 @@ object GuiceApplicationBuilder extends GuiceInjectBuilder:
   def build[F[_]: Sync]: Resource[F, Injector] =
     loadResourceModules[F]().map(modules => Guice.createInjector((modules ++ loadModules()): _*))
 
-  def build[F[_] : Sync](modules: AbstractModule*): Resource[F, Injector] =
-    loadResourceModules[F]().map(resourceModules => Guice.createInjector((modules ++ resourceModules ++ loadModules()): _*))
+  def build[F[_]: Sync](modules: AbstractModule*): Resource[F, Injector] =
+    loadResourceModules[F]().map(resourceModules =>
+      Guice.createInjector((modules ++ resourceModules ++ loadModules()): _*)
+    )
