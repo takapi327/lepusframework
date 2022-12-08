@@ -12,9 +12,6 @@ lazy val root = (project in file("."))
     run / fork   := true,
     javaOptions ++= Seq(
       "-Dconfig.file=conf/application.conf"
-    ),
-    libraryDependencies ++= Seq(
-      lepusRouter
     )
   )
   .enablePlugins(LepusSwagger)
