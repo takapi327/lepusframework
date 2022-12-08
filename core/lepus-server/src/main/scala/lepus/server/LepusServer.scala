@@ -27,7 +27,7 @@ import lepus.logger.given
 import lepus.core.util.Configuration
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
-import lepus.app.LepusApp
+import lepus.app.{ LepusApp, BuiltinModule }
 
 private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]:
 
@@ -58,7 +58,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given Injector <- GuiceApplicationBuilder.build[IO]
+      given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
       _              <- buildServer(host, port, lepusApp)
     yield ()
 
