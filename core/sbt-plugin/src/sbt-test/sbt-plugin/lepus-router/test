@@ -5,7 +5,5 @@
 # Structure of this test:
 # =======================
 
-# Start api server
-# TODO: After the Run command is executed, subsequent commands are not executed.
-# Verify again after the Server run and stop process is implemented in Lepus.
+# Validate the application's Compile
 > compile
