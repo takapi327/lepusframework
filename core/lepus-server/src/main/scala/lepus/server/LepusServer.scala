@@ -4,27 +4,19 @@
 
 package lepus.server
 
-import scala.concurrent.duration.*
-import scala.language.reflectiveCalls
-
 import com.google.inject.Injector
 
-import cats.data.NonEmptyList
+import cats.effect.{ IO, Resource, ResourceApp }
 
-import cats.effect.*
-import cats.effect.std.Console
-
-import com.comcast.ip4s.*
+import com.comcast.ip4s.Port
 
 import org.typelevel.log4cats.Logger as Log4catsLogger
 
 import org.http4s.*
-import org.http4s.HttpRoutes as Http4sRoutes
 import org.http4s.server.Server
 import org.http4s.ember.server.EmberServerBuilder
 
 import lepus.logger.given
-import lepus.core.util.Configuration
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.{ LepusApp, BuiltinModule }
