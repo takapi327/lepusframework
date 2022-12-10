@@ -9,6 +9,7 @@ import scala.annotation.tailrec
 import lepus.router.http.*
 import lepus.router.model.*
 import lepus.router.internal.*
+
 private[lepus] object DecodeEndpoint:
 
   type DecodedResult = Vector[(Endpoint[?], DecodeResult[?])]
