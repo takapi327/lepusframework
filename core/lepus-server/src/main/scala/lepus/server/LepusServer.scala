@@ -8,22 +8,19 @@ import com.google.inject.Injector
 
 import cats.effect.{ IO, Resource, ResourceApp }
 
-import com.comcast.ip4s.Port
-
 import org.typelevel.log4cats.Logger as Log4catsLogger
 
-import org.http4s.*
-import org.http4s.server.Server
-import org.http4s.ember.server.EmberServerBuilder
-
+import lepus.core.util.Configuration
 import lepus.logger.given
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.{ LepusApp, BuiltinModule }
 
-private[lepus] object LepusServer extends ResourceApp.Forever, ServerBuilder[IO], ServerLogging[IO]:
+private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]:
 
   private val SERVER_ROUTES = "lepus.server.routes"
+
+  private val config: Configuration = Configuration.load()
 
   def run(args: List[String]): Resource[IO, Unit] =
 
@@ -31,30 +28,8 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerBuilder[IO]
 
     for
       given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
-      _              <- buildServer(lepusApp)
+      _              <- ServerBuilder.Ember[IO].buildServer(lepusApp, logger.asInstanceOf[Log4catsLogger[IO]])
     yield ()
-
-  def buildServer(app: LepusApp[IO]): Injector ?=> Resource[IO, Server] =
-    var ember = EmberServerBuilder
-      .default[IO]
-      .withPort(Port.fromInt(port.getOrElse(Defaults.portInt)).getOrElse(Defaults.port))
-      .withHttpApp(app.router)
-      .withErrorHandler(app.errorHandler)
-      .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
-      .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
-      .withMaxHeaderSize(maxHeaderSize.getOrElse(Defaults.maxHeaderSize))
-      .withRequestHeaderReceiveTimeout(requestHeaderReceiveTimeout.getOrElse(Defaults.requestHeaderReceiveTimeout))
-      .withIdleTimeout(idleTimeout.getOrElse(Defaults.idleTimeout))
-      .withShutdownTimeout(shutdownTimeout.getOrElse(Defaults.shutdownTimeout))
-      .withLogger(logger.asInstanceOf[Log4catsLogger[IO]])
-
-    if enableHttp2.getOrElse(false) then ember = ember.withHttp2
-    else ember                                 = ember.withoutHttp2
-
-    if enableIPv6.nonEmpty then ember = ember.withHost(ipv6Address)
-    else ember                        = ember.withHost(ipv4Address)
-
-    ember.build
 
   private def loadLepusApp(): LepusApp[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
