@@ -26,12 +26,11 @@ import lepus.logger.{ Logger, ExecLocation, Execute, DefaultLogging }
 
 import ServerBuilder.Defaults
 
-/**
- * trait to configure the server to start the server used by the application.
- *
- * @tparam F
- * the effect type.
- */
+/** trait to configure the server to start the server used by the application.
+  *
+  * @tparam F
+  *   the effect type.
+  */
 trait ServerBuilder[F[_]]:
 
   private val SERVER_HOST_IPV4                      = "lepus.server.host.ipv4"
@@ -61,19 +60,19 @@ trait ServerBuilder[F[_]]:
   protected val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
   protected val enableHttp2:     Option[Boolean]  = config.get[Option[Boolean]](SERVER_ENABLE_HTTP2)
 
-  /**
-   * Get either IPv4/IPv6 Host depending on the configuration
-   */
+  /** Get either IPv4/IPv6 Host depending on the configuration
+    */
   protected lazy val host: Execute[Host] =
     (hostIPv4, hostIPv6) match
       case (Some(ipv4), None) =>
-        Ipv4Address.fromString(ipv4)
+        Ipv4Address
+          .fromString(ipv4)
           .orElse({
             logger.warn(
               s"""
                  |===============================================================================
                  |  The specified address $ipv4 did not match the IPv4 format.
-                 |  The application was started with the default IPv4 address ${Defaults.IPv4Host}.
+                 |  The application was started with the default IPv4 address ${ Defaults.IPv4Host }.
                  |===============================================================================
                  |""".stripMargin
             )
@@ -84,20 +83,21 @@ trait ServerBuilder[F[_]]:
               s"""
                  |===============================================================================
                  |  The specified address $ipv4 did not match the IPv4 format.
-                 |  The application was started with the default IPv4 address ${Defaults.ipv4Address}.
+                 |  The application was started with the default IPv4 address ${ Defaults.ipv4Address }.
                  |===============================================================================
                  |""".stripMargin
             )
             Defaults.ipv4Address
           })
       case (None, Some(ipv6)) =>
-        Ipv6Address.fromString(ipv6)
+        Ipv6Address
+          .fromString(ipv6)
           .orElse({
             logger.warn(
               s"""
                  |===============================================================================
                  |  The specified address $ipv6 did not match the IPv6 format.
-                 |  The application was started with the default IPv6 address ${Defaults.IPv6Host}.
+                 |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
                  |===============================================================================
                  |""".stripMargin
             )
@@ -108,7 +108,7 @@ trait ServerBuilder[F[_]]:
               s"""
                  |===============================================================================
                  |  The specified address $ipv6 did not match the IPv6 format.
-                 |  The application was started with the default IPv6 address ${Defaults.ipv6Address}.
+                 |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
                  |===============================================================================
                  |""".stripMargin
             )
@@ -127,13 +127,14 @@ trait ServerBuilder[F[_]]:
              |===============================================================================
              |""".stripMargin
         )
-        Ipv6Address.fromString(ipv6)
+        Ipv6Address
+          .fromString(ipv6)
           .orElse({
             logger.warn(
               s"""
                  |===============================================================================
                  |  The specified address $ipv6 did not match the IPv6 format.
-                 |  The application was started with the default IPv6 address ${Defaults.IPv6Host}.
+                 |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
                  |===============================================================================
                  |""".stripMargin
             )
@@ -144,7 +145,7 @@ trait ServerBuilder[F[_]]:
               s"""
                  |===============================================================================
                  |  The specified address $ipv6 did not match the IPv6 format.
-                 |  The application was started with the default IPv6 address ${Defaults.ipv6Address}.
+                 |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
                  |===============================================================================
                  |""".stripMargin
             )
@@ -162,33 +163,35 @@ object ServerBuilder:
   import cats.effect.std.Console
   import org.http4s.ember.server.EmberServerBuilder
 
-  /**
-   * Object to start http4s EmberServer
-   *
-   * TODO: Scheduled to be cut out into modules for each type of server
-   */
+  /** Object to start http4s EmberServer
+    *
+    * TODO: Scheduled to be cut out into modules for each type of server
+    */
   object Ember:
-    def apply[F[_]: Async: Monad: Clock: Console]: Execute[ServerBuilder[F]] = new ServerBuilder[F] with DefaultLogging {
-      def buildServer(app: LepusApp[F], log4catsLogger: Log4catsLogger[F]): Injector ?=> Resource[F, Server] =
-        var ember = EmberServerBuilder
-          .default[F]
-          .withHost(host)
-          .withPort(Port.fromInt(port.getOrElse(Defaults.portInt)).getOrElse(Defaults.port))
-          .withHttpApp(app.router)
-          .withErrorHandler(app.errorHandler)
-          .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
-          .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
-          .withMaxHeaderSize(maxHeaderSize.getOrElse(Defaults.maxHeaderSize))
-          .withRequestHeaderReceiveTimeout(requestHeaderReceiveTimeout.getOrElse(Defaults.requestHeaderReceiveTimeout))
-          .withIdleTimeout(idleTimeout.getOrElse(Defaults.idleTimeout))
-          .withShutdownTimeout(shutdownTimeout.getOrElse(Defaults.shutdownTimeout))
-          .withLogger(log4catsLogger)
+    def apply[F[_]: Async: Monad: Clock: Console]: Execute[ServerBuilder[F]] =
+      new ServerBuilder[F] with DefaultLogging {
+        def buildServer(app: LepusApp[F], log4catsLogger: Log4catsLogger[F]): Injector ?=> Resource[F, Server] =
+          var ember = EmberServerBuilder
+            .default[F]
+            .withHost(host)
+            .withPort(Port.fromInt(port.getOrElse(Defaults.portInt)).getOrElse(Defaults.port))
+            .withHttpApp(app.router)
+            .withErrorHandler(app.errorHandler)
+            .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
+            .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
+            .withMaxHeaderSize(maxHeaderSize.getOrElse(Defaults.maxHeaderSize))
+            .withRequestHeaderReceiveTimeout(
+              requestHeaderReceiveTimeout.getOrElse(Defaults.requestHeaderReceiveTimeout)
+            )
+            .withIdleTimeout(idleTimeout.getOrElse(Defaults.idleTimeout))
+            .withShutdownTimeout(shutdownTimeout.getOrElse(Defaults.shutdownTimeout))
+            .withLogger(log4catsLogger)
 
-        if enableHttp2.getOrElse(false) then ember = ember.withHttp2
-        else ember = ember.withoutHttp2
+          if enableHttp2.getOrElse(false) then ember = ember.withHttp2
+          else ember                                 = ember.withoutHttp2
 
-        ember.build
-    }
+          ember.build
+      }
 
   object Defaults:
 
@@ -203,8 +206,8 @@ object ServerBuilder:
     val ipv6Address: Ipv6Address = ipv6"0:0:0:0:0:0:0:1"
 
     /** Default port */
-    val portInt: Int = 5555
-    val port: Port = port"5555"
+    val portInt: Int  = 5555
+    val port:    Port = port"5555"
 
     /** Default max connections */
     val maxConnections: Int = 1024
