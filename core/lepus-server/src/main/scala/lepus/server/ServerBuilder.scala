@@ -73,63 +73,68 @@ object ServerBuilder:
     * TODO: Scheduled to be cut out into modules for each type of server
     */
   object Ember:
+
     def apply[F[_]: Async: Monad: Clock: Console]: Execute[ServerBuilder[F]] =
       new ServerBuilder[F] with DefaultLogging:
+
+        private def buildIPv4Address(ipv4: String): Host =
+          Ipv4Address
+            .fromString(ipv4)
+            .orElse({
+              logger.warn(
+                s"""
+                   |===============================================================================
+                   |  The specified address $ipv4 did not match the IPv4 format.
+                   |  The application was started with the default IPv4 address ${ Defaults.IPv4Host }.
+                   |===============================================================================
+                   |""".stripMargin
+              )
+              Ipv4Address.fromString(Defaults.IPv4Host)
+            })
+            .getOrElse({
+              logger.warn(
+                s"""
+                   |===============================================================================
+                   |  The specified address $ipv4 did not match the IPv4 format.
+                   |  The application was started with the default IPv4 address ${ Defaults.ipv4Address }.
+                   |===============================================================================
+                   |""".stripMargin
+              )
+              Defaults.ipv4Address
+            })
+
+        private def buildIPv6Address(ipv6: String): Host =
+          Ipv6Address
+            .fromString(ipv6)
+            .orElse({
+              logger.warn(
+                s"""
+                   |===============================================================================
+                   |  The specified address $ipv6 did not match the IPv6 format.
+                   |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
+                   |===============================================================================
+                   |""".stripMargin
+              )
+              Ipv6Address.fromString(Defaults.IPv6Host)
+            })
+            .getOrElse({
+              logger.warn(
+                s"""
+                   |===============================================================================
+                   |  The specified address $ipv6 did not match the IPv6 format.
+                   |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
+                   |===============================================================================
+                   |""".stripMargin
+              )
+              Defaults.ipv6Address
+            })
 
         /** Get either IPv4/IPv6 Host depending on the configuration
           */
         protected lazy val host: Execute[Host] =
           (hostIPv4, hostIPv6) match
-            case (Some(ipv4), None) =>
-              Ipv4Address
-                .fromString(ipv4)
-                .orElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv4 did not match the IPv4 format.
-                       |  The application was started with the default IPv4 address ${ Defaults.IPv4Host }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Ipv4Address.fromString(Defaults.IPv4Host)
-                })
-                .getOrElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv4 did not match the IPv4 format.
-                       |  The application was started with the default IPv4 address ${ Defaults.ipv4Address }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Defaults.ipv4Address
-                })
-            case (None, Some(ipv6)) =>
-              Ipv6Address
-                .fromString(ipv6)
-                .orElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv6 did not match the IPv6 format.
-                       |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Ipv6Address.fromString(Defaults.IPv6Host)
-                })
-                .getOrElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv6 did not match the IPv6 format.
-                       |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Defaults.ipv6Address
-                })
+            case (Some(ipv4), None) => buildIPv4Address(ipv4)
+            case (None, Some(ipv6)) => buildIPv6Address(ipv6)
             case (Some(ipv4), Some(ipv6)) =>
               logger.warn(
                 s"""
@@ -143,30 +148,7 @@ object ServerBuilder:
                    |===============================================================================
                    |""".stripMargin
               )
-              Ipv6Address
-                .fromString(ipv6)
-                .orElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv6 did not match the IPv6 format.
-                       |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Ipv6Address.fromString(Defaults.IPv6Host)
-                })
-                .getOrElse({
-                  logger.warn(
-                    s"""
-                       |===============================================================================
-                       |  The specified address $ipv6 did not match the IPv6 format.
-                       |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
-                       |===============================================================================
-                       |""".stripMargin
-                  )
-                  Defaults.ipv6Address
-                })
+              buildIPv6Address(ipv6)
             case (None, None) => Defaults.ipv4Address
 
         def buildServer(app: LepusApp[F], log4catsLogger: Log4catsLogger[F]): Injector ?=> Resource[F, Server] =
