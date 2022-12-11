@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.server
+package lepus.router
 
 import cats.data.{ Kleisli, OptionT }
 import cats.implicits.*
@@ -20,7 +20,7 @@ import lepus.router.ConvertResult.*
   * @tparam F
   *   the effect type.
   */
-private[lepus] trait ServerInterpreter[F[_]](using Sync[F], Async[F]):
+private[lepus] trait ServerInterpreter[F[_]: Sync: Async]:
 
   /** Receives HTTP requests, compares and verifies them with endpoints, and binds them to server logic.
     *

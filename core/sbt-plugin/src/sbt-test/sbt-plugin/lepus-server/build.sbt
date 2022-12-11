@@ -15,7 +15,6 @@ lazy val root = (project in file("."))
     javaOptions ++= Seq(
       "-Dconfig.file=conf/application.conf"
     ),
-    libraryDependencies ++= Seq(lepusLogback),
     InputKey[Unit]("callRequestAPI") := {
       val messages = ListBuffer.empty[String]
 

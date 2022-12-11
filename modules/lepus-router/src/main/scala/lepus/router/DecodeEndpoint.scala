@@ -2,7 +2,7 @@
   * file that was distributed with this source code.
   */
 
-package lepus.server
+package lepus.router
 
 import scala.annotation.tailrec
 

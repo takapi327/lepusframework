@@ -25,11 +25,11 @@ import org.http4s.ember.server.EmberServerBuilder
 
 import lepus.logger.given
 import lepus.core.util.Configuration
-import lepus.router.{ *, given }
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
+import lepus.app.{ LepusApp, BuiltinModule }
 
-private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter[IO], ServerLogging[IO]:
+private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]:
 
   private val SERVER_PORT                           = "lepus.server.port"
   private val SERVER_HOST                           = "lepus.server.host"
@@ -58,29 +58,9 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
-      given Injector <- GuiceApplicationBuilder.build[IO]
+      given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
       _              <- buildServer(host, port, lepusApp)
     yield ()
-
-  private def buildApp(
-    lepusApp: LepusApp[IO]
-  )(using Injector): HttpApp[IO] =
-    lepusApp.routes match
-      case app: HttpApp[IO] => app
-      case app: NonEmptyList[Routing[IO]] =>
-        (lepusApp.cors match
-          case Some(cors) =>
-            app.map {
-              case (endpoint, router) => cors(bindFromRequest(router.routes, endpoint))
-            }
-          case None =>
-            app.map {
-              case (endpoint, router) =>
-                router.cors match
-                  case Some(cors) => cors.apply(bindFromRequest(router.routes, endpoint))
-                  case None       => bindFromRequest(router.routes, endpoint)
-            }
-        ).reduce.orNotFound
 
   private def buildServer(
     host: String,
@@ -91,7 +71,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerInterpreter
       .default[IO]
       .withHost(Ipv4Address.fromString(host).getOrElse(Defaults.host))
       .withPort(Port.fromInt(port).getOrElse(Defaults.port))
-      .withHttpApp(buildApp(app))
+      .withHttpApp(app.router)
       .withErrorHandler(app.errorHandler)
       .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
       .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))

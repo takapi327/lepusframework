@@ -2,13 +2,23 @@
   * file that was distributed with this source code.
   */
 
-package lepus.router
+package lepus
 
 import scala.annotation.targetName
 
+import org.http4s.{ Method, Request, Response, HttpRoutes as Http4sRoutes }
+
+import lepus.router.RouterConstructor
 import lepus.router.http.*
 
-trait LepusRouter:
+package object router:
+
+  type Http[T] = PartialFunction[Method, T]
+
+  type HttpRoutes[F[_]] = Http[F[Response[F]]]
+
+  type Routing[F[_]]     = (Endpoint[?], RouterConstructor[F, ?])
+  type Requestable[F[_]] = [T] =>> T ?=> Request[F] ?=> HttpRoutes[F]
 
   /** Implicit value to convert String type to Endpoint.FixedPath
     *

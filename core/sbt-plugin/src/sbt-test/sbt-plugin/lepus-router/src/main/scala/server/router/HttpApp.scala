@@ -6,18 +6,20 @@
 
 package server.router
 
+import cats.data.NonEmptyList
+
 import cats.effect.IO
 
 import org.http4s.*
 import org.http4s.dsl.io.*
 import org.http4s.server.Router
 
-import lepus.app.LepusApp
+import lepus.router.{ *, given }
 
-object HttpApp extends LepusApp[IO]:
+object HttpApp extends LepusRouter[IO]:
 
-  val router = Router(
-    "/" -> HttpRoutes.of[IO] {
-      case GET -> Root / "hello" / name => Ok(s"Hello $name")
+  val routes = NonEmptyList.of(
+    "hello" / bindPath[String]("name") ->> RouterConstructor.of {
+      case GET => Ok(s"Hello ${summon[String]}")
     }
-  ).orNotFound
+  )

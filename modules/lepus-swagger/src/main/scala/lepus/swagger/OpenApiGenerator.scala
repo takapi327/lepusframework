@@ -12,7 +12,7 @@ import scala.io.Codec
 import cats.effect.IO
 
 import lepus.core.util.Configuration
-import lepus.server.LepusApp
+import lepus.router.LepusRouter
 
 import Exception.GenerateSwaggerException
 
@@ -48,9 +48,9 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
           |
           |    val file = new File("$baseDirectory/docs/", "OpenApi.yaml")
           |
-          |    val lepusApp: LepusApp[IO] = OpenApiGenerator.loadLepusApp(config)
+          |    val lepusRouter: LepusRouter[IO] = OpenApiGenerator.loadLepusRouter(config)
           |
-          |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), lepusApp)
+          |    val openAPIUI = RouterToOpenAPI.generateOpenAPIDocs[IO](Info("$title", "$version"), lepusRouter)
           |
           |    if !file.exists() then
           |      file.getParentFile.mkdirs()
@@ -79,7 +79,7 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
      |import scala.io.Codec
      |import cats.effect.IO
      |import lepus.core.util.Configuration
-     |import lepus.server.LepusApp
+     |import lepus.router.LepusRouter
      |import lepus.swagger.model.Info
      |import lepus.swagger.{ RouterToOpenAPI, OpenApiEncoder }
      |import Exception.GenerateSwaggerException
@@ -90,9 +90,9 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
     * @param config
     *   Configuration to obtain the configuration of the running application
     * @return
-    *   Value of LepusApp registered in the app
+    *   Value of LepusRouter registered in the app
     */
-  private[lepus] def loadLepusApp(config: Configuration): LepusApp[IO] =
+  private[lepus] def loadLepusRouter(config: Configuration): LepusRouter[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)
     val routeClass: Class[_] =
       try ClassLoader.getSystemClassLoader.loadClass(routesClassName + "$")
@@ -100,26 +100,26 @@ private[lepus] object OpenApiGenerator extends ExtensionMethods:
         case ex: ClassNotFoundException =>
           throw GenerateSwaggerException(s"Couldn't find LepusApp class '$routesClassName'", Some(ex))
 
-    if !classOf[LepusApp[IO]].isAssignableFrom(routeClass) then
+    if !classOf[LepusRouter[IO]].isAssignableFrom(routeClass) then
       throw GenerateSwaggerException(
         s"""
           |Class ${ routeClass.getName } must implement LepusApp interface
           |
           |LepusApp must be imported and inherited by the ${ routeClass.getName }
           |
-          |import lepus.server.LepusApp
+          |import lepus.router.LepusRouter
           |
-          |object ${ routeClass.getName } extends LepusApp[IO]
+          |object ${ routeClass.getName } extends LepusRouter[IO]
           |
           |""".stripMargin
       )
 
     val constructor =
-      try routeClass.getField("MODULE$").get(null).asInstanceOf[LepusApp[IO]]
+      try routeClass.getField("MODULE$").get(null).asInstanceOf[LepusRouter[IO]]
       catch
         case ex: NoSuchMethodException =>
           throw GenerateSwaggerException(
-            s"LepusApp class ${ routeClass.getName } must have a public default constructor",
+            s"LepusRouter class ${ routeClass.getName } must have a public default constructor",
             Some(ex)
           )
 
