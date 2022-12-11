@@ -171,6 +171,25 @@ object ServerBuilder:
           if enableHttp2.getOrElse(false) then ember = ember.withHttp2
           else ember                                 = ember.withoutHttp2
 
+          logger.debug(
+            s"""
+               |===============================================================================
+               |List of EmberServer startup settings
+               |
+               |host:                           ${ ember.host.get }
+               |port:                           ${ ember.port }
+               |max connections:                ${ ember.maxConnections }
+               |receive buffer size:            ${ ember.receiveBufferSize }
+               |max header size:                ${ ember.maxHeaderSize }
+               |request header receive timeout: ${ ember.requestHeaderReceiveTimeout }
+               |idle timeout:                   ${ ember.idleTimeout }
+               |shutdown timeout:               ${ ember.shutdownTimeout }
+               |enable Http2:                   ${ enableHttp2.getOrElse(false) }
+               |
+               |===============================================================================
+               |""".stripMargin
+          )
+
           ember.build
 
   object Defaults:
