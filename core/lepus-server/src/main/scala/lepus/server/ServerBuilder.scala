@@ -22,7 +22,7 @@ import org.http4s.server.Server
 import lepus.core.util.Configuration
 
 import lepus.app.LepusApp
-import lepus.logger.{ Logger, ExecLocation, Execute, DefaultLogging }
+import lepus.logger.{ Logger, DefaultLogging, given }
 
 import ServerBuilder.Defaults
 
@@ -74,7 +74,7 @@ object ServerBuilder:
     */
   object Ember:
 
-    def apply[F[_]: Async: Monad: Clock: Console]: Execute[ServerBuilder[F]] =
+    def apply[F[_]: Async: Monad: Clock: Console]: ServerBuilder[F] =
       new ServerBuilder[F] with DefaultLogging:
 
         private def buildIPv4Address(ipv4: String): Host =
@@ -131,7 +131,7 @@ object ServerBuilder:
 
         /** Get either IPv4/IPv6 Host depending on the configuration
           */
-        protected lazy val host: Execute[Host] =
+        protected lazy val host: Host =
           (hostIPv4, hostIPv6) match
             case (Some(ipv4), None) => buildIPv4Address(ipv4)
             case (None, Some(ipv6)) => buildIPv6Address(ipv6)
