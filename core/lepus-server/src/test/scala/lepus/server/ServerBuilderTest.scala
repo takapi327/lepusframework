@@ -20,8 +20,6 @@ import lepus.app.LepusApp
 
 object ServerBuilderTest extends Specification, ServerBuilder[IO]:
 
-  val logger = null
-
   def buildServer(app: LepusApp[IO], log4catsLogger: Log4catsLogger[IO]): Injector ?=> Resource[IO, Server] = null
 
   "Testing the Naming ServerBuilder" should {
