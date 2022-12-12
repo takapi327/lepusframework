@@ -83,7 +83,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server
       (Compile / sourceDirectory).value / s"scala-$suffix"
     }
   )
-  .settings(libraryDependencies ++= http4sEmber)
+  .settings(libraryDependencies ++= http4sEmber ++ specs2Deps)
   .dependsOn(LepusAppProject, LepusLoggerProject)
 
 lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin")
