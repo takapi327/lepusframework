@@ -60,13 +60,6 @@ lazy val LepusGuiceProject = LepusSbtProject("Lepus-Guice", "core/lepus-guice")
   .settings(libraryDependencies ++= Seq(catsEffect, guice) ++ specs2Deps)
   .dependsOn(LepusProject)
 
-lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "core/lepus-logger")
-  .settings(scalaVersion := (LepusProject / scalaVersion).value)
-  .settings(libraryDependencies ++= Seq(
-    catsEffect,
-    "io.circe" %% "circe-core" % circeVersion
-  ) ++ specs2Deps)
-
 lazy val LepusAppProject = LepusSbtProject("Lepus-App", "core/lepus-app")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies ++= Seq(http4sDsl))
@@ -84,7 +77,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server
     }
   )
   .settings(libraryDependencies ++= http4sEmber ++ specs2Deps)
-  .dependsOn(LepusAppProject, LepusLoggerProject)
+  .dependsOn(LepusAppProject)
 
 lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin")
   .settings(
@@ -109,6 +102,13 @@ lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin
 lazy val LepusLogbackProject = LepusSbtProject("Lepus-Logback", "modules/lepus-logback")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
   .settings(libraryDependencies += logback)
+
+lazy val LepusLoggerProject = LepusSbtProject("Lepus-Logger", "modules/lepus-logger")
+  .settings(scalaVersion := (LepusProject / scalaVersion).value)
+  .settings(libraryDependencies ++= Seq(
+    catsEffect,
+    "io.circe" %% "circe-core" % circeVersion
+  ) ++ specs2Deps)
 
 lazy val LepusDatabaseProject = LepusSbtProject("Lepus-Database", "modules/lepus-database")
   .settings(scalaVersion := (LepusProject / scalaVersion).value)
@@ -146,7 +146,6 @@ lazy val SbtScriptedToolsProject = LepusSbtPluginProject("Sbt-Scripted-Tools", "
 lazy val coreProjects: Seq[ProjectReference] = Seq(
   LepusProject,
   LepusGuiceProject,
-  LepusLoggerProject,
   LepusAppProject,
   LepusServerProject,
   SbtPluginProject
@@ -154,6 +153,7 @@ lazy val coreProjects: Seq[ProjectReference] = Seq(
 
 lazy val moduleProjects: Seq[ProjectReference] = Seq(
   LepusLogbackProject,
+  LepusLoggerProject,
   LepusDatabaseProject,
   LepusHikariProject,
   LepusDoobieProject,

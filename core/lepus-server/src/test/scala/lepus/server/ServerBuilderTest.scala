@@ -10,8 +10,6 @@ import org.specs2.mutable.Specification
 
 import com.google.inject.Injector
 
-import org.typelevel.log4cats.Logger as Log4catsLogger
-
 import cats.effect.{ IO, Resource }
 
 import org.http4s.server.Server
@@ -20,7 +18,7 @@ import lepus.app.LepusApp
 
 object ServerBuilderTest extends Specification, ServerBuilder[IO]:
 
-  def buildServer(app: LepusApp[IO], log4catsLogger: Log4catsLogger[IO]): Injector ?=> Resource[IO, Server] = null
+  def buildServer(app: LepusApp[IO]): Injector ?=> Resource[IO, Server] = null
 
   "Testing the Naming ServerBuilder" should {
     "The value of port retrieved from conf matches the specified value" in {

@@ -20,11 +20,11 @@ import cats.syntax.show.*
   *     override def format(msg: LogMessage): String =
   *       val timestamp = withColor(Foreground.White, Formatter.formatTimestamp(msg.timestamp))
   *       val level = msg.level match
-  *         case Level.Trace => withColor(Foreground.Cyan, msg.level.toString)
-  *         case Level.Debug => withColor(Foreground.White, msg.level.toString)
-  *         case Level.Info  => withColor(Foreground.Blue, msg.level.toString)
-  *         case Level.Warn  => withColor(Foreground.Yellow, msg.level.toString)
-  *         case Level.Error => withColor(Foreground.Red, msg.level.toString)
+  *         case Level.TRACE => withColor(Foreground.Cyan, msg.level.toString)
+  *         case Level.DEBUG => withColor(Foreground.White, msg.level.toString)
+  *         case Level.INFO  => withColor(Foreground.Blue, msg.level.toString)
+  *         case Level.WARN  => withColor(Foreground.Yellow, msg.level.toString)
+  *         case Level.ERROR => withColor(Foreground.Red, msg.level.toString)
   *       val context       = withColor(Foreground.White, Formatter.formatCtx(msg.context))
   *       val threadName    = withColor(Foreground.Green, msg.threadName)
   *       val enclosureName = withColor(Foreground.Magenta, msg.execLocation.enclosureName)

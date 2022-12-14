@@ -22,7 +22,6 @@ import org.http4s.server.Server
 import lepus.core.util.Configuration
 
 import lepus.app.LepusApp
-import lepus.logger.{ Logger, DefaultLogging, given }
 
 import ServerBuilder.Defaults
 
@@ -58,12 +57,13 @@ trait ServerBuilder[F[_]]:
   protected val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
   protected val enableHttp2:     Option[Boolean]  = config.get[Option[Boolean]](SERVER_ENABLE_HTTP2)
 
-  def buildServer(app: LepusApp[F], log4catsLogger: Log4catsLogger[F]): Injector ?=> Resource[F, Server]
+  def buildServer(app: LepusApp[F]): Injector ?=> Resource[F, Server]
 
 object ServerBuilder:
 
   import cats.Monad
-  import cats.effect.Async
+  import cats.syntax.all.*
+  import cats.effect.{ Sync, Async }
   import cats.effect.kernel.Clock
   import cats.effect.std.Console
   import org.http4s.ember.server.EmberServerBuilder
@@ -74,64 +74,74 @@ object ServerBuilder:
     */
   object Ember:
 
-    def apply[F[_]: Async: Monad: Clock: Console]: ServerBuilder[F] =
-      new ServerBuilder[F] with DefaultLogging:
+    def apply[F[_]: Sync: Async: Monad: Clock: Console](logger: Log4catsLogger[F]): ServerBuilder[F] =
+      new ServerBuilder[F]:
 
-        private def buildIPv4Address(ipv4: String): Host =
+        private def buildIPv4Address(ipv4: String): F[Host] =
           Ipv4Address
             .fromString(ipv4)
-            .orElse({
-              logger.warn(
-                s"""
-                   |===============================================================================
-                   |  The specified address $ipv4 did not match the IPv4 format.
-                   |  The application was started with the default IPv4 address ${ Defaults.IPv4Host }.
-                   |===============================================================================
-                   |""".stripMargin
-              )
-              Ipv4Address.fromString(Defaults.IPv4Host)
-            })
-            .getOrElse({
-              logger.warn(
-                s"""
-                   |===============================================================================
-                   |  The specified address $ipv4 did not match the IPv4 format.
-                   |  The application was started with the default IPv4 address ${ Defaults.ipv4Address }.
-                   |===============================================================================
-                   |""".stripMargin
-              )
-              Defaults.ipv4Address
-            })
+            .fold(
+              Ipv4Address
+                .fromString(Defaults.IPv4Host)
+                .fold(
+                  logger
+                    .warn(
+                      s"""
+                        |===============================================================================
+                        |  The specified address $ipv4 did not match the IPv4 format.
+                        |  The application was started with the default IPv4 address ${ Defaults.ipv4Address }.
+                        |===============================================================================
+                        |""".stripMargin
+                    )
+                    .as(Defaults.ipv4Address)
+                )(host =>
+                  logger
+                    .warn(
+                      s"""
+                        |===============================================================================
+                        |  The specified address $ipv4 did not match the IPv4 format.
+                        |  The application was started with the default IPv4 address ${ Defaults.IPv4Host }.
+                        |===============================================================================
+                        |""".stripMargin
+                    )
+                    .as(host)
+                )
+            )(host => Sync[F].delay(host))
 
-        private def buildIPv6Address(ipv6: String): Host =
+        private def buildIPv6Address(ipv6: String): F[Host] =
           Ipv6Address
             .fromString(ipv6)
-            .orElse({
-              logger.warn(
-                s"""
-                   |===============================================================================
-                   |  The specified address $ipv6 did not match the IPv6 format.
-                   |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
-                   |===============================================================================
-                   |""".stripMargin
-              )
-              Ipv6Address.fromString(Defaults.IPv6Host)
-            })
-            .getOrElse({
-              logger.warn(
-                s"""
-                   |===============================================================================
-                   |  The specified address $ipv6 did not match the IPv6 format.
-                   |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
-                   |===============================================================================
-                   |""".stripMargin
-              )
-              Defaults.ipv6Address
-            })
+            .fold(
+              Ipv6Address
+                .fromString(Defaults.IPv6Host)
+                .fold(
+                  logger
+                    .warn(
+                      s"""
+                        |===============================================================================
+                        |  The specified address $ipv6 did not match the IPv6 format.
+                        |  The application was started with the default IPv6 address ${ Defaults.IPv6Host }.
+                        |===============================================================================
+                        |""".stripMargin
+                    )
+                    .as(Defaults.ipv6Address)
+                )(host =>
+                  logger
+                    .warn(
+                      s"""
+                        |===============================================================================
+                        |  The specified address $ipv6 did not match the IPv6 format.
+                        |  The application was started with the default IPv6 address ${ Defaults.ipv6Address }.
+                        |===============================================================================
+                        |""".stripMargin
+                    )
+                    .as(host)
+                )
+            )(host => Sync[F].delay(host))
 
         /** Get either IPv4/IPv6 Host depending on the configuration
           */
-        protected lazy val host: Host =
+        protected lazy val buildHost: F[Host] =
           (hostIPv4, hostIPv6) match
             case (Some(ipv4), None) => buildIPv4Address(ipv4)
             case (None, Some(ipv6)) => buildIPv6Address(ipv6)
@@ -147,14 +157,12 @@ object ServerBuilder:
                    |  If you want to start the application with an IPv4 address, remove the IPv6 setting.
                    |===============================================================================
                    |""".stripMargin
-              )
-              buildIPv6Address(ipv6)
-            case (None, None) => Defaults.ipv4Address
+              ) >> buildIPv6Address(ipv6)
+            case (None, None) => Sync[F].delay(Defaults.ipv4Address)
 
-        def buildServer(app: LepusApp[F], log4catsLogger: Log4catsLogger[F]): Injector ?=> Resource[F, Server] =
+        def buildServer(app: LepusApp[F]): Injector ?=> Resource[F, Server] =
           var ember = EmberServerBuilder
             .default[F]
-            .withHost(host)
             .withPort(Port.fromInt(port.getOrElse(Defaults.portInt)).getOrElse(Defaults.port))
             .withHttpApp(app.router)
             .withErrorHandler(app.errorHandler)
@@ -166,31 +174,34 @@ object ServerBuilder:
             )
             .withIdleTimeout(idleTimeout.getOrElse(Defaults.idleTimeout))
             .withShutdownTimeout(shutdownTimeout.getOrElse(Defaults.shutdownTimeout))
-            .withLogger(log4catsLogger)
+            .withLogger(logger)
 
           if enableHttp2.getOrElse(false) then ember = ember.withHttp2
           else ember                                 = ember.withoutHttp2
 
-          logger.debug(
-            s"""
-               |===============================================================================
-               |List of EmberServer startup settings
-               |
-               |host:                           ${ ember.host.get }
-               |port:                           ${ ember.port }
-               |max connections:                ${ ember.maxConnections }
-               |receive buffer size:            ${ ember.receiveBufferSize }
-               |max header size:                ${ ember.maxHeaderSize }
-               |request header receive timeout: ${ ember.requestHeaderReceiveTimeout }
-               |idle timeout:                   ${ ember.idleTimeout }
-               |shutdown timeout:               ${ ember.shutdownTimeout }
-               |enable Http2:                   ${ enableHttp2.getOrElse(false) }
-               |
-               |===============================================================================
-               |""".stripMargin
-          )
-
-          ember.build
+          for
+            host <- Resource.eval(buildHost)
+            server <- ember.withHost(host).build <* Resource.eval(
+                        logger.debug(
+                          s"""
+                             |===============================================================================
+                             |  List of EmberServer startup settings
+                             |
+                             |  host:                           $host
+                             |  port:                           ${ ember.port }
+                             |  max connections:                ${ ember.maxConnections }
+                             |  receive buffer size:            ${ ember.receiveBufferSize }
+                             |  max header size:                ${ ember.maxHeaderSize }
+                             |  request header receive timeout: ${ ember.requestHeaderReceiveTimeout }
+                             |  idle timeout:                   ${ ember.idleTimeout }
+                             |  shutdown timeout:               ${ ember.shutdownTimeout }
+                             |  enable Http2:                   ${ enableHttp2.getOrElse(false) }
+                             |
+                             |===============================================================================
+                             |""".stripMargin
+                        )
+                      )
+          yield server
 
   object Defaults:
 
