@@ -54,8 +54,8 @@ trait LoggingIO extends LoggingF[IO]:
 
     private def doOutput(msg: LogMessage): ExecuteF[IO, Unit] =
       (msg.level, msg.exception) match
-        case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
-        case (Level.Error, None)     => output.outputError(formatter.format(msg))
+        case (Level.ERROR, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
+        case (Level.ERROR, None)     => output.outputError(formatter.format(msg))
         case (_, Some(ex))           => output.output(formatter.format(msg)) >> output.outputStackTrace(ex)
         case _                       => output.output(formatter.format(msg))
 

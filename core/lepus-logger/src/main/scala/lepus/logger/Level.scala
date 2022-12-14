@@ -10,7 +10,7 @@ import cats.kernel.{ Order, LowerBounded, PartialOrder, UpperBounded }
 /** Log level
   */
 enum Level:
-  case Trace, Debug, Info, Warn, Error
+  case TRACE, DEBUG, INFO, WARN, ERROR
 
 extension (level: Level)
   def toString: String      = level.toString.toUpperCase
@@ -23,9 +23,9 @@ given Order[Level] with LowerBounded[Level] with UpperBounded[Level] with {
 
   def compare(x: Level, y: Level): Int = x.ordinal compare y.ordinal
 
-  def minBound: Level = Level.Trace
+  def minBound: Level = Level.TRACE
 
-  def maxBound: Level = Level.Error
+  def maxBound: Level = Level.ERROR
 
   def partialOrder: PartialOrder[Level] = self
 }

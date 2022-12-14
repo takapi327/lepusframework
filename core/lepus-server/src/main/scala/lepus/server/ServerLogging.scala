@@ -41,8 +41,8 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends LoggingF[F]:
 
     private def doOutput(msg: LogMessage): ExecuteF[F, Unit] =
       (msg.level, msg.exception) match
-        case (Level.Error, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
-        case (Level.Error, None)     => output.outputError(formatter.format(msg))
+        case (Level.ERROR, Some(ex)) => output.outputError(formatter.format(msg)) >> output.outputStackTrace(ex)
+        case (Level.ERROR, None)     => output.outputError(formatter.format(msg))
         case (_, Some(ex))           => output.output(formatter.format(msg)) >> output.outputStackTrace(ex)
         case _                       => output.output(formatter.format(msg))
 
@@ -57,11 +57,11 @@ trait ServerLogging[F[_]: Monad: Clock: Console] extends LoggingF[F]:
     override protected def log(msg: LogMessage): ExecuteF[F, Unit] =
       doOutput(msg).whenA(filter(msg))
 
-    override def debug(message: => String): F[Unit] = log(Level.Debug, message)
-    override def error(message: => String): F[Unit] = log(Level.Error, message)
-    override def info(message: => String):  F[Unit] = log(Level.Info, message)
-    override def trace(message: => String): F[Unit] = log(Level.Trace, message)
-    override def warn(message: => String):  F[Unit] = log(Level.Warn, message)
+    override def debug(message: => String): F[Unit] = log(Level.DEBUG, message)
+    override def error(message: => String): F[Unit] = log(Level.ERROR, message)
+    override def info(message: => String):  F[Unit] = log(Level.INFO, message)
+    override def trace(message: => String): F[Unit] = log(Level.TRACE, message)
+    override def warn(message: => String):  F[Unit] = log(Level.WARN, message)
 
     override def debug(t: Throwable)(message: => String): F[Unit] = debug(message, t)
     override def error(t: Throwable)(message: => String): F[Unit] = error(message, t)

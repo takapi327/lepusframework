@@ -37,39 +37,39 @@ trait Logger:
   protected def log(msg: LogMessage): Execute[Unit]
 
   /** A set of alias methods to log trace levels. */
-  def trace[M](msg: => M):                           Execute[Unit] = log(Level.Trace, msg)
-  def trace[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.Trace, msg, Some(ex))
-  def trace[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.Trace, msg, None, ctx)
+  def trace[M](msg: => M):                           Execute[Unit] = log(Level.TRACE, msg)
+  def trace[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.TRACE, msg, Some(ex))
+  def trace[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.TRACE, msg, None, ctx)
   def trace[M](msg: => M, ex: Throwable, ctx: Map[String, String]): Execute[Unit] =
-    log(Level.Trace, msg, Some(ex), ctx)
+    log(Level.TRACE, msg, Some(ex), ctx)
 
   /** A set of alias methods to log debug levels. */
-  def debug[M](msg: => M):                           Execute[Unit] = log(Level.Debug, msg)
-  def debug[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.Debug, msg, Some(ex))
-  def debug[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.Debug, msg, None, ctx)
+  def debug[M](msg: => M):                           Execute[Unit] = log(Level.DEBUG, msg)
+  def debug[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.DEBUG, msg, Some(ex))
+  def debug[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.DEBUG, msg, None, ctx)
   def debug[M](msg: => M, ex: Throwable, ctx: Map[String, String]): Execute[Unit] =
-    log(Level.Debug, msg, Some(ex), ctx)
+    log(Level.DEBUG, msg, Some(ex), ctx)
 
   /** A set of alias methods to log info levels. */
-  def info[M](msg: => M):                           Execute[Unit] = log(Level.Info, msg)
-  def info[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.Info, msg, Some(ex))
-  def info[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.Info, msg, None, ctx)
+  def info[M](msg: => M):                           Execute[Unit] = log(Level.INFO, msg)
+  def info[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.INFO, msg, Some(ex))
+  def info[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.INFO, msg, None, ctx)
   def info[M](msg: => M, ex: Throwable, ctx: Map[String, String]): Execute[Unit] =
-    log(Level.Info, msg, Some(ex), ctx)
+    log(Level.INFO, msg, Some(ex), ctx)
 
   /** A set of alias methods to log warn levels. */
-  def warn[M](msg: => M):                           Execute[Unit] = log(Level.Warn, msg)
-  def warn[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.Warn, msg, Some(ex))
-  def warn[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.Warn, msg, None, ctx)
+  def warn[M](msg: => M):                           Execute[Unit] = log(Level.WARN, msg)
+  def warn[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.WARN, msg, Some(ex))
+  def warn[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.WARN, msg, None, ctx)
   def warn[M](msg: => M, ex: Throwable, ctx: Map[String, String]): Execute[Unit] =
-    log(Level.Warn, msg, Some(ex), ctx)
+    log(Level.WARN, msg, Some(ex), ctx)
 
   /** A set of alias methods to log error levels. */
-  def error[M](msg: => M):                           Execute[Unit] = log(Level.Error, msg)
-  def error[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.Error, msg, Some(ex))
-  def error[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.Error, msg, None, ctx)
+  def error[M](msg: => M):                           Execute[Unit] = log(Level.ERROR, msg)
+  def error[M](msg: => M, ex: Throwable):            Execute[Unit] = log(Level.ERROR, msg, Some(ex))
+  def error[M](msg: => M, ctx: Map[String, String]): Execute[Unit] = log(Level.ERROR, msg, None, ctx)
   def error[M](msg: => M, ex: Throwable, ctx: Map[String, String]): Execute[Unit] =
-    log(Level.Error, msg, Some(ex), ctx)
+    log(Level.ERROR, msg, Some(ex), ctx)
 
 object Logger:
   def apply(using logger: Logger): Logger = logger
