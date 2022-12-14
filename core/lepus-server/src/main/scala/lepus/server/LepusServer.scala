@@ -8,7 +8,7 @@ import com.google.inject.Injector
 
 import cats.effect.{ IO, Resource, ResourceApp }
 
-import org.typelevel.log4cats.Logger as Log4catsLogger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import lepus.core.util.Configuration
 import lepus.logger.given
@@ -16,7 +16,7 @@ import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.{ LepusApp, BuiltinModule }
 
-private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]:
+private[lepus] object LepusServer extends ResourceApp.Forever:
 
   private val SERVER_ROUTES = "lepus.server.routes"
 
@@ -28,7 +28,8 @@ private[lepus] object LepusServer extends ResourceApp.Forever, ServerLogging[IO]
 
     for
       given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
-      _              <- ServerBuilder.Ember[IO].buildServer(lepusApp, logger.asInstanceOf[Log4catsLogger[IO]])
+      logger         <- Resource.eval(Slf4jLogger.create[IO])
+      _              <- ServerBuilder.Ember[IO](logger).buildServer(lepusApp)
     yield ()
 
   private def loadLepusApp(): LepusApp[IO] =
