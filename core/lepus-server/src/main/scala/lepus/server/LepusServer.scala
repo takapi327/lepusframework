@@ -11,7 +11,6 @@ import cats.effect.{ IO, Resource, ResourceApp }
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import lepus.core.util.Configuration
-import lepus.logger.given
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.{ LepusApp, BuiltinModule }
