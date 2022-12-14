@@ -84,7 +84,7 @@ lazy val LepusServerProject = LepusSbtProject("Lepus-Server", "core/lepus-server
     }
   )
   .settings(libraryDependencies ++= http4sEmber ++ specs2Deps)
-  .dependsOn(LepusAppProject, LepusLoggerProject)
+  .dependsOn(LepusAppProject)
 
 lazy val SbtPluginProject = LepusSbtPluginProject("Sbt-Plugin", "core/sbt-plugin")
   .settings(
