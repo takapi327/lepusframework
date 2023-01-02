@@ -12,13 +12,17 @@ import com.google.inject.Injector
 
 import cats.effect.{ IO, Resource }
 
+import org.http4s.*
 import org.http4s.server.Server
 
 import lepus.app.LepusApp
 
 object ServerBuilderTest extends Specification, ServerBuilder[IO]:
 
-  def buildServer(app: LepusApp[IO]): Injector ?=> Resource[IO, Server] = null
+  def buildServer(
+    app:          HttpApp[IO],
+    errorHandler: PartialFunction[Throwable, IO[Response[IO]]]
+  ): Injector ?=> Resource[IO, Server] = null
 
   "Testing the Naming ServerBuilder" should {
     "The value of port retrieved from conf matches the specified value" in {

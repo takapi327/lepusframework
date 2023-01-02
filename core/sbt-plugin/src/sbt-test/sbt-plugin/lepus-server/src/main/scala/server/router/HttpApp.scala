@@ -20,4 +20,4 @@ object HttpApp extends LepusApp[IO]:
     "/" -> HttpRoutes.of[IO] {
       case GET -> Root / "hello" / name => Ok(s"Hello $name")
     }
-  ).orNotFound
+  )
