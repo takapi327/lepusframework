@@ -31,7 +31,7 @@ trait SessionStorage[F[_], A]:
   /** Methods for updating Session values */
   def modify[B](id: SessionIdentifier, func: Option[A] => (Option[A], B)): F[B]
 
-object SessionStorage:
+private[lepus] object SessionStorage:
 
   /**
    *  Default method to create SessionStorage
