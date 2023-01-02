@@ -38,24 +38,28 @@ private[lepus] object LepusServer extends ResourceApp.Forever:
       storage        <- Resource.eval(SessionStorage.default[IO, Vault]())
       given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
       logger         <- Resource.eval(Slf4jLogger.create[IO])
-      _              <- ServerBuilder.Ember[IO](logger).buildServer(
-        app          = SessionMiddleware.fromConfig[IO, Vault](storage)(transFormRoutes(lepusApp.router)).orNotFound,
-        errorHandler = lepusApp.errorHandler
-      )
+      _ <- ServerBuilder
+             .Ember[IO](logger)
+             .buildServer(
+               app = SessionMiddleware.fromConfig[IO, Vault](storage)(transFormRoutes(lepusApp.router)).orNotFound,
+               errorHandler = lepusApp.errorHandler
+             )
     yield ()
 
   private def transFormRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionMiddleware.SessionRoutes[Option[Vault], F] =
     Kleisli { (contextRequest: ContextRequest[F, Option[Vault]]) =>
-      val initVault = contextRequest.context.fold(contextRequest.req.attributes)(context =>
-        contextRequest.req.attributes ++ context
-      )
-      routes.run(contextRequest.req.withAttributes(initVault))
+      val initVault =
+        contextRequest.context.fold(contextRequest.req.attributes)(context => contextRequest.req.attributes ++ context)
+      routes
+        .run(contextRequest.req.withAttributes(initVault))
         .map { response =>
           val outContext =
             contextRequest.context.fold(response.attributes)(context => response.attributes ++ context)
-          outContext.lookup(SessionReset.key)
+          outContext
+            .lookup(SessionReset.key)
             .fold(
-              outContext.lookup(SessionRemove.key)
+              outContext
+                .lookup(SessionRemove.key)
                 .fold(
                   ContextResponse(outContext.some, response.withAttributes(outContext))
                 )(toRemove =>
