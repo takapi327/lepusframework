@@ -14,15 +14,18 @@ private[lepus] trait SessionConfigReader:
 
   private val config: Configuration = Configuration.load()
 
-  private final val SESSION_IDENTIFIER:         String = "lepus.session.identifier"
-  private final val SESSION_HTTP_ONLY:          String = "lepus.session.http_only"
-  private final val SESSION_SECURE:             String = "lepus.session.secure"
-  private final val SESSION_DOMAIN:             String = "lepus.session.domain"
-  private final val SESSION_PATH:               String = "lepus.session.path"
-  private final val SESSION_SAME_SITE:          String = "lepus.session.same_site"
-  private final val SESSION_EXPIRATION_TYPE:    String = "lepus.session.expiration.type"
-  private final val SESSION_EXPIRATION_MAX_AGE: String = "lepus.session.expiration.max_age"
-  private final val SESSION_EXPIRATION_EXPIRES: String = "lepus.session.expiration.expires"
+  /** Key to retrieve the value of session. If you want to change the key, you need to overwrite it at the inherited location. */
+  val SESSION: String = "lepus.session"
+
+  private final lazy val SESSION_IDENTIFIER:         String = SESSION + ".identifier"
+  private final lazy val SESSION_HTTP_ONLY:          String = SESSION + ".http_only"
+  private final lazy val SESSION_SECURE:             String = SESSION + ".secure"
+  private final lazy val SESSION_DOMAIN:             String = SESSION + ".domain"
+  private final lazy val SESSION_PATH:               String = SESSION + ".path"
+  private final lazy val SESSION_SAME_SITE:          String = SESSION + ".same_site"
+  private final lazy val SESSION_EXPIRATION_TYPE:    String = SESSION + ".expiration.type"
+  private final lazy val SESSION_EXPIRATION_MAX_AGE: String = SESSION + ".expiration.max_age"
+  private final lazy val SESSION_EXPIRATION_EXPIRES: String = SESSION + ".expiration.expires"
 
   /** Session identifier managed by cookies. Default is LEPUS_SESSION */
   protected lazy val sessionIdentifier: String =
@@ -56,7 +59,15 @@ private[lepus] trait SessionConfigReader:
 
   /** Type of object that controls the cookie expiration date. Default is Static */
   protected lazy val sessionExpirationType: String =
-    config.get[Option[String]](SESSION_EXPIRATION_TYPE).getOrElse("Static")
+    config.get[Option[String]](SESSION_EXPIRATION_TYPE)
+      .fold("Static")(str => str match
+        case s: "Static"  => s
+        case s: "Dynamic" => s
+        case unknown =>
+          throw new IllegalArgumentException(
+            s"$unknown did not match any of the Expiration Type. The value of Expiration Type must be Static, or Dynamic."
+          )
+      )
 
   /** MaxAge managed by cookies. */
   protected lazy val sessionExpirationMaxAge: Option[Long] = config.get[Option[Long]](SESSION_EXPIRATION_MAX_AGE)
