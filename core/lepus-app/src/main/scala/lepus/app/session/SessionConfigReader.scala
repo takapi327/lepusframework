@@ -14,7 +14,9 @@ private[lepus] trait SessionConfigReader:
 
   private val config: Configuration = Configuration.load()
 
-  /** Key to retrieve the value of session. If you want to change the key, you need to overwrite it at the inherited location. */
+  /** Key to retrieve the value of session. If you want to change the key, you need to overwrite it at the inherited
+    * location.
+    */
   val SESSION: String = "lepus.session"
 
   private final lazy val SESSION_IDENTIFIER:         String = SESSION + ".identifier"
@@ -59,14 +61,16 @@ private[lepus] trait SessionConfigReader:
 
   /** Type of object that controls the cookie expiration date. Default is Static */
   protected lazy val sessionExpirationType: String =
-    config.get[Option[String]](SESSION_EXPIRATION_TYPE)
-      .fold("Static")(str => str match
-        case s: "Static"  => s
-        case s: "Dynamic" => s
-        case unknown =>
-          throw new IllegalArgumentException(
-            s"$unknown did not match any of the Expiration Type. The value of Expiration Type must be Static, or Dynamic."
-          )
+    config
+      .get[Option[String]](SESSION_EXPIRATION_TYPE)
+      .fold("Static")(str =>
+        str match
+          case s: "Static"  => s
+          case s: "Dynamic" => s
+          case unknown =>
+            throw new IllegalArgumentException(
+              s"$unknown did not match any of the Expiration Type. The value of Expiration Type must be Static, or Dynamic."
+            )
       )
 
   /** MaxAge managed by cookies. */
