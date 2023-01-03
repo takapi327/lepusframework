@@ -46,7 +46,7 @@ private[lepus] object LepusServer extends ResourceApp.Forever:
              )
     yield ()
 
-  private def transFormRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionMiddleware.SessionRoutes[Option[Vault], F] =
+  private def transFormRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionRoutes[F, Option[Vault]] =
     Kleisli { (contextRequest: ContextRequest[F, Option[Vault]]) =>
       val initVault =
         contextRequest.context.fold(contextRequest.req.attributes)(context => contextRequest.req.attributes ++ context)

@@ -18,8 +18,6 @@ import org.http4s.headers.`Set-Cookie`
   */
 private[lepus] object SessionMiddleware extends SessionConfigReader:
 
-  type SessionRoutes[T, F[_]] = Kleisli[[A] =>> OptionT[F, A], ContextRequest[F, T], ContextResponse[F, T]]
-
   /** Methods for building Middleware from settings passed as arguments.
     *
     * @param storage
@@ -59,7 +57,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
     sameSite:              SameSite = SameSite.Lax,
     expiration:            ExpirationManagement[F] = ExpirationManagement.Static(None, None),
     mergeOnChanged:        Option[MergeManagement[Option[A]]] = Option.empty[MergeManagement[Option[A]]]
-  )(routes:                SessionRoutes[Option[A], F]): HttpRoutes[F] =
+  )(routes:                SessionRoutes[F, Option[A]]): HttpRoutes[F] =
     val deleteCookie = generateDeleteCookie(sessionIdentifierName, domain, path, sameSite, secure, httpOnly)
 
     def sessionCookie(id: SessionIdentifier): F[`Set-Cookie`] =
@@ -166,7 +164,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
   def fromConfig[F[_]: Monad: Clock, A](
     storage:        SessionStorage[F, A],
     mergeOnChanged: Option[MergeManagement[Option[A]]] = Option.empty[MergeManagement[Option[A]]]
-  )(routes:         SessionRoutes[Option[A], F]): HttpRoutes[F] =
+  )(routes:         SessionRoutes[F, Option[A]]): HttpRoutes[F] =
     val deleteCookie = generateDeleteCookie(
       sessionIdentifier,
       sessionDomain,
