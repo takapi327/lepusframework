@@ -14,9 +14,11 @@ import cats.syntax.all.*
 
 import cats.effect.{ IO, Resource, ResourceApp }
 
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import org.http4s.*
+import org.http4s.server.Server
 
 import lepus.core.util.Configuration
 import Exception.*
@@ -38,15 +40,21 @@ private[lepus] object LepusServer extends ResourceApp.Forever:
       storage        <- Resource.eval(SessionStorage.default[IO, Vault]())
       given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
       logger         <- Resource.eval(Slf4jLogger.create[IO])
-      _ <- ServerBuilder
-             .Ember[IO](logger)
-             .buildServer(
-               app = SessionMiddleware.fromConfig[IO, Vault](storage)(transFormRoutes(lepusApp.router)).orNotFound,
-               errorHandler = lepusApp.errorHandler
-             )
+      _              <- buildServer(logger, buildApp(storage, lepusApp.router), lepusApp.errorHandler)
     yield ()
 
-  private def transFormRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionRoutes[F, Option[Vault]] =
+  private def buildApp(storage: SessionStorage[IO, Vault], routes: HttpRoutes[IO]): HttpApp[IO] =
+    SessionMiddleware
+      .fromConfig[IO, Vault](storage)(routesToSessionRoutes(routes))
+      .orNotFound
+
+  private def buildServer(
+    logger:       SelfAwareStructuredLogger[IO],
+    app:          HttpApp[IO],
+    errorHandler: PartialFunction[Throwable, IO[Response[IO]]]
+  ): Injector ?=> Resource[IO, Server] = ServerBuilder.Ember[IO](logger).buildServer(app, errorHandler)
+
+  private def routesToSessionRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionRoutes[F, Option[Vault]] =
     Kleisli { (contextRequest: ContextRequest[F, Option[Vault]]) =>
       val initVault =
         contextRequest.context.fold(contextRequest.req.attributes)(context => contextRequest.req.attributes ++ context)
