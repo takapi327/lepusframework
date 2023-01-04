@@ -10,7 +10,11 @@ import cats.syntax.all.*
 
 import org.http4s.*
 
-/** Type alias for Routes that receives a ContextRequest and returns a ContextResponse. */
+/** Type alias for Routes that receives a ContextRequest and returns a ContextResponse.
+  *
+  * copied from http4s-session:
+  * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/package.scala
+  */
 type SessionRoutes[F[_], T] = Kleisli[[A] =>> OptionT[F, A], ContextRequest[F, T], ContextResponse[F, T]]
 
 /** An object for using Session.

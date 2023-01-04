@@ -14,6 +14,9 @@ import io.chrisdavenport.mapref.MapRef
 
 /** Session storage managed by the application
   *
+  * copied from http4s-session:
+  * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/SessionStore.scala
+  *
   * @tparam F
   *   the effect type.
   * @tparam A
