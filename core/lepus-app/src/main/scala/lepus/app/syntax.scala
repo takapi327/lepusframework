@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.app
 
@@ -15,17 +15,15 @@ import org.http4s.headers.*
 
 object syntax:
 
-  /**
-   * copied from http4s-session:
-   * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/syntax.scala
-   */
-  extension[F[_]: cats.Functor] (response: Response[F])
+  /** copied from http4s-session:
+    * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/syntax.scala
+    */
+  extension [F[_]: cats.Functor](response: Response[F])
     def withContext[A](a: A): ContextResponse[F, A] = ContextResponse(a, response)
 
-  /**
-   * Aliases for methods included in the Response that can be accessed even when enclosed in an Effect Type.
-   */
-  extension[F[_]: cats.Functor] (response: F[Response[F]])
+  /** Aliases for methods included in the Response that can be accessed even when enclosed in an Effect Type.
+    */
+  extension [F[_]: cats.Functor](response: F[Response[F]])
 
     def addCookie(cookie: ResponseCookie): F[Response[F]] =
       response.map(_.addCookie(cookie))
@@ -96,9 +94,8 @@ object syntax:
     def withoutAttribute(key: Key[?]): F[Response[F]] =
       response.map(_.withoutAttribute(key))
 
-    /**
-     * copied from http4s-session:
-     * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/syntax.scala
-     */
+    /** copied from http4s-session:
+      * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/syntax.scala
+      */
     def withContext[A](a: A): F[ContextResponse[F, A]] =
       response.map(_.withContext(a))
