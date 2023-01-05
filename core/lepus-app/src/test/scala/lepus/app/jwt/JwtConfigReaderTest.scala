@@ -13,7 +13,7 @@ import com.typesafe.config.ConfigException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.SignatureException
 
-object DefaultJWTConfigReaderTest extends Specification, JWTConfigReader:
+object DefaultJwtConfigReaderTest extends Specification, JwtConfigReader:
 
   "Testing the JWTConfigReader default key" should {
     "Signature Algorithm value retrieved with the default key matches the specified one." in {
@@ -33,7 +33,7 @@ object DefaultJWTConfigReaderTest extends Specification, JWTConfigReader:
     }
   }
 
-object CustomJWTConfigReaderTest extends Specification, JWTConfigReader:
+object CustomJwtConfigReaderTest extends Specification, JwtConfigReader:
 
   override val JWT: String = "lepus.custom.jwt"
 
@@ -55,7 +55,7 @@ object CustomJWTConfigReaderTest extends Specification, JWTConfigReader:
     }
   }
 
-object FailureJWTConfigReaderTest extends Specification, JWTConfigReader:
+object FailureJwtConfigReaderTest extends Specification, JwtConfigReader:
 
   override val JWT: String = "lepus.failure.jwt"
 
