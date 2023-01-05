@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.app.jwt
 
@@ -14,16 +14,15 @@ import org.http4s.{ SameSite, HttpDate }
 
 import lepus.core.util.Configuration
 
-/**
- * Object to read the information needed to configure the JWT from the conf file.
- */
+/** Object to read the information needed to configure the JWT from the conf file.
+  */
 trait JwtConfigReader:
 
   private val config: Configuration = Configuration.load()
 
   /** Key to retrieve the value of jwt. If you want to change the key, you need to overwrite it at the inherited
-   * location.
-   */
+    * location.
+    */
   val JWT: String = "lepus.jwt"
 
   private final lazy val JWT_SIGNATURE_ALGORITHM: String = JWT + ".signature_algorithm"
@@ -32,18 +31,18 @@ trait JwtConfigReader:
   private final lazy val JWT_CLAIM_KEY:           String = JWT + ".claim_key"
   private final lazy val JWT_COOKIE_KEY:          String = JWT + ".cookie.key"
   private final lazy val JWT_COOKIE_MAX_AGE:      String = JWT + ".cookie.max_age"
-  private final lazy val JWT_COOKIE_HTTP_ONLY: String = JWT + ".cookie.http_only"
-  private final lazy val JWT_COOKIE_SECURE: String = JWT + ".cookie.secure"
-  private final lazy val JWT_COOKIE_DOMAIN: String = JWT + ".cookie.domain"
-  private final lazy val JWT_COOKIE_PATH: String = JWT + ".cookie.path"
-  private final lazy val JWT_COOKIE_SAME_SITE: String = JWT + ".cookie.same_site"
-  private final lazy val JWT_COOKIE_EXPIRES:   String = JWT + ".cookie.expires"
-  private final lazy val JWT_COOKIE_EXTENSION:   String = JWT + ".cookie.extension"
+  private final lazy val JWT_COOKIE_HTTP_ONLY:    String = JWT + ".cookie.http_only"
+  private final lazy val JWT_COOKIE_SECURE:       String = JWT + ".cookie.secure"
+  private final lazy val JWT_COOKIE_DOMAIN:       String = JWT + ".cookie.domain"
+  private final lazy val JWT_COOKIE_PATH:         String = JWT + ".cookie.path"
+  private final lazy val JWT_COOKIE_SAME_SITE:    String = JWT + ".cookie.same_site"
+  private final lazy val JWT_COOKIE_EXPIRES:      String = JWT + ".cookie.expires"
+  private final lazy val JWT_COOKIE_EXTENSION:    String = JWT + ".cookie.extension"
 
   lazy val signatureAlgorithm: SignatureAlgorithm =
-    config.get[Option[String]](JWT_SIGNATURE_ALGORITHM).fold(
-      SignatureAlgorithm.HS256
-    )(SignatureAlgorithm.forName)
+    config
+      .get[Option[String]](JWT_SIGNATURE_ALGORITHM)
+      .fold(SignatureAlgorithm.HS256)(SignatureAlgorithm.forName)
 
   lazy val expiresAfter: Option[FiniteDuration] =
     config.get[Option[FiniteDuration]](JWT_EXPIRES_AFTER)
@@ -65,7 +64,7 @@ trait JwtConfigReader:
       .map(long =>
         HttpDate.fromEpochSecond(long) match
           case Right(value) => value
-          case Left(value) => throw new IllegalArgumentException(value.getMessage)
+          case Left(value)  => throw new IllegalArgumentException(value.getMessage)
       )
 
   /** Cookie key managed by cookies. Default is LEPUS_JWT_COOKIE */
@@ -89,9 +88,9 @@ trait JwtConfigReader:
     .get[Option[String]](JWT_COOKIE_SAME_SITE)
     .fold(SameSite.Lax)(str =>
       str match
-        case "Lax" => SameSite.Lax
+        case "Lax"    => SameSite.Lax
         case "Strict" => SameSite.Strict
-        case "None" => SameSite.None
+        case "None"   => SameSite.None
         case unknown =>
           throw new IllegalArgumentException(
             s"$unknown did not match any of the SameSites. The value of SameSite must be Lax, Strict, or None."

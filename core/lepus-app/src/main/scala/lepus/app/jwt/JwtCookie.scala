@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.app.jwt
 
@@ -14,16 +14,16 @@ import io.jsonwebtoken.Jwts
 import org.http4s.*
 
 private[lepus] final case class JwtCookie(
-  name:    String,
-  content: String,
-  expires: Option[HttpDate] = None,
-  maxAge:  Option[Long] = None,
-  domain:  Option[String] = None,
-  path:     Option[String] = None,
-  sameSite: Option[SameSite] = None,
-  secure: Boolean = false,
-  httpOnly: Boolean = false,
-  extension: Option[String] = None,
+  name:      String,
+  content:   String,
+  expires:   Option[HttpDate] = None,
+  maxAge:    Option[Long]     = None,
+  domain:    Option[String]   = None,
+  path:      Option[String]   = None,
+  sameSite:  Option[SameSite] = None,
+  secure:    Boolean          = false,
+  httpOnly:  Boolean          = false,
+  extension: Option[String]   = None
 ):
 
   private[lepus] def toResponseCookie: ResponseCookie =
@@ -56,39 +56,40 @@ private[lepus] final case class JwtCookie(
   def addExtension(extensionString: String): JwtCookie =
     copy(extension = extension.fold(Some(extensionString))(old => Some(old + "; " + extensionString)))
 
-/**
- * Class for constructing cookies for Jwt.
- *
- * @param jwt
- *   Setup to build Jwt.
- */
+/** Class for constructing cookies for Jwt.
+  *
+  * @param jwt
+  *   Setup to build Jwt.
+  */
 class JwtCookieBuilder(jwt: JwtSettings):
 
   def apply(key: String, content: NonEmptyMap[String, String]): JwtCookie =
     this.build(key, content)
 
   def build(
-    key: String,
-    content: NonEmptyMap[String, String],
-    expires: Option[HttpDate] = None,
-    maxAge: Option[Long] = None,
-    domain: Option[String] = None,
-    path: Option[String] = None,
-    sameSite: Option[SameSite] = None,
-    secure: Boolean = false,
-    httpOnly: Boolean = false,
-    extension: Option[String] = None,
+    key:       String,
+    content:   NonEmptyMap[String, String],
+    expires:   Option[HttpDate] = None,
+    maxAge:    Option[Long] = None,
+    domain:    Option[String] = None,
+    path:      Option[String] = None,
+    sameSite:  Option[SameSite] = None,
+    secure:    Boolean = false,
+    httpOnly:  Boolean = false,
+    extension: Option[String] = None
   ): JwtCookie =
     JwtCookie(
       name = key,
-      content = jwt.formatter.format(NonEmptyMap.one(jwt.configReader.claimKey, Jwts.claims(content.toNel.toList.toMap.asJava))),
-      expires = expires,
-      maxAge = maxAge,
-      domain = domain,
-      path = path,
-      sameSite = sameSite,
-      secure = secure,
-      httpOnly = httpOnly,
+      content = jwt.formatter.format(
+        NonEmptyMap.one(jwt.configReader.claimKey, Jwts.claims(content.toNel.toList.toMap.asJava))
+      ),
+      expires   = expires,
+      maxAge    = maxAge,
+      domain    = domain,
+      path      = path,
+      sameSite  = sameSite,
+      secure    = secure,
+      httpOnly  = httpOnly,
       extension = extension
     )
 
