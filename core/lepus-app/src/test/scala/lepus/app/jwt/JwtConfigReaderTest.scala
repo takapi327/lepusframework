@@ -13,6 +13,8 @@ import com.typesafe.config.ConfigException
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.SignatureException
 
+import org.http4s.{ SameSite, HttpDate }
+
 object DefaultJwtConfigReaderTest extends Specification, JwtConfigReader:
 
   "Testing the JWTConfigReader default key" should {
@@ -30,6 +32,30 @@ object DefaultJwtConfigReaderTest extends Specification, JwtConfigReader:
 
     "Data Claim value retrieved with the default key matches the specified one." in {
       claimKey === "data"
+    }
+
+    "Http Only value retrieved with the default key matches the specified one." in {
+      !httpOnly
+    }
+
+    "Secure value retrieved with the default key matches the specified one." in {
+      !secure
+    }
+
+    "Domain value retrieved with the default key matches the specified one." in {
+      domain.contains("http://lepus.com")
+    }
+
+    "Path value retrieved with the default key matches the specified one." in {
+      path.contains("jwt")
+    }
+
+    "SameSite value retrieved with the default key matches the specified one." in {
+      sameSite == SameSite.None
+    }
+
+    "Expires value retrieved with the default key matches the specified one." in {
+      expires.contains(HttpDate.unsafeFromEpochSecond(12345678))
     }
   }
 
@@ -53,6 +79,26 @@ object CustomJwtConfigReaderTest extends Specification, JwtConfigReader:
     "Data Claim value retrieved with the custom key matches the specified one." in {
       claimKey === "custom"
     }
+
+    "Http Only value retrieved with the custom key matches the specified one." in {
+      httpOnly
+    }
+
+    "Secure value retrieved with the custom key matches the specified one." in {
+      secure
+    }
+
+    "Domain value retrieved with the custom key matches the specified one." in {
+      domain.contains("http://lepus.com")
+    }
+
+    "Path value retrieved with the custom key matches the specified one." in {
+      path.contains("jwt/custom")
+    }
+
+    "SameSite value retrieved with the custom key matches the specified one." in {
+      sameSite == SameSite.Strict
+    }
   }
 
 object FailureJwtConfigReaderTest extends Specification, JwtConfigReader:
@@ -70,5 +116,9 @@ object FailureJwtConfigReaderTest extends Specification, JwtConfigReader:
 
     "An ConfigException exception is raised if Clock Skew is not a value in the specified format." in {
       clockSkew must throwA[ConfigException]
+    }
+
+    "An IllegalArgumentException exception is raised if Expires is not a value in the specified format." in {
+      expires must throwAn[IllegalArgumentException]
     }
   }
