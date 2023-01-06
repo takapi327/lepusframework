@@ -11,7 +11,6 @@ import cats.syntax.all.*
 import cats.effect.Clock
 
 import org.http4s.*
-import org.http4s.headers.`Set-Cookie`
 
 /** copied from http4s-session:
   * https://github.com/http4s/http4s-session/blob/main/core/src/main/scala/org/http4s/session/SessionMiddleware.scala
@@ -60,38 +59,34 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
   )(routes:                SessionRoutes[F, Option[A]]): HttpRoutes[F] =
     val deleteCookie = generateDeleteCookie(sessionIdentifierName, domain, path, sameSite, secure, httpOnly)
 
-    def sessionCookie(id: SessionIdentifier): F[`Set-Cookie`] =
+    def sessionCookie(id: SessionIdentifier): F[ResponseCookie] =
       expiration match
         case ExpirationManagement.Static(maxAge, expires) =>
-          `Set-Cookie`(
-            ResponseCookie(
-              name     = sessionIdentifierName,
-              content  = id.value,
-              expires  = expires,
-              maxAge   = maxAge,
-              domain   = domain,
-              path     = path,
-              sameSite = sameSite.some,
-              secure   = secure,
-              httpOnly = httpOnly
-            )
+          ResponseCookie(
+            name     = sessionIdentifierName,
+            content  = id.value,
+            expires  = expires,
+            maxAge   = maxAge,
+            domain   = domain,
+            path     = path,
+            sameSite = sameSite.some,
+            secure   = secure,
+            httpOnly = httpOnly
           ).pure[F]
         case e @ ExpirationManagement.Dynamic(fromNow) =>
           HttpDate.current[F](Functor[F], e.clock).flatMap { now =>
             fromNow(now).map {
               case ExpirationManagement.Static(maxAge, expires) =>
-                `Set-Cookie`(
-                  ResponseCookie(
-                    name     = sessionIdentifierName,
-                    content  = id.value,
-                    expires  = expires,
-                    maxAge   = maxAge,
-                    domain   = domain,
-                    path     = path,
-                    sameSite = sameSite.some,
-                    secure   = secure,
-                    httpOnly = httpOnly
-                  )
+                ResponseCookie(
+                  name     = sessionIdentifierName,
+                  content  = id.value,
+                  expires  = expires,
+                  maxAge   = maxAge,
+                  domain   = domain,
+                  path     = path,
+                  sameSite = sameSite.some,
+                  secure   = secure,
+                  httpOnly = httpOnly
                 )
             }
           }
@@ -115,7 +110,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                        }
                        (next, ())
                      }
-                   ) >> sessionCookie(id).map(response.response.putHeaders(_))
+                   ) >> sessionCookie(id).map(response.response.addCookie)
                  case (None, Some(context)) =>
                    storage.sessionId.flatMap(id =>
                      storage.modify(
@@ -127,7 +122,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                          }
                          (next, ())
                        }
-                     ) >> sessionCookie(id).map(response.response.putHeaders(_))
+                     ) >> sessionCookie(id).map(response.response.addCookie)
                    )
                  case (Some(id), None) =>
                    storage
@@ -141,7 +136,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                          (next, ())
                        }
                      )
-                     .as(response.response.putHeaders(deleteCookie))
+                     .as(response.response.addCookie(deleteCookie))
                )
       yield out
     }
@@ -184,38 +179,34 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
           s"$unknown did not match any of the ExpirationManagement. The value of ExpirationManagement must be Static, or Dynamic."
         )
 
-    def sessionCookie(id: SessionIdentifier): F[`Set-Cookie`] =
+    def sessionCookie(id: SessionIdentifier): F[ResponseCookie] =
       expiration match
         case ExpirationManagement.Static(maxAge, expires) =>
-          `Set-Cookie`(
-            ResponseCookie(
-              name     = sessionIdentifier,
-              content  = id.value,
-              expires  = expires,
-              maxAge   = maxAge,
-              domain   = sessionDomain,
-              path     = sessionPath,
-              sameSite = sessionSameSite.some,
-              secure   = sessionSecure,
-              httpOnly = sessionHttpOnly
-            )
+          ResponseCookie(
+            name     = sessionIdentifier,
+            content  = id.value,
+            expires  = expires,
+            maxAge   = maxAge,
+            domain   = sessionDomain,
+            path     = sessionPath,
+            sameSite = sessionSameSite.some,
+            secure   = sessionSecure,
+            httpOnly = sessionHttpOnly
           ).pure[F]
         case e @ ExpirationManagement.Dynamic(fromNow) =>
           HttpDate.current[F](Functor[F], e.clock).flatMap { now =>
             fromNow(now).map {
               case ExpirationManagement.Static(maxAge, expires) =>
-                `Set-Cookie`(
-                  ResponseCookie(
-                    name     = sessionIdentifier,
-                    content  = id.value,
-                    expires  = expires,
-                    maxAge   = maxAge,
-                    domain   = sessionDomain,
-                    path     = sessionPath,
-                    sameSite = sessionSameSite.some,
-                    secure   = sessionSecure,
-                    httpOnly = sessionHttpOnly
-                  )
+                ResponseCookie(
+                  name     = sessionIdentifier,
+                  content  = id.value,
+                  expires  = expires,
+                  maxAge   = maxAge,
+                  domain   = sessionDomain,
+                  path     = sessionPath,
+                  sameSite = sessionSameSite.some,
+                  secure   = sessionSecure,
+                  httpOnly = sessionHttpOnly
                 )
             }
           }
@@ -239,7 +230,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                        }
                        (next, ())
                      }
-                   ) >> sessionCookie(id).map(response.response.putHeaders(_))
+                   ) >> sessionCookie(id).map(response.response.addCookie)
                  case (None, Some(context)) =>
                    storage.sessionId.flatMap(id =>
                      storage.modify(
@@ -251,7 +242,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                          }
                          (next, ())
                        }
-                     ) >> sessionCookie(id).map(response.response.putHeaders(_))
+                     ) >> sessionCookie(id).map(response.response.addCookie)
                    )
                  case (Some(id), None) =>
                    storage
@@ -265,7 +256,7 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
                          (next, ())
                        }
                      )
-                     .as(response.response.putHeaders(deleteCookie))
+                     .as(response.response.addCookie(deleteCookie))
                )
       yield out
     }
@@ -294,19 +285,17 @@ private[lepus] object SessionMiddleware extends SessionConfigReader:
     sameSite: SameSite,
     secure:   Boolean,
     httpOnly: Boolean
-  ): `Set-Cookie` =
-    `Set-Cookie`(
-      ResponseCookie(
-        name     = name,
-        content  = "deleted",
-        expires  = Some(HttpDate.Epoch),
-        maxAge   = Some(-1L),
-        domain   = domain,
-        path     = path,
-        sameSite = sameSite.some,
-        secure   = secure,
-        httpOnly = httpOnly
-      )
+  ): ResponseCookie =
+    ResponseCookie(
+      name     = name,
+      content  = "deleted",
+      expires  = Some(HttpDate.Epoch),
+      maxAge   = Some(-1L),
+      domain   = domain,
+      path     = path,
+      sameSite = sameSite.some,
+      secure   = secure,
+      httpOnly = httpOnly
     )
 
   /** Http Servers allow concurrent requests. You may wish to specify how merges are managed if the context has been

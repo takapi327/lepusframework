@@ -69,7 +69,8 @@ private[lepus] object LepusServer extends ResourceApp.Forever:
               outContext
                 .lookup(SessionRemove.key)
                 .fold(
-                  ContextResponse(outContext.some, response.withAttributes(outContext))
+                  if outContext.isEmpty then ContextResponse(None, response)
+                  else ContextResponse(outContext.some, response.withAttributes(outContext))
                 )(toRemove =>
                   ContextResponse(
                     toRemove.list.foldLeft(outContext) { case (v, k) => v.delete(k) }.some,
