@@ -13,6 +13,39 @@ import io.jsonwebtoken.Jwts
 
 import org.http4s.*
 
+/** Model for constructing a cookie to store Jwt-signed values.
+  *
+  * @param name
+  *   Cookie key name
+  * @param content
+  *   The value of the cookie, a string signed by Jwt.
+  * @param expires
+  *   Specify the date and time ([[HttpDate]]). The cookie will be valid until this date. If both Expires and Max-Age
+  *   are set, Max-Age takes precedence.
+  * @param maxAge
+  *   Specify the number of seconds. Cookies are valid from the time they are stored until the number of seconds has
+  *   elapsed. If both Expires and Max-Age are set, Max-Age takes precedence.
+  * @param domain
+  *   Attribute to allow cookies to subdomains.
+  * @param path
+  *   Sets the paths available for transmission.
+  * @param sameSite
+  *   This setting determines whether cookies are sent when a request is sent to another domain.
+  *   - Strict: Do not send cookies to another domain
+  *   - Lax: Only send cookies to another domain if it is a Top Level Navigation and secure method
+  *   - None: Send cookies even to different domains
+  * @param secure
+  *   This attribute limits the use of cookies to SSL/TLS (HTTPS). Cookies are exchanged using the HTTP protocol, so
+  *   unencrypted communications may be intercepted.
+  * @param httpOnly
+  *   This attribute restricts the use of cookies to the HTTP protocol only. In short, it restricts cookies to be
+  *   available only at the time of request. If you set this to false If this is set to false, cookie information can be
+  *   manipulated by JavaScript (Document.cookie API). This can lead to cookie information being referenced by XSS
+  *   (cross-site scripting).
+  * @param extension
+  *   The extension attributes of the cookie. If there is more than one, they are joined by semi-colon, which must not
+  *   appear in an attribute value.
+  */
 private[lepus] final case class JwtCookie(
   name:      String,
   content:   String,
