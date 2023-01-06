@@ -1,6 +1,6 @@
 /** This file is part of the Lepus Framework. For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+  * file that was distributed with this source code.
+  */
 
 package lepus.app.jwt
 
@@ -24,9 +24,16 @@ object JwtCookieTest extends Specification, JwtHelper(defaultJwtSettings):
       val cookie   = JwtCookie.fromConfig("id" -> "1", "name" -> "lepus")
       val response = Response[IO](Status.Ok).addCookie(cookie)
 
-      response.headers.get(CIString("Set-Cookie")).contains(
-        NonEmptyList.one(Header.Raw(CIString("Set-Cookie"), s"LEPUS_JWT_COOKIE=${cookie.content}; Expires=Sat, 23 May 1970 21:21:18 GMT; Domain=http://lepus.com; Path=jwt; SameSite=None; Secure"))
-      )
+      response.headers
+        .get(CIString("Set-Cookie"))
+        .contains(
+          NonEmptyList.one(
+            Header.Raw(
+              CIString("Set-Cookie"),
+              s"LEPUS_JWT_COOKIE=${ cookie.content }; Expires=Sat, 23 May 1970 21:21:18 GMT; Domain=http://lepus.com; Path=jwt; SameSite=None; Secure"
+            )
+          )
+        )
     }
 
     "Jwt signed values retrieved via Request will match the specified value." in {
