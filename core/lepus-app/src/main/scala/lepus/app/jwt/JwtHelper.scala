@@ -30,7 +30,9 @@ import org.http4s.headers.*
   */
 trait JwtHelper(jwt: JwtSettings):
 
-  private[lepus] final val JwtCookie: JwtCookieBuilder = new JwtCookieBuilder(jwt)
+  protected final val JwtCookie: JwtCookieBuilder = new JwtCookieBuilder(jwt)
+
+  protected final lazy val cookieKey: String = jwt.configReader.cookieKey
 
   extension [F[_]: cats.Functor](request: Request[F])
     def jwtCookies(key: String): Map[String, String] =
@@ -44,16 +46,19 @@ trait JwtHelper(jwt: JwtSettings):
         )
 
     def jwtCookies: Map[String, String] =
-      request.jwtCookies(jwt.configReader.cookieKey)
+      request.jwtCookies(cookieKey)
 
   given Conversion[JwtCookie, ResponseCookie] = _.toResponseCookie
 
   extension [F[_]: cats.Functor](response: Response[F])
     def addJwtCookie(cookie: JwtCookie): Response[F] =
-      response.addCookie(cookie.toResponseCookie)
+      response.addCookie(cookie)
 
     def addJwtCookies(a: (String, String), as: (String, String)*): Response[F] =
       response.addCookie(JwtCookie.fromConfig(a, as: _*))
+
+    def removeJwtCookies: Response[F] =
+      response.removeCookie(cookieKey)
 
   extension [F[_]: cats.Functor](response: F[Response[F]])
     def addJwtCookie(cookie: JwtCookie): F[Response[F]] =
@@ -61,3 +66,6 @@ trait JwtHelper(jwt: JwtSettings):
 
     def addJwtCookies(a: (String, String), as: (String, String)*): F[Response[F]] =
       response.map(_.addJwtCookies(a, as: _*))
+
+    def removeJwtCookies: F[Response[F]] =
+      response.map(_.removeJwtCookies)
