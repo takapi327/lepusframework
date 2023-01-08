@@ -6,6 +6,8 @@ package lepus.router.http
 
 import scala.annotation.targetName
 
+import org.http4s.Uri
+
 import lepus.router.{ EndpointConverter, Validator }
 import lepus.router.internal.ParamConcat
 
@@ -20,6 +22,27 @@ sealed trait Endpoint[T]:
 
   @targetName("queryQ") def +?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
   @targetName("query&") def +&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+
+  /** format method to generate a string of paths. */
+  private def formatToString[A](endpoint: Endpoint[A]): String =
+    endpoint match
+      case Endpoint.Pair(left, right) => formatToString(left) + "/" + formatToString(right)
+      case Endpoint.FixedPath(name, _) => name
+      case Endpoint.PathParam(_, _, _, _) => "%s"
+      case Endpoint.QueryParam(_, _, _, _) => "%s"
+      case Endpoint.ValidatePathParam(_, _, _, _, _) => "%s"
+      case Endpoint.ValidateQueryParam(_, _, _, _, _) => "%s"
+
+  /** Value for generating a string of paths using the format method. */
+  lazy val formatString: String = formatToString(this)
+
+  /** Method for generating [[Uri]] from a format string. */
+  def formatToUri(func: String => Uri): Uri = func(formatToString(this))
+
+  /** A method to generate Uri from an unsafe string. */
+  lazy val unsafeToUri: Uri = Uri.unsafeFromString(formatToString(this))
+
+  override def toString: String = formatString
 
 object Endpoint:
 
