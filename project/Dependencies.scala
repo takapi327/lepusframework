@@ -29,7 +29,7 @@ object Dependencies {
     "jjwt-jackson"
   ).map("io.jsonwebtoken" % _ % jjwtVersion)
 
-  val http4sVersion = "0.23.16"
+  val http4sVersion = "0.23.17"
   val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
   val http4sEmber: Seq[ModuleID] = Seq(
     "http4s-ember-server",
