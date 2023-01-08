@@ -20,15 +20,24 @@ object Dependencies {
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.14"
 
+  val mapRef = "io.chrisdavenport" %% "mapref" % "0.2.1"
+
+  val jjwtVersion = "0.11.5"
+  val jwt: Seq[ModuleID] = Seq(
+    "jjwt-api",
+    "jjwt-impl",
+    "jjwt-jackson"
+  ).map("io.jsonwebtoken" % _ % jjwtVersion)
+
   val http4sVersion = "0.23.16"
-  val http4s = Seq(
-    "http4s-dsl",
+  val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
+  val http4sEmber: Seq[ModuleID] = Seq(
     "http4s-ember-server",
     "http4s-ember-client"
   ).map("org.http4s" %% _ % http4sVersion)
 
   val circeVersion = "0.14.1"
-  val circe = Seq(
+  val circe: Seq[ModuleID] = Seq(
     "circe-core",
     "circe-generic",
     "circe-parser"
@@ -50,9 +59,9 @@ object Dependencies {
   val scalaCheck = "org.scalacheck"    %% "scalacheck"      % "1.17.0"   % Test
   val scalaPlus  = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % Test
 
-  val testDependencies = Seq(scalaTest, scalaCheck, scalaPlus)
+  val testDependencies: Seq[ModuleID] = Seq(scalaTest, scalaCheck, scalaPlus)
 
-  val swaggerDependencies = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
+  val swaggerDependencies: Seq[ModuleID] = Seq("io.circe" %% "circe-yaml" % circeVersion) ++ testDependencies
 
-  val routerDependencies = http4s ++ circe ++ testDependencies
+  val routerDependencies: Seq[ModuleID] = http4sEmber ++ circe ++ testDependencies
 }
