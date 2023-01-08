@@ -14,7 +14,7 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.6"
 
   val catsVersion = "2.9.0"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
