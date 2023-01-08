@@ -8,7 +8,7 @@ import cats.Functor
 import cats.syntax.all.*
 
 import cats.effect.{ Sync, Async }
-import cats.effect.std.Random
+import cats.effect.std.SecureRandom
 
 import io.chrisdavenport.mapref.MapRef
 
@@ -53,7 +53,7 @@ private[lepus] object SessionStorage:
     numBytes:  Int = 32
   ): F[SessionStorage[F, T]] =
     for
-      random <- Random.javaSecuritySecureRandom(numShards)
+      random <- SecureRandom.javaSecuritySecureRandom(numShards)
       ref    <- MapRef.inShardedImmutableMap[F, F, SessionIdentifier, T](numShards)
     yield new MemorySessionStorage[F, T](random, numBytes, ref)
 
@@ -71,7 +71,7 @@ private[lepus] object SessionStorage:
     *   Value managed by Session
     */
   private class MemorySessionStorage[F[_]: Functor, T](
-    random:   Random[F],
+    random:   SecureRandom[F],
     numBytes: Int,
     access:   MapRef[F, SessionIdentifier, Option[T]]
   ) extends SessionStorage[F, T]:
