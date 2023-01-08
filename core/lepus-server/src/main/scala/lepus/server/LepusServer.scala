@@ -6,14 +6,25 @@ package lepus.server
 
 import com.google.inject.Injector
 
+import org.typelevel.vault.Vault
+
+import cats.Functor
+import cats.data.Kleisli
+import cats.syntax.all.*
+
 import cats.effect.{ IO, Resource, ResourceApp }
 
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+
+import org.http4s.*
+import org.http4s.server.Server
 
 import lepus.core.util.Configuration
 import Exception.*
 import lepus.guice.inject.GuiceApplicationBuilder
 import lepus.app.{ LepusApp, BuiltinModule }
+import lepus.app.session.*
 
 private[lepus] object LepusServer extends ResourceApp.Forever:
 
@@ -26,10 +37,49 @@ private[lepus] object LepusServer extends ResourceApp.Forever:
     val lepusApp: LepusApp[IO] = loadLepusApp()
 
     for
+      storage        <- Resource.eval(SessionStorage.default[IO, Vault]())
       given Injector <- GuiceApplicationBuilder.build[IO](new BuiltinModule)
       logger         <- Resource.eval(Slf4jLogger.create[IO])
-      _              <- ServerBuilder.Ember[IO](logger).buildServer(lepusApp)
+      _              <- buildServer(logger, buildApp(storage, lepusApp.router), lepusApp.errorHandler)
     yield ()
+
+  private def buildApp(storage: SessionStorage[IO, Vault], routes: HttpRoutes[IO]): HttpApp[IO] =
+    SessionMiddleware
+      .fromConfig[IO, Vault](storage)(routesToSessionRoutes(routes))
+      .orNotFound
+
+  private def buildServer(
+    logger:       SelfAwareStructuredLogger[IO],
+    app:          HttpApp[IO],
+    errorHandler: PartialFunction[Throwable, IO[Response[IO]]]
+  ): Injector ?=> Resource[IO, Server] = ServerBuilder.Ember[IO](logger).buildServer(app, errorHandler)
+
+  private def routesToSessionRoutes[F[_]: Functor](routes: HttpRoutes[F]): SessionRoutes[F, Option[Vault]] =
+    Kleisli { (contextRequest: ContextRequest[F, Option[Vault]]) =>
+      val initVault =
+        contextRequest.context.fold(contextRequest.req.attributes)(context => contextRequest.req.attributes ++ context)
+      routes
+        .run(contextRequest.req.withAttributes(initVault))
+        .map { response =>
+          val outContext =
+            contextRequest.context.fold(response.attributes)(context => response.attributes ++ context)
+          outContext
+            .lookup(SessionReset.key)
+            .fold(
+              outContext
+                .lookup(SessionRemove.key)
+                .fold(
+                  if outContext.isEmpty then ContextResponse(None, response)
+                  else ContextResponse(outContext.some, response.withAttributes(outContext))
+                )(toRemove =>
+                  ContextResponse(
+                    toRemove.list.foldLeft(outContext) { case (v, k) => v.delete(k) }.some,
+                    response.withAttributes(outContext)
+                  )
+                )
+            )(_ => ContextResponse(None, response.withAttributes(outContext)))
+        }
+    }
 
   private def loadLepusApp(): LepusApp[IO] =
     val routesClassName: String = config.get[String](SERVER_ROUTES)

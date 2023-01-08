@@ -20,6 +20,8 @@ object Dependencies {
   val cats = "org.typelevel" %% "cats-core" % catsVersion
   val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.14"
 
+  val mapRef = "io.chrisdavenport" %% "mapref" % "0.2.1"
+
   val http4sVersion = "0.23.16"
   val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
   val http4sEmber = Seq(

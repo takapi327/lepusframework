@@ -57,7 +57,10 @@ trait ServerBuilder[F[_]]:
   protected val shutdownTimeout: Option[Duration] = config.get[Option[Duration]](SERVER_SHUTDOWN_TIMEOUT)
   protected val enableHttp2:     Option[Boolean]  = config.get[Option[Boolean]](SERVER_ENABLE_HTTP2)
 
-  def buildServer(app: LepusApp[F]): Injector ?=> Resource[F, Server]
+  def buildServer(
+    app:          HttpApp[F],
+    errorHandler: PartialFunction[Throwable, F[Response[F]]]
+  ): Injector ?=> Resource[F, Server]
 
 object ServerBuilder:
 
@@ -160,12 +163,15 @@ object ServerBuilder:
               ) >> buildIPv6Address(ipv6)
             case (None, None) => Sync[F].delay(Defaults.ipv4Address)
 
-        def buildServer(app: LepusApp[F]): Injector ?=> Resource[F, Server] =
+        def buildServer(
+          app:          HttpApp[F],
+          errorHandler: PartialFunction[Throwable, F[Response[F]]]
+        ): Injector ?=> Resource[F, Server] =
           var ember = EmberServerBuilder
             .default[F]
             .withPort(Port.fromInt(port.getOrElse(Defaults.portInt)).getOrElse(Defaults.port))
-            .withHttpApp(app.router)
-            .withErrorHandler(app.errorHandler)
+            .withHttpApp(app)
+            .withErrorHandler(errorHandler)
             .withMaxConnections(maxConnections.getOrElse(Defaults.maxConnections))
             .withReceiveBufferSize(receiveBufferSize.getOrElse(Defaults.receiveBufferSize))
             .withMaxHeaderSize(maxHeaderSize.getOrElse(Defaults.maxHeaderSize))
