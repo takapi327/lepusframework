@@ -10,15 +10,15 @@ object Dependencies {
 
   val guice = "com.google.inject" % "guice" % "5.1.0"
 
-  val logback = "ch.qos.logback" % "logback-classic" % "1.4.1"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.4.5"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.0"
+  val magnolia3 = "com.softwaremill.magnolia1_3" %% "magnolia" % "1.2.6"
 
-  val catsVersion = "2.8.0"
+  val catsVersion = "2.9.0"
   val cats = "org.typelevel" %% "cats-core" % catsVersion
-  val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.14"
+  val catsEffect = "org.typelevel" %% "cats-effect" % "3.4.4"
 
   val mapRef = "io.chrisdavenport" %% "mapref" % "0.2.1"
 
@@ -29,7 +29,7 @@ object Dependencies {
     "jjwt-jackson"
   ).map("io.jsonwebtoken" % _ % jjwtVersion)
 
-  val http4sVersion = "0.23.16"
+  val http4sVersion = "0.23.17"
   val http4sDsl = "org.http4s" %% "http4s-dsl" % http4sVersion
   val http4sEmber: Seq[ModuleID] = Seq(
     "http4s-ember-server",
