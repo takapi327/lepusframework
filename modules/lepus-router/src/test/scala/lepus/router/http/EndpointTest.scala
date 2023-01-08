@@ -6,6 +6,9 @@ package lepus.router.http
 
 import org.scalatest.flatspec.AnyFlatSpec
 
+import lepus.router.{ *, given }
+import lepus.router.http.Endpoint.*
+
 class EndpointTest extends AnyFlatSpec:
 
   it should "generate endpoint" in {
@@ -54,4 +57,19 @@ class EndpointTest extends AnyFlatSpec:
         case GET => Ok("Hello")
       }
     """.stripMargin)
+  }
+
+  it should "The Endpoint string will be the same as the specified string." in {
+    val endpoint1: Endpoint[String] = "test1" / bindPath[String]("p1")
+    endpoint1.formatString === "test1/%s"
+  }
+
+  it should "" in {
+    val endpoint1: Endpoint[String] = "test1" / bindPath[String]("p1")
+    val endpoint2: Endpoint[String] = bindPath[String]("p1") / "test2"
+    val endpoint3: Endpoint[(String, String)] = endpoint1 ++ endpoint2
+
+    println(endpoint3.toString.format("hello", "world"))
+
+    endpoint3.formatString === "test1/%s/%s/test2"
   }
