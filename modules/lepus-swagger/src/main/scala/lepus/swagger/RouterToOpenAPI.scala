@@ -39,7 +39,7 @@ private[lepus] object RouterToOpenAPI:
 
     val component = schemaTuple.map(v => Component(v.map(x => x._1.shortName -> schemaToOpenApiSchema(x._2))))
     val endpoints = groupEndpoint.map {
-      case (endpoint, route) => endpoint.toPath -> routerToPath(endpoint, route, schemaToOpenApiSchema)
+      case (endpoint, route) => endpoint.toPath() -> routerToPath(endpoint, route, schemaToOpenApiSchema)
     }
     val tags = router.routes.toList
       .flatMap(_._2 match
