@@ -64,12 +64,23 @@ class EndpointTest extends AnyFlatSpec:
     endpoint1.formatString === "test1/%s"
   }
 
-  it should "" in {
-    val endpoint1: Endpoint[String] = "test1" / bindPath[String]("p1")
-    val endpoint2: Endpoint[String] = bindPath[String]("p1") / "test2"
+  it should "If multiple Endpoints are combined, the string will be the same as the specified value." in {
+    val endpoint1: Endpoint[String]           = "test1" / bindPath[String]("p1")
+    val endpoint2: Endpoint[String]           = bindPath[String]("p1") / "test2"
     val endpoint3: Endpoint[(String, String)] = endpoint1 ++ endpoint2
 
-    println(endpoint3.toString.format("hello", "world"))
-
     endpoint3.formatString === "test1/%s/%s/test2"
+  }
+
+  it should "Matches the string specified when the path is generated from Endpoint." in {
+    val endpoint: Endpoint[String] = "test1" / bindPath[String]("p1")
+    endpoint.formatString.format("hoge") === "test1/hoge"
+  }
+
+  it should "Matches the string specified when a path is generated from multiple composited Endpoints." in {
+    val endpoint1: Endpoint[String]         = "test1" / bindPath[String]("p1")
+    val endpoint2: Endpoint[Long]           = bindPath[Long]("p1") / "test2"
+    val endpoint3: Endpoint[(String, Long)] = endpoint1 ++ endpoint2
+
+    endpoint3.formatString.format("hoge", 1L) === "test1/hoge/1/test2"
   }
