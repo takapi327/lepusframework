@@ -23,7 +23,7 @@ private[lepus] object DecodeEndpoint:
     val endpoints = endpoint.asVector()
 
     val endpointPaths       = endpoints.filter(_.isPath)
-    val endpointQueryParams = endpoints.filter(_.isQueryParam)
+    val endpointQueryParams = endpoints.filter(_.isQuery)
 
     decodingConvolution(
       tailrecMatchPath(DecodePathRequest(request), endpointPaths, _, _),

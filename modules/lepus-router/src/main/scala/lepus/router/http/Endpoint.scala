@@ -13,6 +13,7 @@ import Endpoint.*
 sealed trait Endpoint[T]:
   private[lepus] type TypeParam = T
   private[lepus] type ThisType <: Endpoint[T]
+
   @targetName("and") def ++[N, TN](other: Endpoint[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] =
     Pair[T, N, TN](this, other)
 
@@ -20,6 +21,66 @@ sealed trait Endpoint[T]:
 
   @targetName("queryQ") def +?[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
   @targetName("query&") def +&[N, TN](query: Query[N])(using ParamConcat.Aux[T, N, TN]): Endpoint[TN] = this ++ query
+
+  /** Method for storing nested Endpoints in Vector. */
+  def asVector(): Vector[Endpoint[?]] =
+    this match
+      case Endpoint.Pair(left, right) => left.asVector() ++ right.asVector()
+      case r: Endpoint[?]             => Vector(r)
+
+  /** A method to generate a Path string using only the Endpoint's Path information.
+    *
+    * @param format
+    *   Argument to specify the format of the path parameter string.
+    * @return
+    *   A Path String
+    */
+  def toPath(format: String => String = (s: String) => s"{$s}"): String = "/" + asVector()
+    .map {
+      case e: Endpoint.FixedPath[?] => e.name
+      case e: Endpoint.Path[?]      => format(e.name)
+      case _                        => ""
+    }
+    .filter(_.nonEmpty)
+    .mkString("/")
+
+  /** A method to generate a string of paths for use with Scala's format method. */
+  def toFormatPath: String = toPath(_ => "%s")
+
+  /** A method to generate a Query string using only the Endpoint's Query information.
+    *
+    * @param format
+    *   Argument to specify the format of the query parameter string.
+    * @return
+    *   A Query String
+    */
+  def toQuery(format: String => String = (s: String) => s"{$s}"): String = asVector()
+    .map {
+      case e: Endpoint.Query[?] => format(e.key)
+      case _                    => ""
+    }
+    .filter(_.nonEmpty)
+    .mkString("&")
+
+  /** A method to generate a string of queries for use with Scala's format method. */
+  def toFormatQuery: String = toQuery(s => s"$s=%s")
+
+  /** Method to determine if the Endpoint is a Path. */
+  def isPath: Boolean = this match
+    case _: Endpoint.Path[?] => true
+    case _                   => false
+
+  /** Method to determine if the Endpoint is a Query. */
+  def isQuery: Boolean = this match
+    case _: Endpoint.Query[?] => true
+    case _                    => false
+
+  /** Value for generating a string of paths using the format method. */
+  def formatString: String =
+    val query: String = if toFormatQuery.nonEmpty then "?" + toFormatQuery else ""
+    toFormatPath + query
+
+  override def toString: String = formatString
 
 object Endpoint:
 
