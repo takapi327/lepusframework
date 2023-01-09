@@ -6,6 +6,9 @@ package lepus.router.http
 
 import org.scalatest.flatspec.AnyFlatSpec
 
+import lepus.core.generic.{ SchemaType, Schema }
+import lepus.core.generic.semiauto.*
+
 import lepus.router.{ *, given }
 import lepus.router.http.Endpoint.*
 
@@ -103,4 +106,32 @@ class EndpointTest extends AnyFlatSpec:
     val endpoint3: Endpoint[(String, Int, Long)] = endpoint1 ++ endpoint2
 
     endpoint3.formatString.format("world", 1, 10L) === "hello/world?page=1&limit=10"
+  }
+
+  it should "Value object using opaque type can also generate Endpoint." in {
+    object ValueObject:
+      opaque type Id = String
+
+      object Id:
+        def apply(id: String): Id = id
+
+      given EndpointConverter[String, ValueObject.Id] =
+        EndpointConverter.convertT[String, ValueObject.Id](str => str)(using Schema.given_Schema_String)
+
+    val endpoint: Endpoint[ValueObject.Id] = "hello" / bindPath[ValueObject.Id]("p1")
+
+    endpoint.toFormatPath === "hello/%s" & endpoint.toFormatPath.format("12345678") === "hello/12345678"
+  }
+
+  it should "class can also be used to generate Endpoints." in {
+    case class Id(long: Long)
+    object Id:
+
+      given Schema[Id] = deriveSchemer[Id]
+      given EndpointConverter[String, Id] =
+        EndpointConverter.convertT[String, Id](str => Id(str.toLong))
+
+    val endpoint: Endpoint[Id] = "hello" / bindPath[Id]("p1")
+
+    endpoint.toFormatPath === "hello/%s"
   }
